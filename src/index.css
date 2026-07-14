@@ -86,7 +86,7 @@ body {
   border-color: #1e293b !important;
 }
 
-.dark .text-[#0F172A],
+.dark .text-\[\#0F172A\],
 .dark .text-slate-800,
 .dark .text-slate-900 {
   color: #f1f5f9 !important;
