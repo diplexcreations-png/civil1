@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom background animations */
+@keyframes float-blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: float-blob 20s infinite ease-in-out;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.blueprint-grid {
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark body {
+  background-color: #090F1C;
+  color: #f1f5f9;
+}
+
+.dark .blueprint-grid {
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}
+
+/* Systems-level Dark Mode overrides to dynamically paint components */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #0d1527 !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #475569 !important;
+}
+
+.dark .bg-white,
+.dark .bg-white\/60,
+.dark .bg-white\/70,
+.dark .bg-white\/80,
+.dark .bg-white\/85,
+.dark .bg-white\/90 {
+  background-color: rgba(13, 21, 39, 0.78) !important;
+  border-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-50\/90,
+.dark .bg-slate-100 {
+  background-color: #080d19 !important;
+  border-color: #1e293b !important;
+}
+
+.dark .text-[#0F172A],
+.dark .text-slate-800,
+.dark .text-slate-900 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-slate-550 {
+  color: #94a3b8 !important;
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/80,
+.dark .border-slate-250,
+.dark .border-slate-250\/70 {
+  border-color: #1e293b !important;
+}
+
+.dark .shadow-xs,
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-xl {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.55) !important;
+}
+
+.dark kbd,
+.dark code {
+  background-color: #050912 !important;
+  color: #10b981 !important;
+}
+
+.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #fbbf24 !important;
+}
+
+/* Scrollbar styling for Frosted Glass Theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.7);
+  border-radius: 99px;
+  border: 2px solid rgba(241, 245, 249, 0.5);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.8);
+}
+
+@media print {
+  /* Hide non-printable workspace chrome, interactive controls and layouts */
+  header,
+  #sidebar-catalog,
+  aside,
+  nav,
+  button,
+  select,
+  .sticky,
+  .md\:hidden,
+  .fixed,
+  .animate-blob,
+  .blueprint-grid,
+  #ai-assistant-panel,
+  #workspace-customize-bar,
+  #workspace-units-bar,
+  #print-actions-row,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Reset layout structure for complete printable width */
+  body, 
+  html,
+  #root,
+  .min-h-screen {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    position: static !important;
+  }
+
+  /* Let the main container spread full bounds natively */
+  main,
+  #workspace-container,
+  .grid {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Target specific columns inside the active workspace to expand full page width */
+  .xl\:col-span-9,
+  .xl\:col-span-12,
+  .xl\:col-span-5,
+  .xl\:col-span-7,
+  .col-span-1,
+  .col-span-2 {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    float: none !important;
+    margin-bottom: 2rem !important;
+  }
+
+  /* Ensure inputs/results form groups avoid breaking weirdly in half */
+  .bg-white,
+  .bg-slate-50,
+  .rounded-3xl,
+  .rounded-2xl {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #94a3b8 !important;
+    color: #000000 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-bottom: 1.5rem !important;
+    box-shadow: none !important;
+    float: none !important;
+    width: 100% !important;
+  }
+
+  /* High contrast legible labels */
+  label,
+  h1, h2, h3, h4, h5, h6,
+  span,
+  div,
+  p {
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Print inputs nicely as plain legible text rather than grey rounded fields */
+  input,
+  textarea {
+    border: none !important;
+    border-bottom: 1px dashed #64748b !important;
+    background: transparent !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    border-radius: 0 !important;
+  }
+
+  /* Clear absolute/fixed margins */
+  .absolute {
+    position: static !important;
+    display: none !important;
+  }
+
+  /* Handle custom pages print configurations */
+  @page {
+    size: portrait;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+}
+
+/* Interactive Print Preview Mode Emulation */
+.print-preview-mode {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #94a3b8 !important;
+  border-radius: 1.5rem !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.print-preview-mode .print-hide {
+  display: none !important;
+}
+
+.print-preview-mode #ai-assistant-panel,
+.print-preview-mode #workspace-units-bar {
+  display: none !important;
+}
+
+.print-preview-mode .bg-white,
+.print-preview-mode .bg-slate-50,
+.print-preview-mode .bg-white\/60,
+.print-preview-mode .bg-white\/70,
+.print-preview-mode .bg-white\/80 {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+}
+
+.print-preview-mode label,
+.print-preview-mode h1,
+.print-preview-mode h2,
+.print-preview-mode h3,
+.print-preview-mode h4,
+.print-preview-mode h5,
+.print-preview-mode h6,
+.print-preview-mode span,
+.print-preview-mode p,
+.print-preview-mode div {
+  color: #000000 !important;
+}
+
+.print-preview-mode input,
+.print-preview-mode select,
+.print-preview-mode textarea {
+  border: none !important;
+  border-bottom: 1px dashed #64748b !important;
+  background-color: transparent !important;
+  color: #000000 !important;
+  font-weight: bold !important;
+  border-radius: 0 !important;
+}
+
+/* On-screen Print Preview layout overrides */
+.print-preview-active #sidebar-catalog,
+.print-preview-active header,
+.print-preview-active #ai-assistant-panel,
+.print-preview-active .print-hide {
+  display: none !important;
+}
+
+.print-preview-active main {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 1rem !important;
+}
+
+.print-preview-active .xl\:col-span-9,
+.print-preview-active .lg\:col-span-8,
+.print-preview-active .col-span-12 {
+  grid-column: span 12 / span 12 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+
+
