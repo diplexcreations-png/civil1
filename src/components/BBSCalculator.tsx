@@ -42,7 +42,7 @@ const isFieldInMeters = (key: string, calcId: string) => {
     'length', 'width', 'depth', 'height', 'span', 
     'landingTop', 'landingBot', 'landingWidth', 
     'clearSpan', 'bearing', 'stemHeight', 'baseLength', 
-    'chairSpacing'
+    'chairSpacing', 'footing1Length', 'footing1Width', 'footing2Length', 'footing2Width'
   ];
   if (meterFields.includes(key)) return true;
   if (key === 'keyDepth') return true;
@@ -76,6 +76,7 @@ interface BBSCalculatorProps {
   setUnitSystem: (system: UnitSystem) => void;
   onSaveCalculation: (calc: SavedCalculation) => void;
   savedCalculations: SavedCalculation[];
+  loadedCalculation?: SavedCalculation | null;
   currency: string;
   isPrintPreviewMode?: boolean;
   setIsPrintPreviewMode?: (val: boolean) => void;
@@ -87,12 +88,95 @@ export default function BBSCalculator({
   setUnitSystem,
   onSaveCalculation,
   savedCalculations,
+  loadedCalculation = null,
   currency,
   isPrintPreviewMode = false,
   setIsPrintPreviewMode,
 }: BBSCalculatorProps) {
   const isMetric = unitSystem === 'metric';
   const cleanNum = (val: number, fallback = 0) => isNaN(val) || !isFinite(val) ? fallback : val;
+  const [paramUnits, setParamUnits] = useState<Record<string, string>>({});
+
+  const getDefaultUnitForField = (key: string) => {
+    if (isFieldInMeters(key, calculatorId)) return isMetric ? 'm' : 'ft';
+    if (
+      key === 'cover' ||
+      key === 'thickness' ||
+      key === 'waistSlab' ||
+      key === 'riser' ||
+      key === 'tread' ||
+      key === 'stemBaseThk' ||
+      key === 'stemTopThk' ||
+      key === 'baseThk' ||
+      key === 'keyDepth' ||
+      key === 'starterHook' ||
+      key === 'embedment' ||
+      key.endsWith('Spacing')
+    ) {
+      return isMetric ? 'mm' : 'in';
+    }
+    return '';
+  };
+
+  const convertLengthValue = (value: number, from: string, to: string) => {
+    const toMeters: Record<string, number> = {
+      mm: 0.001,
+      cm: 0.01,
+      m: 1,
+      in: 0.0254,
+      ft: 0.3048,
+    };
+    if (!(from in toMeters) || !(to in toMeters)) return value;
+    const meters = value * toMeters[from];
+    return meters / toMeters[to];
+  };
+
+  const getDisplayValue = (key: string, value: number | string) => {
+    if (value === '' || value === undefined || value === null) return '';
+    const unit = paramUnits[key];
+    if (!unit || typeof value !== 'number') return value;
+    const baseUnit = getDefaultUnitForField(key);
+    if (!baseUnit) return value;
+    return parseFloat(convertLengthValue(value, baseUnit, unit).toFixed(3));
+  };
+
+  const convertDisplayToBase = (key: string, value: number) => {
+    const unit = paramUnits[key];
+    const baseUnit = getDefaultUnitForField(key);
+    if (!unit || !baseUnit) return value;
+    return parseFloat(convertLengthValue(value, unit, baseUnit).toFixed(6));
+  };
+
+  const handleDisplayInputChange = (field: string, rawValue: string) => {
+    if (rawValue === '') {
+      handleInputChange(field, '');
+      return;
+    }
+    const parsed = parseFloat(rawValue);
+    handleInputChange(field, isNaN(parsed) ? 0 : convertDisplayToBase(field, parsed));
+  };
+
+  const handleFieldUnitChange = (field: string, unit: string) => {
+    setParamUnits(prev => ({ ...prev, [field]: unit }));
+  };
+
+  const createFootingSection = (index: number) => ({
+    label: `F${index + 1}`,
+    length: 2.6,
+    width: 2.4,
+    thickness: 0.65,
+    cover: 50,
+    includeBottomBars: true,
+    botMainDia: 16,
+    botMainSpacing: 150,
+    botDistDia: 12,
+    botDistSpacing: 150,
+    includeTopBars: true,
+    topMainDia: 16,
+    topMainSpacing: 150,
+    topDistDia: 12,
+    topDistSpacing: 200
+  });
 
   // State metadata
   const [projectName, setProjectName] = useState('Reinforcement Phase 1');
@@ -116,11 +200,41 @@ export default function BBSCalculator({
   }, [currency]);
 
   // Core dimensions and parameters depending on active calculatorId
-  const [inputs, setInputs] = useState<Record<string, number | string>>({});
+  const [inputs, setInputs] = useState<Record<string, any>>({});
+  const footingSections = Array.isArray(inputs.footings) ? inputs.footings : [];
+
+  const updateFootingSection = (index: number, field: string, value: any) => {
+    const nextFootings = footingSections.map((footing: Record<string, any>, footingIndex: number) =>
+      footingIndex === index ? { ...footing, [field]: value } : footing
+    );
+    setInputs((prev: Record<string, any>) => ({ ...prev, footings: nextFootings }));
+    setIsSavedSuccessfully(false);
+  };
+
+  const addFootingSection = () => {
+    setInputs((prev: Record<string, any>) => {
+      const existingFootings = Array.isArray(prev.footings) ? prev.footings : [];
+      return {
+        ...prev,
+        footings: [...existingFootings, createFootingSection(existingFootings.length)]
+      };
+    });
+    setIsSavedSuccessfully(false);
+  };
+
+  const removeFootingSection = (index: number) => {
+    if (footingSections.length <= 1) return;
+    setInputs((prev: Record<string, any>) => ({
+      ...prev,
+      footings: (prev.footings || []).filter((_: unknown, footingIndex: number) => footingIndex !== index)
+        .map((footing: Record<string, any>, footingIndex: number) => ({ ...footing, label: `F${footingIndex + 1}` }))
+    }));
+    setIsSavedSuccessfully(false);
+  };
 
   // Establish standard initial inputs for each of the 14 modules
   useEffect(() => {
-    const defaults: Record<string, Record<string, number | string>> = {
+    const defaults: Record<string, Record<string, any>> = {
       'bbs-footing': { length: 2.0, width: 2.0, depth: 0.45, cover: 50, mainDia: 12, mainSpacing: 150, distDia: 10, distSpacing: 150, padType: 'pad' },
       'bbs-foundation': { length: 3.5, width: 3.5, depth: 0.6, cover: 50, botMainDia: 16, botMainSpacing: 150, botDistDia: 12, botDistSpacing: 150, topMainDia: 12, topMainSpacing: 200, topDistDia: 10, topDistSpacing: 200 },
       'bbs-column': { height: 3.4, width: 0.4, depth: 0.4, cover: 40, mainDia: 16, mainCount: 6, tieDia: 8, tieSpacing: 150, lapLengthFactor: 50, embedment: 600 },
@@ -132,14 +246,34 @@ export default function BBSCalculator({
       'bbs-lintel-beam': { clearSpan: 1.8, bearing: 0.23, width: 0.23, depth: 0.23, cover: 25, topDia: 10, topCount: 2, botDia: 12, botCount: 2, stirrupDia: 6, stirrupSpacing: 150 },
       'bbs-retaining-wall': { stemHeight: 3.2, stemBaseThk: 0.35, stemTopThk: 0.2, baseLength: 2.2, baseThk: 0.4, cover: 50, vertDia: 16, vertSpacing: 150, horizDia: 10, horizSpacing: 200, keyDepth: 0.4 },
       'bbs-pedestal': { height: 1.2, width: 0.4, depth: 0.4, cover: 40, mainDia: 16, mainCount: 4, tieDia: 8, tieSpacing: 150, starterHook: 300 },
-      'bbs-combined-footing': { length: 5.2, width: 2.4, thickness: 0.65, cover: 50, botMainDia: 16, botMainSpacing: 150, botDistDia: 12, botDistSpacing: 150, topMainDia: 16, topMainSpacing: 150, topDistDia: 12, topDistSpacing: 200 },
+      'bbs-combined-footing': {
+        footings: [
+          {
+            label: 'F1',
+            length: 2.6,
+            width: 2.4,
+            thickness: 0.65,
+            cover: 50,
+            includeBottomBars: true,
+            botMainDia: 16,
+            botMainSpacing: 150,
+            botDistDia: 12,
+            botDistSpacing: 150,
+            includeTopBars: true,
+            topMainDia: 16,
+            topMainSpacing: 150,
+            topDistDia: 12,
+            topDistSpacing: 200
+          }
+        ]
+      },
       'bbs-raft-foundation': { length: 12.0, width: 10.0, thickness: 0.8, cover: 50, botMainDia: 20, botMainSpacing: 150, botDistDia: 16, botDistSpacing: 150, topMainDia: 16, topMainSpacing: 150, topDistDia: 12, topDistSpacing: 200, chairDia: 16, chairSpacing: 1.0 },
       'bbs-strip-footing': { length: 15.0, width: 0.9, thickness: 0.35, cover: 50, longitudinalDia: 12, longitudinalCount: 5, transverseDia: 10, transverseSpacing: 150 }
     };
 
     const currentDefaults = defaults[calculatorId] || {};
     // Map default values based on unit systems (SI vs US Imperial)
-    const convertedDefaults: Record<string, number | string> = {};
+    const convertedDefaults: Record<string, any> = {};
 
     Object.entries(currentDefaults).forEach(([key, val]) => {
       if (typeof val === 'number') {
@@ -167,8 +301,27 @@ export default function BBSCalculator({
     });
 
     setInputs(convertedDefaults);
+    const nextUnits: Record<string, string> = {};
+    Object.keys(convertedDefaults).forEach((key) => {
+      const defaultUnit = getDefaultUnitForField(key);
+      if (defaultUnit) nextUnits[key] = defaultUnit;
+    });
+    setParamUnits(nextUnits);
     setIsSavedSuccessfully(false);
   }, [calculatorId, unitSystem]);
+
+  useEffect(() => {
+    if (!loadedCalculation || loadedCalculation.calculatorId !== calculatorId) return;
+    setProjectName(loadedCalculation.name || 'Reinforcement Phase 1');
+    setInputs(loadedCalculation.inputs || {});
+    const restoredUnits: Record<string, string> = {};
+    Object.keys(loadedCalculation.inputs || {}).forEach((key) => {
+      const defaultUnit = getDefaultUnitForField(key);
+      if (defaultUnit) restoredUnits[key] = defaultUnit;
+    });
+    setParamUnits(restoredUnits);
+    setIsSavedSuccessfully(false);
+  }, [loadedCalculation, calculatorId]);
 
   // Handle single input adjustment
   const handleInputChange = (field: string, value: number | string) => {
@@ -590,48 +743,51 @@ export default function BBSCalculator({
       addItem('PD-02', 'Starter Lacing Ties', tieDia, '51', clearB, clearD, 0, 0, 0, 1, tiesCount);
 
     } else if (calculatorId === 'bbs-combined-footing') {
-      const L = getNum('length');
-      const W = getNum('width');
-      const thk = getNum('thickness');
-      const cv = getNum('cover');
-      const botMainDia = getNum('botMainDia');
-      const botMainSp = getNum('botMainSpacing');
-      const botDistDia = getNum('botDistDia');
-      const botDistSp = getNum('botDistSpacing');
-      const topMainDia = getNum('topMainDia');
-      const topMainSp = getNum('topMainSpacing');
-      const topDistDia = getNum('topDistDia');
-      const topDistSp = getNum('topDistSpacing');
+      footingSections.forEach((footing: Record<string, any>, footingIndex: number) => {
+        const footingLabel = String(footing.label || `F${footingIndex + 1}`).trim() || `F${footingIndex + 1}`;
+        const footingLength = Number(footing.length) || 0;
+        const footingWidth = Number(footing.width) || 0;
+        const thk = Number(footing.thickness) || 0;
+        const cv = Number(footing.cover) || 0;
+        const includeBottomBars = Boolean(footing.includeBottomBars);
+        const includeTopBars = Boolean(footing.includeTopBars);
+        const botMainDia = Number(footing.botMainDia) || 0;
+        const botMainSp = Number(footing.botMainSpacing) || 0;
+        const botDistDia = Number(footing.botDistDia) || 0;
+        const botDistSp = Number(footing.botDistSpacing) || 0;
+        const topMainDia = Number(footing.topMainDia) || 0;
+        const topMainSp = Number(footing.topMainSpacing) || 0;
+        const topDistDia = Number(footing.topDistDia) || 0;
+        const topDistSp = Number(footing.topDistSpacing) || 0;
 
-      concreteVol = L * W * thk;
+        concreteVol += footingLength * footingWidth * thk;
 
-      // Ensure spacing is in the same unit system as length/width for count calculation
-      // If spacing is in mm (metric), convert to meters. If in inches (imperial), convert to feet.
-      const botMainSpUnit = botMainSp * (isMetric ? 0.001 : 1/12);
-      const botDistSpUnit = botDistSp * (isMetric ? 0.001 : 1/12);
-      const topMainSpUnit = topMainSp * (isMetric ? 0.001 : 1/12);
-      const topDistSpUnit = topDistSp * (isMetric ? 0.001 : 1/12);
+        const botMainSpUnit = botMainSp * (isMetric ? 0.001 : 1/12);
+        const botDistSpUnit = botDistSp * (isMetric ? 0.001 : 1/12);
+        const topMainSpUnit = topMainSp * (isMetric ? 0.001 : 1/12);
+        const topDistSpUnit = topDistSp * (isMetric ? 0.001 : 1/12);
 
-      // Clear dimensions inside cover (same units as L, W, thk - meters or feet)
-      const clearL = L - 2 * (cv * (isMetric ? 0.001 : 1/12));
-      const clearW = W - 2 * (cv * (isMetric ? 0.001 : 1/12));
-      const clearThk = thk - 2 * (cv * (isMetric ? 0.001 : 1/12));
+        const clearL = footingLength - 2 * (cv * (isMetric ? 0.001 : 1/12));
+        const clearW = footingWidth - 2 * (cv * (isMetric ? 0.001 : 1/12));
+        const clearThk = thk - 2 * (cv * (isMetric ? 0.001 : 1/12));
+        const clearLUnit = clearL * (isMetric ? 1000 : 12);
+        const clearWUnit = clearW * (isMetric ? 1000 : 12);
+        const hookUnit = clearThk * (isMetric ? 1000 : 12);
 
-      // Bar count calculation: dividing same-unit dimensions (meters/meters or feet/feet)
-      const botMainCount = calcBarsCount(clearW, botMainSpUnit, 2);
-      const botDistCount = calcBarsCount(clearL, botDistSpUnit, 2);
-      const topMainCount = calcBarsCount(clearW, topMainSpUnit, 2);
-      const topDistCount = calcBarsCount(clearL, topDistSpUnit, 2);
+        if (includeBottomBars) {
+          const botMainCount = calcBarsCount(clearW, botMainSpUnit, 2);
+          const botDistCount = calcBarsCount(clearL, botDistSpUnit, 2);
+          addItem(`${footingLabel}-B1`, `${footingLabel} Bottom Mesh Main (Lengthwise)`, botMainDia, '21', hookUnit, clearLUnit, hookUnit, 0, 0, 1, botMainCount);
+          addItem(`${footingLabel}-B2`, `${footingLabel} Bottom Mesh Dist (Crosswise)`, botDistDia, '21', hookUnit, clearWUnit, hookUnit, 0, 0, 1, botDistCount);
+        }
 
-      // Pass dimensions to addItem in standard units (mm for metric, inches for imperial)
-      const clearLUnit = clearL * (isMetric ? 1000 : 12);
-      const clearWUnit = clearW * (isMetric ? 1000 : 12);
-      const hookUnit = clearThk * (isMetric ? 1000 : 12);
-
-      addItem('CF-B1', 'Bottom Mesh Main (Lengthwise)', botMainDia, '21', hookUnit, clearLUnit, hookUnit, 0, 0, 1, botMainCount);
-      addItem('CF-B2', 'Bottom Mesh Dist (Crosswise)', botDistDia, '21', hookUnit, clearWUnit, hookUnit, 0, 0, 1, botDistCount);
-      addItem('CF-T1', 'Top Tension Main (Over columns)', topMainDia, '21', hookUnit, clearLUnit, hookUnit, 0, 0, 1, topMainCount);
-      addItem('CF-T2', 'Top Distribution Rebars', topDistDia, '21', hookUnit, clearWUnit, hookUnit, 0, 0, 1, topDistCount);
+        if (includeTopBars) {
+          const topMainCount = calcBarsCount(clearW, topMainSpUnit, 2);
+          const topDistCount = calcBarsCount(clearL, topDistSpUnit, 2);
+          addItem(`${footingLabel}-T1`, `${footingLabel} Top Tension Main`, topMainDia, '21', hookUnit, clearLUnit, hookUnit, 0, 0, 1, topMainCount);
+          addItem(`${footingLabel}-T2`, `${footingLabel} Top Distribution Rebars`, topDistDia, '21', hookUnit, clearWUnit, hookUnit, 0, 0, 1, topDistCount);
+        }
+      });
 
     } else if (calculatorId === 'bbs-raft-foundation') {
       const L = getNum('length');
@@ -1193,8 +1349,35 @@ export default function BBSCalculator({
           </div>
         </div>
 
-        {/* Global actions: PDF, EXCEL, PRINT, SAVE */}
-        <div className="flex flex-wrap gap-2">
+        {/* Global actions: units, PDF, EXCEL, PRINT, SAVE */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-0.5 flex items-center shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setUnitSystem('metric')}
+              className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                unitSystem === 'metric'
+                  ? 'bg-[#0A84FF] text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+              title="Use metric units"
+            >
+              METRIC (m)
+            </button>
+            <button
+              type="button"
+              onClick={() => setUnitSystem('imperial')}
+              className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                unitSystem === 'imperial'
+                  ? 'bg-[#0A84FF] text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+              title="Use imperial units"
+            >
+              IMPERIAL (ft)
+            </button>
+          </div>
+
           <button 
             onClick={handleExportPDF}
             className="px-3.5 py-1.5 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5 cursor-pointer shadow-3xs transition-all"
@@ -1295,19 +1478,201 @@ export default function BBSCalculator({
             </div>
 
             <div className="space-y-4 text-xs font-mono">
-              {Object.keys(inputs).map((key) => {
+              {calculatorId === 'bbs-combined-footing' ? (
+                <div className="space-y-4">
+                  {footingSections.map((footing: Record<string, any>, index: number) => (
+                    <div key={index} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40 p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono bg-blue-50 dark:bg-blue-950 text-[#0A84FF] px-2 py-0.5 rounded-full border border-blue-100/50 dark:border-blue-900/40 font-bold uppercase">
+                            {footing.label || `F${index + 1}`}
+                          </span>
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Footing {index + 1}</span>
+                        </div>
+                        {footingSections.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeFootingSection(index)}
+                            className="p-1.5 rounded-lg bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 cursor-pointer transition-colors"
+                            title="Remove footing"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">Footing Label</label>
+                          <input
+                            type="text"
+                            value={footing.label ?? ''}
+                            onChange={(e) => updateFootingSection(index, 'label', e.target.value)}
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <div className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 flex items-center justify-between">
+                            <span className="text-slate-700 dark:text-slate-300 font-semibold">Bottom Bars</span>
+                            <input type="checkbox" checked={Boolean(footing.includeBottomBars)} onChange={(e) => updateFootingSection(index, 'includeBottomBars', e.target.checked)} className="h-4 w-4 accent-[#0A84FF]" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          ['length', 'Length', isMetric ? 'm' : 'ft'],
+                          ['width', 'Width', isMetric ? 'm' : 'ft'],
+                          ['thickness', 'Height', isMetric ? 'm' : 'ft'],
+                          ['cover', 'Cover', isMetric ? 'mm' : 'in']
+                        ].map(([field, label, unit]) => (
+                          <div key={field}>
+                            <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
+                            <div className="relative flex items-center">
+                              <input
+                                type="number"
+                                step="any"
+                                value={footing[field] ?? ''}
+                                onChange={(e) => updateFootingSection(index, field, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                              />
+                              <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold">{unit}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {footing.includeBottomBars && (
+                        <div className="space-y-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold">Bottom Bars</div>
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              ['botMainDia', 'Main Diameter'],
+                              ['botDistDia', 'Dist Diameter']
+                            ].map(([field, label]) => (
+                              <div key={field}>
+                                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
+                                <select
+                                  value={footing[field] || ''}
+                                  onChange={(e) => updateFootingSection(index, field, parseInt(e.target.value) || 0)}
+                                  className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 cursor-pointer h-9 text-xs"
+                                >
+                                  {isMetric ? Object.keys(METRIC_REBAR_DATA).map(dia => <option key={dia} value={dia}>Ø {dia} mm (T{dia})</option>) : Object.keys(IMPERIAL_REBAR_DATA).map(dia => <option key={dia} value={dia}>{IMPERIAL_REBAR_DATA[Number(dia)].name}</option>)}
+                                </select>
+                              </div>
+                            ))}
+                            {[
+                              ['botMainSpacing', 'Main Spacing'],
+                              ['botDistSpacing', 'Dist Spacing']
+                            ].map(([field, label]) => (
+                              <div key={field}>
+                                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
+                                <div className="relative flex items-center">
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    value={footing[field] ?? ''}
+                                    onChange={(e) => updateFootingSection(index, field, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                                  />
+                                  <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold">{isMetric ? 'mm' : 'in'}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 flex items-center justify-between">
+                        <span className="text-slate-700 dark:text-slate-300 font-semibold">Top Bars</span>
+                        <input type="checkbox" checked={Boolean(footing.includeTopBars)} onChange={(e) => updateFootingSection(index, 'includeTopBars', e.target.checked)} className="h-4 w-4 accent-[#0A84FF]" />
+                      </div>
+
+                      {footing.includeTopBars && (
+                        <div className="space-y-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold">Top Bars</div>
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              ['topMainDia', 'Main Diameter'],
+                              ['topDistDia', 'Dist Diameter']
+                            ].map(([field, label]) => (
+                              <div key={field}>
+                                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
+                                <select
+                                  value={footing[field] || ''}
+                                  onChange={(e) => updateFootingSection(index, field, parseInt(e.target.value) || 0)}
+                                  className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 cursor-pointer h-9 text-xs"
+                                >
+                                  {isMetric ? Object.keys(METRIC_REBAR_DATA).map(dia => <option key={dia} value={dia}>Ø {dia} mm (T{dia})</option>) : Object.keys(IMPERIAL_REBAR_DATA).map(dia => <option key={dia} value={dia}>{IMPERIAL_REBAR_DATA[Number(dia)].name}</option>)}
+                                </select>
+                              </div>
+                            ))}
+                            {[
+                              ['topMainSpacing', 'Main Spacing'],
+                              ['topDistSpacing', 'Dist Spacing']
+                            ].map(([field, label]) => (
+                              <div key={field}>
+                                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
+                                <div className="relative flex items-center">
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    value={footing[field] ?? ''}
+                                    onChange={(e) => updateFootingSection(index, field, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                                  />
+                                  <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold">{isMetric ? 'mm' : 'in'}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={addFootingSection}
+                    className="w-full py-2.5 px-4 border border-dashed border-[#0A84FF]/40 bg-blue-50/60 dark:bg-blue-950/20 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-[#0A84FF] font-sans text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 cursor-pointer transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Footing</span>
+                  </button>
+                </div>
+              ) : (
+              Object.keys(inputs).map((key) => {
                 if (key === 'projectName' || key === 'engineerName' || key === 'codeStandard' || key === 'notes' || key === 'padType') return null;
+                if (calculatorId === 'bbs-combined-footing') {
+                  if (!inputs.useFooting2 && (key === 'footingLabel2' || key === 'footing2Length' || key === 'footing2Width')) return null;
+                  if (!inputs.includeBottomBars && (key === 'botMainDia' || key === 'botMainSpacing' || key === 'botDistDia' || key === 'botDistSpacing')) return null;
+                  if (!inputs.includeTopBars && (key === 'topMainDia' || key === 'topMainSpacing' || key === 'topDistDia' || key === 'topDistSpacing')) return null;
+                }
 
                 // Humanize key names
                 let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
                 let suffix = '';
+                const supportsMultiUnits =
+                  isFieldInMeters(key, calculatorId) ||
+                  key === 'cover' ||
+                  key === 'thickness' ||
+                  key === 'waistSlab' ||
+                  key === 'riser' ||
+                  key === 'tread' ||
+                  key === 'stemBaseThk' ||
+                  key === 'stemTopThk' ||
+                  key === 'baseThk' ||
+                  key === 'keyDepth' ||
+                  key === 'starterHook' ||
+                  key === 'embedment' ||
+                  key.endsWith('Spacing');
 
                 if (isFieldInMeters(key, calculatorId)) {
-                  suffix = isMetric ? 'm' : 'ft';
+                  suffix = paramUnits[key] || (isMetric ? 'm' : 'ft');
                 } else if (key === 'cover' || key === 'thickness' || key === 'waistSlab' || key === 'riser' || key === 'tread' || key === 'stemBaseThk' || key === 'stemTopThk' || key === 'baseThk' || key === 'keyDepth' || key === 'starterHook' || key === 'embedment') {
-                  suffix = isMetric ? 'mm' : 'in';
+                  suffix = paramUnits[key] || (isMetric ? 'mm' : 'in');
                 } else if (key.endsWith('Spacing')) {
-                  suffix = isMetric ? 'mm' : 'in';
+                  suffix = paramUnits[key] || (isMetric ? 'mm' : 'in');
                   label = label.replace('Spacing', ' Spacing');
                 } else if (key.endsWith('Dia')) {
                   label = label.replace('Dia', ' Diameter');
@@ -1332,18 +1697,61 @@ export default function BBSCalculator({
                     </div>
                   );
                 }
+                
+                if (typeof inputs[key] === 'boolean') {
+                  return (
+                    <label key={key} className="flex items-center justify-between bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 cursor-pointer">
+                      <span className="text-slate-700 dark:text-slate-300 font-semibold font-sans">{label}</span>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(inputs[key])}
+                        onChange={(e) => handleInputChange(key, e.target.checked)}
+                        className="h-4 w-4 accent-[#0A84FF] cursor-pointer"
+                      />
+                    </label>
+                  );
+                }
+
+                if (typeof inputs[key] === 'string' && (key === 'footingLabel1' || key === 'footingLabel2')) {
+                  return (
+                    <div key={key}>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-slate-600 dark:text-slate-400 font-semibold font-sans">{label}</label>
+                      </div>
+                      <input
+                        type="text"
+                        value={inputs[key] ?? ''}
+                        onChange={(e) => handleInputChange(key, e.target.value)}
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                      />
+                    </div>
+                  );
+                }
 
                 return (
                   <div key={key}>
-                    <div className="flex justify-between mb-1">
+                    <div className="flex justify-between items-center mb-1 gap-2">
                       <label className="text-slate-600 dark:text-slate-400 font-semibold font-sans">{label}</label>
+                      {supportsMultiUnits && (
+                        <select
+                          value={paramUnits[key] || getDefaultUnitForField(key)}
+                          onChange={(e) => handleFieldUnitChange(key, e.target.value)}
+                          className="text-[10px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-0.5 text-slate-600 dark:text-slate-300 outline-none focus:border-blue-500 cursor-pointer h-6 font-mono"
+                        >
+                          <option value="m">meter (m)</option>
+                          <option value="cm">centimeter (cm)</option>
+                          <option value="mm">millimeter (mm)</option>
+                          <option value="ft">feet (ft)</option>
+                          <option value="in">inch (in)</option>
+                        </select>
+                      )}
                     </div>
                     <div className="relative flex items-center">
                       <input 
                         type="number"
                         step="any"
-                        value={inputs[key] ?? ''}
-                        onChange={(e) => handleInputChange(key, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                        value={getDisplayValue(key, inputs[key])}
+                        onChange={(e) => handleDisplayInputChange(key, e.target.value)}
                         className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
                       />
                       {suffix && (
@@ -1352,7 +1760,8 @@ export default function BBSCalculator({
                     </div>
                   </div>
                 );
-              })}
+              })
+              )}
             </div>
           </div>
         </div>

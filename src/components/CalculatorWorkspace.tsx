@@ -513,6 +513,7 @@ interface CalculatorWorkspaceProps {
   setUnitSystem: (system: UnitSystem) => void;
   onSaveCalculation: (calc: SavedCalculation) => void;
   savedCalculations: SavedCalculation[];
+  loadedCalculation?: SavedCalculation | null;
   currency?: string;
   isSidebarCollapsed?: boolean;
   onToggleSidebar?: () => void;
@@ -524,6 +525,7 @@ export default function CalculatorWorkspace({
   setUnitSystem,
   onSaveCalculation,
   savedCalculations,
+  loadedCalculation = null,
   currency = 'USD',
   isSidebarCollapsed = false,
   onToggleSidebar = () => {}
@@ -860,6 +862,13 @@ export default function CalculatorWorkspace({
     setCustomQuestion('');
     setActiveTab('calculator');
   }, [calculatorId, unitSystem]);
+
+  useEffect(() => {
+    if (!loadedCalculation || loadedCalculation.calculatorId !== calculatorId) return;
+    setInputs(loadedCalculation.inputs || {});
+    setOutputs(loadedCalculation.outputs || {});
+    setSavedSuccess(false);
+  }, [loadedCalculation, calculatorId]);
 
   const resetToDefaults = () => {
     let defs: Record<string, any> = {};
@@ -3049,6 +3058,7 @@ export default function CalculatorWorkspace({
           setUnitSystem={setUnitSystem}
           onSaveCalculation={onSaveCalculation}
           savedCalculations={savedCalculations}
+          loadedCalculation={loadedCalculation}
           currency={currency}
           isPrintPreviewMode={isPrintPreviewMode}
           setIsPrintPreviewMode={setIsPrintPreviewMode}
@@ -3139,7 +3149,7 @@ export default function CalculatorWorkspace({
             )}
           </div>
 
-          {/* WORKSPACE VIEW CONTROL BAR (Toggle Sidebar) */}
+          {/* WORKSPACE VIEW CONTROL BAR */}
           <div id="workspace-customize-bar" className="bg-slate-50 border border-slate-200/80 rounded-xl p-1.5 flex items-center justify-between mb-3.5 text-[10px] font-mono shadow-xs gap-2 flex-wrap text-left">
             <span className="text-slate-550 font-bold uppercase tracking-wider pl-1 font-sans text-[9px] flex items-center">
               <Layout className="w-3.5 h-3.5 text-[#0A84FF] mr-1" />
@@ -3154,9 +3164,9 @@ export default function CalculatorWorkspace({
                     ? 'bg-amber-400 text-white font-extrabold shadow-3xs'
                     : 'text-slate-650 hover:bg-slate-50 hover:text-[#0F172A]'
                 }`}
-                title={isSidebarCollapsed ? "Maximize: Reveal catalog sidebar" : "Minimize: Collapse catalog sidebar"}
+                title="Open calculation modules menu"
               >
-                {isSidebarCollapsed ? "Show Catalog" : "Hide Catalog"}
+                Open Modules
               </button>
               <button
                 type="button"

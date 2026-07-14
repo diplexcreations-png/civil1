@@ -15,7 +15,7 @@ import MainDashboard from './components/MainDashboard';
 export default function App() {
   // Global States
   const [navActive, setNavActive] = useState<'landing' | 'workspace' | 'dashboard'>('landing');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isSidebarCollapsed] = useState<boolean>(true);
   const [isDraftingDeskOpen, setIsDraftingDeskOpen] = useState<boolean>(() => {
     return localStorage.getItem('civicore_drafting_desk_open') === 'true';
   });
@@ -105,6 +105,7 @@ export default function App() {
   
   // local persistence for saved sheets
   const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>([]);
+  const [loadedCalculation, setLoadedCalculation] = useState<SavedCalculation | null>(null);
 
   // Load calculations on startup
   useEffect(() => {
@@ -139,12 +140,14 @@ export default function App() {
   };
 
   const handleLoadSavedCalculation = (calc: SavedCalculation) => {
+    setLoadedCalculation(calc);
     setActiveCalcId(calc.calculatorId);
     setUnitSystem(calc.unitSystem);
     setNavActive('workspace');
   };
 
   const handleSelectCalculatorFromLanding = (id: string) => {
+    setLoadedCalculation(null);
     setActiveCalcId(id);
     setNavActive('workspace');
   };
@@ -351,9 +354,9 @@ export default function App() {
                 <div className="flex items-center space-x-2 flex-wrap">
                   <button 
                     onClick={() => setIsMobileCatalogOpen(true)}
-                    className="xl:hidden inline-flex items-center text-[9px] font-sans font-bold bg-[#0A84FF] hover:bg-blue-600 active:bg-blue-700 text-white px-2.5 py-1 rounded border border-blue-500/20 shadow-xs cursor-pointer transition-all"
+                    className="inline-flex items-center text-[9px] font-sans font-bold bg-[#0A84FF] hover:bg-blue-600 active:bg-blue-700 text-white px-2.5 py-1 rounded border border-blue-500/20 shadow-xs cursor-pointer transition-all"
                   >
-                    <Menu className="w-3.5 h-3.5 mr-1" /> SELECT CALCULATOR
+                    <Menu className="w-3.5 h-3.5 mr-1" /> CALCULATION MODULES
                   </button>
                   <span className="inline-flex items-center text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 px-2 py-0.5 rounded border border-emerald-500/15">
                     <CheckCircle2 className="w-3 h-3 mr-1" /> CALIBRATED CODES
@@ -381,155 +384,6 @@ export default function App() {
               >
                 
                 {/* SIDEBAR CATALOG: Filter list layout span 3 */}
-                {!isSidebarCollapsed && (
-                  <aside className="hidden xl:block xl:col-span-3 bg-white/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 p-4 rounded-3xl backdrop-blur-lg shadow-xs space-y-4" id="sidebar-catalog">
-                    <div>
-                      <div className="flex items-center justify-between mb-3 pb-1 border-b border-slate-100 dark:border-slate-800">
-                        <h4 className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">CALCULATION MODULES</h4>
-                        {searchTerm.trim() !== '' && (
-                          <span className="text-[9px] font-mono text-slate-400 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800 px-1.5 py-0.5 rounded-md font-bold">
-                            {CALCULATORS_LIST.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase())).length} found
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Search and Sort controls */}
-                      <div className="space-y-2 mb-4">
-                        {/* Search input field */}
-                        <div className="relative flex items-center bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 focus-within:border-[#0A84FF] focus-within:ring-1 focus-within:ring-[#0A84FF] transition-all shadow-2xs px-2.5 py-1.5">
-                          <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-550 mr-2 flex-shrink-0" />
-                          <input 
-                            type="text"
-                            placeholder="Search calculators..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-transparent border-none outline-none text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 font-sans"
-                          />
-                          {searchTerm && (
-                            <button 
-                              onClick={() => setSearchTerm('')}
-                              className="p-1 hover:bg-slate-150 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
-                              aria-label="Clear search"
-                            >
-                              <X className="w-3 h-3 text-slate-400" />
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Sorting dropdown */}
-                        <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-[10px] font-medium text-slate-600 dark:text-slate-400">
-                          <span className="flex items-center text-slate-500 dark:text-slate-505 font-bold uppercase tracking-wider text-[9px]">
-                            <ArrowUpDown className="w-3 h-3 mr-1 text-[#0A84FF]" /> Sort
-                          </span>
-                          <select
-                            id="sort-calculators-select"
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value as 'popularity' | 'name')}
-                            className="bg-transparent border-none outline-none text-slate-700 dark:text-slate-350 font-sans cursor-pointer font-bold focus:text-[#0A84FF] transition-colors"
-                            aria-label="Sort configuration"
-                          >
-                            <option value="popularity" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Popularity</option>
-                            <option value="name" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">Name (A-Z)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3.5">
-                        {categories
-                          .filter((cat) => 
-                            CALCULATORS_LIST.some(c => c.category === cat.id && c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                          )
-                          .map((cat) => {
-                            const getPopularityScore = (calc: typeof CALCULATORS_LIST[0]) => {
-                              let score = 0;
-                              if (calc.trending) score += 10;
-                              if (calc.featured) score += 5;
-                              const basePopularity: Record<string, number> = {
-                                'concrete-volume': 6,
-                                'structural-beam': 5,
-                                'utility-convert': 3,
-                                'structural-column': 2,
-                                'structural-slab': 1,
-                              };
-                              score += basePopularity[calc.id] || 0;
-                              return score;
-                            };
-
-                            const calcs = CALCULATORS_LIST.filter(c => 
-                               c.category === cat.id && 
-                               c.name.toLowerCase().includes(searchTerm.toLowerCase())
-                            ).sort((a, b) => {
-                              if (sortBy === 'popularity') {
-                                const scoreA = getPopularityScore(a);
-                                const scoreB = getPopularityScore(b);
-                                if (scoreB !== scoreA) return scoreB - scoreA;
-                                return a.name.localeCompare(b.name);
-                              } else {
-                                return a.name.localeCompare(b.name);
-                              }
-                            });
-                            const isExpanded = searchTerm.trim() !== '' ? true : (expandedCategories[cat.id] ?? false);
-                            return (
-                              <div key={cat.id} className="space-y-1.5">
-                                <button
-                                  onClick={() => toggleCategory(cat.id)}
-                                  className="w-full text-left py-1 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors flex items-center justify-between group cursor-pointer border border-transparent select-none"
-                                  aria-expanded={isExpanded}
-                                >
-                                  <span className="text-[10px] font-mono text-[#0F172A] dark:text-slate-250 font-bold uppercase flex items-center tracking-wider">
-                                    <cat.icon className="w-3.5 h-3.5 mr-1.5 text-[#0A84FF]" />
-                                    {cat.name}
-                                  </span>
-                                  <ChevronRight 
-                                    className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} 
-                                  />
-                                </button>
-                                
-                                <motion.div
-                                  initial={false}
-                                  animate={{
-                                    height: isExpanded ? 'auto' : 0,
-                                    opacity: isExpanded ? 1 : 0
-                                  }}
-                                  transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                  className="overflow-hidden space-y-1 pl-4 border-l border-slate-200/80 dark:border-slate-800"
-                                >
-                                  {calcs.map((calc) => (
-                                    <button
-                                      key={calc.id}
-                                      onClick={() => setActiveCalcId(calc.id)}
-                                      className={`w-full text-left py-1 px-2 rounded-lg text-xs font-mono transition-all flex items-center justify-between group cursor-pointer ${activeCalcId === calc.id ? 'bg-[#0A84FF]/10 dark:bg-[#0A84FF]/25 text-[#0A84FF] border border-[#0A84FF]/25 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-slate-250 border border-transparent'}`}
-                                    >
-                                      <span className="truncate pr-1 group-hover:translate-x-0.5 transition-transform">{calc.name}</span>
-                                      {calc.trending && (
-                                        <span className="w-1.5 h-1.5 bg-[#0A84FF] rounded-full flex-shrink-0"></span>
-                                      )}
-                                    </button>
-                                  ))}
-                                </motion.div>
-                              </div>
-                            );
-                          })}
-
-                        {categories.filter((cat) => 
-                          CALCULATORS_LIST.some(c => c.category === cat.id && c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                        ).length === 0 && (
-                          <div className="text-center py-6 text-slate-400 text-xs font-sans">
-                            No matching calculators found
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50/90 dark:bg-slate-950/80 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-[10px] font-mono leading-relaxed text-slate-500 dark:text-slate-400 space-y-1 text-left">
-                      <div className="flex items-center text-slate-700 dark:text-slate-300 font-bold uppercase text-[9px] tracking-wider mb-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E] mr-1" /> CIVIL VERIFICATION
-                      </div>
-                      <span>Formulas verified against structural code records. Adjust loading forces relative to safety benchmarks.</span>
-                    </div>
-                  </aside>
-                )}
-
                 {/* ACTIVE WORKSPACE PANEL: adjusts span based on side drawers being open/closed */}
                 <div className={`${
                   isSidebarCollapsed && !isDraftingDeskOpen ? "xl:col-span-12 w-full" : 
@@ -543,9 +397,10 @@ export default function App() {
                     setUnitSystem={setUnitSystem}
                     onSaveCalculation={handleSaveCalculation}
                     savedCalculations={savedCalculations}
+                    loadedCalculation={loadedCalculation}
                     currency={currency}
                     isSidebarCollapsed={isSidebarCollapsed}
-                    onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    onToggleSidebar={() => setIsMobileCatalogOpen(true)}
                   />
                 </div>
 
@@ -675,7 +530,7 @@ export default function App() {
       {/* MOBILE SLIDE-OUT CATALOG DRAWER */}
       <AnimatePresence>
         {isMobileCatalogOpen && (
-          <div className="fixed inset-0 z-50 xl:hidden flex justify-start">
+          <div className="fixed inset-0 z-50 flex justify-start">
             {/* Backdrop overlay */}
             <motion.div 
               initial={{ opacity: 0 }}
@@ -825,6 +680,7 @@ export default function App() {
                                 <button
                                   key={calc.id}
                                   onClick={() => {
+                                    setLoadedCalculation(null);
                                     setActiveCalcId(calc.id);
                                     setIsMobileCatalogOpen(false);
                                   }}
