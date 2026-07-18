@@ -176,6 +176,104 @@ Provide a production-ready, peer-reviewed engineering review with explanation, r
   }
 });
 
+// AI Chatbot endpoint
+app.post("/api/chat", async (req, res) => {
+  const { messages } = req.body;
+
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: "Invalid request. 'messages' array is required." });
+  }
+
+  try {
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
+
+    if (!openrouterKey) {
+      return res.status(500).json({
+        error: "OpenRouter API Key not configured.",
+        status: "error"
+      });
+    }
+
+    const systemMessage = {
+      role: "system",
+      content: "You are CiviCore AI, an elite principal structural civil engineer assistant. Provide accurate, professional, safety-focused, and formula-grounded advice. Always respect standard building codes (ACI, ASTM, AISC, Eurocode). Keep your responses concise, clear, and well-formatted in markdown. You can answer general civil engineering questions or analyze calculations if context is provided."
+    };
+
+    const apiMessages = [systemMessage, ...messages];
+
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    let resultText = "";
+    const models = ["google/gemini-2.5-flash", "openai/gpt-4o-mini", "meta-llama/llama-3.1-8b-instruct:free"];
+
+    for (let i = 0; i < models.length; i++) {
+      const currentModel = models[i];
+      let success = false;
+
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          console.log(`Sending chat request to OpenRouter. Model: ${currentModel}, Attempt: ${attempt}`);
+
+          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${openrouterKey}`,
+              "HTTP-Referer": process.env.APP_URL || "https://ai.studio/build",
+              "X-Title": "CiviCore AI Assistant Chat",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model: currentModel,
+              messages: apiMessages,
+              temperature: 0.7
+            })
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`OpenRouter HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          const content = data?.choices?.[0]?.message?.content?.trim();
+
+          if (content) {
+            resultText = content;
+            success = true;
+            break;
+          } else {
+            throw new Error(`OpenRouter returned empty content on model ${currentModel}`);
+          }
+
+        } catch (err: any) {
+          console.warn(`Chat attempt ${attempt} on model ${currentModel} failed:`, err.message || err);
+          if (attempt < 2) {
+            await sleep(1000);
+          }
+        }
+      }
+
+      if (success && resultText) {
+        break;
+      }
+    }
+
+    if (!resultText) {
+      throw new Error("Unable to get valid chat response from OpenRouter after trying multiple models.");
+    }
+
+    return res.json({ response: resultText, status: "success" });
+
+  } catch (error: any) {
+    console.error("OpenRouter AI Chat Error:", error);
+    return res.status(500).json({
+      error: "Error processing the chat with OpenRouter AI engine.",
+      details: error.message || error,
+      status: "error"
+    });
+  }
+});
+
 // Setup Vite & Static Assets Handlers
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {

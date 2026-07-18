@@ -11,6 +11,7 @@ import { CALCULATORS_LIST } from './data/calculatorsData';
 import LandingPage from './components/LandingPage';
 import CalculatorWorkspace from './components/CalculatorWorkspace';
 import MainDashboard from './components/MainDashboard';
+import { ChatBot } from './components/ChatBot';
 
 export default function App() {
   // Global States
@@ -718,6 +719,9 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* CiviCore AI Assistant Floating Chatbot */}
+      <ChatBot activeCalcId={activeCalcId} unitSystem={unitSystem} />
     </div>
   );
 }
