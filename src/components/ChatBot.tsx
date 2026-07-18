@@ -200,7 +200,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
   return (
     <>
       {/* Floating Chat Bubble Button */}
-      <div className="fixed top-20 right-4 md:top-auto md:bottom-6 md:right-6 z-50">
+      <div className="fixed top-[250px] right-4 md:top-auto md:bottom-6 md:right-6 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="relative w-14 h-14 bg-[#0A84FF] text-white hover:bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/25 cursor-pointer border border-blue-400/20 transition-transform duration-200 hover:scale-105 active:scale-95 group focus:outline-none"
@@ -243,7 +243,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 20, stiffness: 260 }}
-            className="fixed top-36 right-4 md:top-auto md:bottom-24 md:right-6 z-50 w-[380px] h-[520px] max-h-[calc(100vh-11rem)] md:max-h-none max-w-[calc(100vw-2rem)] bg-white/95 dark:bg-[#090F1C]/95 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl backdrop-blur-md flex flex-col overflow-hidden text-left"
+            className="fixed top-[180px] right-4 md:top-auto md:bottom-24 md:right-6 z-50 w-[380px] h-[520px] max-h-[calc(100vh-16rem)] md:max-h-none max-w-[calc(100vw-2rem)] bg-white/95 dark:bg-[#090F1C]/95 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl backdrop-blur-md flex flex-col overflow-hidden text-left"
           >
             {/* Header */}
             <div className="bg-slate-900 dark:bg-slate-950 p-4 text-white flex items-center justify-between border-b border-slate-800 shadow-sm relative">
