@@ -374,7 +374,17 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard }: L
       {/* LANDING FOOTER */}
       <footer className="text-center font-mono text-[10px] text-slate-550 dark:text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-8 mt-12 max-w-7xl mx-auto">
         <p>© 2026 CiviCore Inc. Professional Civil Calculation Labs. Compliance: ACI, Eurocodes & ASTM Standards.</p>
-        <p className="mt-1 text-slate-400 dark:text-slate-500">Product vision built with rigorous engineering safety parameters.</p>
+        <p className="mt-1 text-slate-400 dark:text-slate-500">
+          Product vision built with rigorous engineering safety parameters. Developed by{" "}
+          <a 
+            href="https://lk.linkedin.com/in/sithum-d-edirisingha" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[#0A84FF] hover:underline font-bold transition-all"
+          >
+            Sithum D. Edirisingha
+          </a>.
+        </p>
       </footer>
 
     </div>
