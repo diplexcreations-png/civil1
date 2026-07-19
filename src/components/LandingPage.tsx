@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Plus, Search, Compass, Layers, GitCommit, Grid, Anchor, 
-  HelpCircle, Sparkles, TrendingUp, ChevronRight, ArrowRight,
-  Calculator, HardHat, Sliders
+  Search, Compass, Layers, GitCommit, Grid, Anchor, 
+  Sparkles, TrendingUp, ChevronRight, ArrowRight,
+  HardHat, Sliders
 } from 'lucide-react';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
 import { CalculatorCategory } from '../types';
@@ -11,17 +11,20 @@ import { CalculatorCategory } from '../types';
 interface LandingPageProps {
   onSelectCalculator: (id: string) => void;
   onLaunchDashboard: () => void;
+  onNavigate: (page: string) => void;
 }
 
-export default function LandingPage({ onSelectCalculator, onLaunchDashboard }: LandingPageProps) {
+export default function LandingPage({ onSelectCalculator, onLaunchDashboard, onNavigate }: LandingPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CalculatorCategory | 'all'>('all');
 
   // Categories config
   const CATEGORIES = [
     { id: 'all', name: 'All Solutions', icon: 'Calculator', desc: 'Browse full list of civil formulas' },
+    { id: 'bbs', name: 'BBS Steel', icon: 'Clipboard', desc: 'Bar bending schedules & cutting lengths' },
     { id: 'structural', name: 'Structural Labs', icon: 'GitCommit', desc: 'Beams, Columns, Deflection margins' },
     { id: 'concrete', name: 'Concrete Mixes', icon: 'Layers', desc: 'Volumes, Bag ratios, costing arrays' },
+    { id: 'geotech', name: 'Geotechnical', icon: 'Anchor', desc: 'Bearing capacity & retaining walls' },
     { id: 'survey', name: 'Surveying Plat', icon: 'Compass', desc: 'Height of instrument, leveling traces' },
     { id: 'utility', name: 'Engineering Utilities', icon: 'RefreshCw', desc: 'Conversions, dynamic scales' }
   ];
@@ -48,7 +51,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard }: L
     },
     {
       q: 'Does the CiviCore AI principal review look into local code books?',
-      a: 'Indeed. The server-side Gemini 3.5 AI assistant processes computed results and anchors safety evaluations directly against international concrete design standards and ASTM specifications.'
+      a: 'Yes. The OpenRouter-powered AI assistant processes computed results and anchors safety evaluations against international concrete design standards and ASTM specifications.'
     }
   ];
 
@@ -186,7 +189,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard }: L
             <div className="space-y-1">
               <h4 className="text-sm font-bold text-slate-850 dark:text-white font-sans">Leveling & Traverse Platforms</h4>
               <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 leading-normal">
-                Solves Height of Instrument (HI) leveling networks and traverse coordinate polygons (Northing, Easting, elevation) with dynamic closure checks.
+                Solves Height of Instrument (HI) leveling networks and single-leg traverse coordinates (Northing, Easting, elevation) from known station benchmarks.
               </p>
             </div>
           </div>
@@ -372,7 +375,12 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard }: L
       </section>
 
       {/* LANDING FOOTER */}
-      <footer className="text-center font-mono text-[10px] text-slate-550 dark:text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-8 mt-12 max-w-7xl mx-auto">
+      <footer className="text-center font-mono text-[10px] text-slate-550 dark:text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-8 mt-12 max-w-7xl mx-auto space-y-3">
+        <div className="flex justify-center items-center space-x-6 text-[#0A84FF] font-bold">
+          <button onClick={() => onNavigate('about')} className="hover:underline transition-all cursor-pointer">About Us</button>
+          <button onClick={() => onNavigate('contact')} className="hover:underline transition-all cursor-pointer">Contact</button>
+          <button onClick={() => onNavigate('privacy')} className="hover:underline transition-all cursor-pointer">Privacy Policy</button>
+        </div>
         <p>© 2026 CiviCore Inc. Professional Civil Calculation Labs. Compliance: ACI, Eurocodes & ASTM Standards.</p>
         <p className="mt-1 text-slate-400 dark:text-slate-500">
           Product vision built with rigorous engineering safety parameters. Developed by{" "}

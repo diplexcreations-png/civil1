@@ -9,13 +9,15 @@ import {
 import { UnitSystem, SavedCalculation, CURRENCY_MAPPING } from './types';
 import { CALCULATORS_LIST } from './data/calculatorsData';
 import LandingPage from './components/LandingPage';
+import { AboutPage, ContactPage, PrivacyPolicyPage } from './components/StaticPages';
 import CalculatorWorkspace from './components/CalculatorWorkspace';
 import MainDashboard from './components/MainDashboard';
 import { ChatBot } from './components/ChatBot';
+import { trackEvent, trackPageView } from './utils/analytics';
 
 export default function App() {
   // Global States
-  const [navActive, setNavActive] = useState<'landing' | 'workspace' | 'dashboard'>('landing');
+  const [navActive, setNavActive] = useState<'landing' | 'workspace' | 'dashboard' | 'about' | 'contact' | 'privacy'>('landing');
   const [isSidebarCollapsed] = useState<boolean>(true);
   const [isDraftingDeskOpen, setIsDraftingDeskOpen] = useState<boolean>(() => {
     return localStorage.getItem('civicore_drafting_desk_open') === 'true';
@@ -84,6 +86,7 @@ export default function App() {
     survey: false,
     utility: false,
     bbs: true,
+    geotech: false,
   });
 
   const toggleCategory = (catId: string) => {
@@ -103,6 +106,18 @@ export default function App() {
       }));
     }
   }, [activeCalcId]);
+
+  // Google Analytics — section views
+  useEffect(() => {
+    trackPageView(`civicore/${navActive}`);
+  }, [navActive]);
+
+  // Google Analytics — calculator usage
+  useEffect(() => {
+    if (navActive === 'workspace') {
+      trackEvent('calculator_select', { calculator_id: activeCalcId });
+    }
+  }, [activeCalcId, navActive]);
   
   // local persistence for saved sheets
   const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>([]);
@@ -158,6 +173,7 @@ export default function App() {
     { id: 'bbs', name: 'BBS Calculator', icon: Clipboard },
     { id: 'structural', name: 'Structural Labs', icon: GitCommit },
     { id: 'concrete', name: 'Concrete Mix', icon: Layers },
+    { id: 'geotech', name: 'Geotechnical', icon: Anchor },
     { id: 'survey', name: 'Surveying Plat', icon: Compass },
     { id: 'utility', name: 'Utilities', icon: RefreshCw }
   ];
@@ -324,8 +340,21 @@ export default function App() {
               <LandingPage 
                 onSelectCalculator={handleSelectCalculatorFromLanding} 
                 onLaunchDashboard={() => setNavActive('dashboard')}
+                onNavigate={(page) => setNavActive(page as any)}
               />
             </motion.div>
+          )}
+
+          {navActive === 'about' && (
+            <AboutPage onBack={() => setNavActive('landing')} />
+          )}
+          
+          {navActive === 'contact' && (
+            <ContactPage onBack={() => setNavActive('landing')} />
+          )}
+          
+          {navActive === 'privacy' && (
+            <PrivacyPolicyPage onBack={() => setNavActive('landing')} />
           )}
 
           {navActive === 'workspace' && (

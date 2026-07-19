@@ -142,7 +142,7 @@ export interface BeamOutput {
   maxShear: number;       // kN or kips
   maxDeflection: number;  // mm or in
   isDeflectionOk: boolean;
-  deflectionLimit: number; // L/240 or L/360 limit
+  deflectionLimit: number; // L/240 serviceability limit
   sfPoints?: { x: number; val: number }[];
   bmPoints?: { x: number; val: number }[];
 }

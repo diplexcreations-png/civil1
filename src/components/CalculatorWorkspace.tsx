@@ -928,13 +928,14 @@ export default function CalculatorWorkspace({
         backfillSlope: 0
       };
     } else if (calculatorId === 'survey-hi') {
-      defs = {
-        benchmark: 100.0,
-        backsight: unitSystem === 'metric' ? 1.500 : 4.50,
-        intermediateSight: unitSystem === 'metric' ? 1.220 : 3.65,
-        foresight: unitSystem === 'metric' ? 2.050 : 6.10,
-        distance: unitSystem === 'metric' ? 30.0 : 100.0
-      };
+      const distStep = unitSystem === 'metric' ? 30 : 100;
+      setStartingRL(unitSystem === 'metric' ? 100.0 : 328.084);
+      setSurveyRows([
+        { station: 'BM', distance: 0, bs: unitSystem === 'metric' ? 1.500 : 4.50, is: null, fs: null, remarks: 'Benchmark' },
+        { station: 'TP1', distance: distStep, bs: null, is: unitSystem === 'metric' ? 1.220 : 3.65, fs: null, remarks: '' },
+        { station: 'A', distance: distStep * 2, bs: null, is: null, fs: unitSystem === 'metric' ? 2.050 : 6.10, remarks: 'Foresight' },
+      ]);
+      defs = {};
     } else if (calculatorId === 'survey-coordinate') {
       defs = {
         startNorthing: unitSystem === 'metric' ? 5000 : 15000,
@@ -1042,9 +1043,9 @@ export default function CalculatorWorkspace({
           wastePercent: Number(inputs.wastePercent) || 0,
           shrinkagePercent: finalShrinkagePercent,
           unitCost: Number(inputs.unitCost) || 0,
-          cementRatio: Number(inputs.cementRatio) ?? 1,
-          sandRatio: Number(inputs.sandRatio) ?? 1.5,
-          aggregateRatio: Number(inputs.aggregateRatio) ?? 3
+          cementRatio: Number(inputs.cementRatio) || 1,
+          sandRatio: Number(inputs.sandRatio) || 1.5,
+          aggregateRatio: Number(inputs.aggregateRatio) || 3
         }, unitSystem);
       } else if (calculatorId === 'structural-beam' || calculatorId === 'structural-deflection') {
         const matIdx = Number(inputs.materialIdx) || 0;
@@ -1072,7 +1073,7 @@ export default function CalculatorWorkspace({
         results = calculateSlabThickness({
           span: getNormalizedValue('span', unitSystem === 'metric' ? 'm' : 'ft'),
           supportType: inputs.supportType || 'simple',
-          fy: Number(inputs.fy) || 60000
+          fy: Number(inputs.fy) || (unitSystem === 'metric' ? 420 : 60000)
         }, unitSystem);
       } else if (calculatorId === 'geotech-bearing') {
         results = calculateBearingCapacity({
@@ -1266,7 +1267,7 @@ export default function CalculatorWorkspace({
       } else {
         setAiResult({
           explanation: `System alert: ${data.error || 'The server returned an empty prompt response.'}`,
-          recommendations: ['Check server connection rules', 'Declare GEMINI_API_KEY environment variable'],
+          recommendations: ['Check server connection rules', 'Declare OPENROUTER_API_KEY environment variable'],
           safetyNotes: 'Standard safety disclaimer applies.'
         });
       }
@@ -1411,23 +1412,28 @@ export default function CalculatorWorkspace({
       list.push({ label: 'Maximum Shear Force (V_max)', value: outputs.maxShear ?? 0, unit: isMetric ? 'kN' : 'kips' });
       list.push({ label: 'Maximum Bending Moment (M_max)', value: outputs.maxMoment ?? 0, unit: isMetric ? 'kN·m' : 'kip·ft' });
       list.push({ label: 'Expected Total Deflection (Δ)', value: outputs.maxDeflection ?? 0, unit: isMetric ? 'mm' : 'in' });
-      list.push({ label: 'Serviceability Limit Delta L/360', value: outputs.deflectionLimit ?? 0, unit: isMetric ? 'mm' : 'in' });
-      list.push({ label: 'Safety Serviceability Check', value: outputs.serviceabilityCheck ?? 'N/A', unit: 'Status' });
+      list.push({ label: 'Serviceability Limit Delta L/240', value: outputs.deflectionLimit ?? 0, unit: isMetric ? 'mm' : 'in' });
+      list.push({ label: 'Safety Serviceability Check', value: outputs.isDeflectionOk ? 'PASS' : 'FAIL', unit: 'Status' });
     } else if (calculatorId === 'structural-column') {
+      const steelCheck = outputs.minRebarWarning
+        ? 'FAIL — below 1% min ρ'
+        : outputs.maxRebarWarning
+          ? 'FAIL — above 8% max ρ'
+          : 'PASS — within 1–8% ρ';
+      list.push({ label: 'Gross Section Area (Ag)', value: outputs.grossArea ?? 0, unit: isMetric ? 'mm²' : 'in²' });
       list.push({ label: 'Reinforcing Steel Area (As)', value: outputs.steelArea ?? 0, unit: isMetric ? 'mm²' : 'in²' });
-      list.push({ label: 'Steel Reinforcement Ratio (ρ)', value: `${((outputs.rebarRatio || 0) * 100).toFixed(2)}%`, unit: 'Ratio' });
+      list.push({ label: 'Steel Reinforcement Ratio (ρ)', value: `${outputs.steelRatio ?? 0}%`, unit: 'Ratio' });
       list.push({ label: 'Nominal Axial Capacity (Pn)', value: outputs.nominalCapacityPn ?? 0, unit: isMetric ? 'kN' : 'kips' });
       list.push({ label: 'Factored Design Capacity (φPn)', value: outputs.factoredCapacityPhiPn ?? 0, unit: isMetric ? 'kN' : 'kips' });
-      list.push({ label: 'Min Code Area Required (Ast_min)', value: outputs.minSteelArea ?? 0, unit: isMetric ? 'mm²' : 'in²' });
-      list.push({ label: 'ACI Area Check Status', value: outputs.steelCheck ?? 'N/A', unit: 'Status' });
+      list.push({ label: 'ACI Area Check Status', value: steelCheck, unit: 'Status' });
     } else if (calculatorId === 'structural-slab') {
       list.push({ label: 'Minimum Flat Slab Depth', value: outputs.minThickness ?? 0, unit: isMetric ? 'mm' : 'in' });
       list.push({ label: 'Recommended Deflection Depth', value: outputs.recommendedThickness ?? 0, unit: isMetric ? 'mm' : 'in' });
-      list.push({ label: 'Suggested Area Reinforcement', value: outputs.suggestedRebar ?? 'N/A', unit: 'Standard spacing' });
+      list.push({ label: 'Support Condition', value: inputs.supportType ?? 'simple', unit: 'Boundary' });
     } else if (calculatorId === 'geotech-bearing') {
-      list.push({ label: 'Terzaghi Bearing Coeff Nc', value: (outputs.Nc ?? 0).toFixed(2), unit: 'Factor' });
-      list.push({ label: 'Terzaghi Bearing Coeff Nq', value: (outputs.Nq ?? 0).toFixed(2), unit: 'Factor' });
-      list.push({ label: 'Terzaghi Bearing Coeff Nγ', value: (outputs.Ngamma ?? 0).toFixed(2), unit: 'Factor' });
+      list.push({ label: 'Terzaghi Bearing Coeff Nc', value: (outputs.nc ?? 0).toFixed(2), unit: 'Factor' });
+      list.push({ label: 'Terzaghi Bearing Coeff Nq', value: (outputs.nq ?? 0).toFixed(2), unit: 'Factor' });
+      list.push({ label: 'Terzaghi Bearing Coeff Nγ', value: (outputs.ngg ?? 0).toFixed(2), unit: 'Factor' });
       list.push({ label: 'Ultimate Bearing Load (qu)', value: outputs.ultimateCapacity ?? 0, unit: isMetric ? 'kPa' : 'psf' });
       list.push({ label: 'Safe Allowable Bearing (q_allow)', value: outputs.allowableCapacity ?? 0, unit: isMetric ? 'kPa' : 'psf' });
     } else if (calculatorId === 'geotech-retaining') {
@@ -1790,8 +1796,8 @@ export default function CalculatorWorkspace({
             A_g = Width × Depth &nbsp;|&nbsp; A_st = Bars × (π · d_bar²) / 4
           </div>
           <p className="text-slate-405 leading-normal">
-            Gross column bounds A_g = {width} × {depth} = <span className="text-white font-bold">{outputs.grossAreaAg ?? 0} {isM ? 'mm²' : 'in²'}</span><br/>
-            Longitudinal rebar area A_st = {count} × (π × {barD}²) / 4 = <span className="text-white font-bold">{outputs.steelAreaAst ?? 0} {isM ? 'mm²' : 'in²'}</span>
+            Gross column bounds A_g = {width} × {depth} = <span className="text-white font-bold">{outputs.grossArea ?? 0} {isM ? 'mm²' : 'in²'}</span><br/>
+            Longitudinal rebar area A_st = {count} × (π × {barD}²) / 4 = <span className="text-white font-bold">{outputs.steelArea ?? 0} {isM ? 'mm²' : 'in²'}</span>
           </p>
         </div>
 
@@ -1801,8 +1807,10 @@ export default function CalculatorWorkspace({
             Steel ratio ρ = (A_st / A_g) × 100%
           </div>
           <p className="text-slate-405 leading-normal">
-            ρ = ({outputs.steelAreaAst} / {outputs.grossAreaAg}) × 100% = <span className="text-white font-bold">{outputs.steelRatioRho ?? 0}%</span><br/>
-            ACI Standard Status Check: <span className={`font-bold ${String(outputs.steelRatioCheck).toLowerCase().includes('fail') ? 'text-red-500' : 'text-emerald-400'}`}>{outputs.steelRatioCheck}</span>
+            ρ = ({outputs.steelArea} / {outputs.grossArea}) × 100% = <span className="text-white font-bold">{outputs.steelRatio ?? 0}%</span><br/>
+            ACI Standard Status Check: <span className={`font-bold ${outputs.minRebarWarning || outputs.maxRebarWarning ? 'text-red-500' : 'text-emerald-400'}`}>
+              {outputs.minRebarWarning ? 'FAIL — below 1% min ρ' : outputs.maxRebarWarning ? 'FAIL — above 8% max ρ' : 'PASS — within 1–8% ρ'}
+            </span>
           </p>
         </div>
 

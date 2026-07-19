@@ -2,10 +2,10 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI, Type } from "@google/genai";
 
-// Load environment variables
+// Load environment variables (.env.local overrides .env when present)
 dotenv.config();
+dotenv.config({ path: ".env.local", override: true });
 
 // Initialize Express
 const app = express();
@@ -13,23 +13,6 @@ const PORT = 3000;
 
 // Middleware
 app.use(express.json());
-
-// Initialize Gemini SDK with telemetry header
-const getGeminiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn("WARNING: GEMINI_API_KEY environment variable is not defined.");
-    return null;
-  }
-  return new GoogleGenAI({
-    apiKey: apiKey,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
-      }
-    }
-  });
-};
 
 // Health Check API
 app.get("/api/health", (req, res) => {

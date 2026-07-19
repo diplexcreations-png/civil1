@@ -81,8 +81,9 @@ export default function MainDashboard({
       // Column capacity check
       if (calc.calculatorId === 'structural-column' && calc.outputs) {
         checked++;
+        // steelRatio is already stored as percent (e.g. 1.5 for 1.5%)
         const rho = Number(calc.outputs.steelRatio);
-        if (rho >= 0.01 && rho <= 0.08) verified++;
+        if (rho >= 1.0 && rho <= 8.0) verified++;
       }
       // Geotech bearing safety factor check
       if (calc.calculatorId === 'geotech-bearing' && calc.outputs) {
@@ -92,7 +93,7 @@ export default function MainDashboard({
       }
     });
 
-    if (checked === 0) return 94; // Standard safety threshold
+    if (checked === 0) return 100;
     return Math.round((verified / checked) * 100);
   }, [savedCalculations]);
 

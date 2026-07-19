@@ -53,9 +53,28 @@ export const CALCULATORS_LIST: CalculatorDef[] = [
     id: 'survey-coordinate',
     name: 'Surveying Coordinate Traverse Compass',
     category: 'survey',
-    description: 'Calculates the bearing, horizontal distance, and 3D coordinates (Northing, Easting, Elevation) of surveying stations with closure checks.',
+    description: 'Calculates bearing, horizontal distance, and 3D coordinates (Northing, Easting, Elevation) for a single traverse leg from a known station.',
     iconName: 'Anchor',
     trending: true,
+    featured: true,
+  },
+  // Geotechnical
+  {
+    id: 'geotech-bearing',
+    name: 'Terzaghi Bearing Capacity Solver',
+    category: 'geotech',
+    description: 'Evaluates ultimate and allowable soil bearing pressure for shallow footings using Terzaghi bearing capacity factors (Nc, Nq, Nγ) and a safety factor.',
+    iconName: 'Anchor',
+    trending: true,
+    featured: true,
+  },
+  {
+    id: 'geotech-retaining',
+    name: 'Cantilever Retaining Wall Lateral Force',
+    category: 'geotech',
+    description: 'Computes Rankine active earth pressure coefficient (Ka), lateral soil thrust, and overturning moment for cantilever retaining walls.',
+    iconName: 'Server',
+    trending: false,
     featured: true,
   },
   {
@@ -330,6 +349,27 @@ export const FORMULA_REFERENCES: Record<string, FormulaReference> = {
       'Configure brick size inputs and mortar joint bedding thicknesses (typically 10mm or 0.4 inches).',
       'Calculate total wall volume and subtract raw brick content to isolate the mortar volume.',
       'Formulate required dry sand, dry cement bags (using typical density values) from mix ratios (e.g. 1:4).'
+    ]
+  },
+  'geotech-bearing': {
+    id: 'geotech-bearing',
+    latex: 'q_{ult} = c N_c s_c + q N_q + 0.5 \\gamma B N_\\gamma s_\\gamma',
+    explanation: 'Terzaghi shallow-foundation bearing capacity combines cohesion, surcharge, and self-weight terms with shape factors for rectangular footings.',
+    steps: [
+      'Convert friction angle φ to Terzaghi factors Nc, Nq, and Nγ.',
+      'Apply shape factors sc and sγ based on footing B/L ratio.',
+      'Compute ultimate bearing pressure q_ult from cohesion, overburden q = γ·Df, and footing width B.',
+      'Divide by the safety factor (typically 3.0) to obtain allowable bearing capacity.'
+    ]
+  },
+  'geotech-retaining': {
+    id: 'geotech-retaining',
+    latex: 'K_a = \\frac{1-\\sin\\phi}{1+\\sin\\phi} \\quad , \\quad P_a = \\tfrac{1}{2} K_a \\gamma H^2',
+    explanation: 'Rankine active earth pressure estimates the lateral soil thrust on a vertical retaining face and the overturning moment about the toe.',
+    steps: [
+      'Compute active earth pressure coefficient Ka from soil friction angle φ (and optional backfill slope).',
+      'Lateral thrust Pa = ½ · Ka · γ · H² acting at H/3 above the base.',
+      'Overturning moment about the toe = Pa · (H/3).'
     ]
   }
 };
