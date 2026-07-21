@@ -14,6 +14,7 @@ import CalculatorWorkspace from './components/CalculatorWorkspace';
 import MainDashboard from './components/MainDashboard';
 import { ChatBot } from './components/ChatBot';
 import { trackEvent, trackPageView } from './utils/analytics';
+import GuidedTour from './components/GuidedTour';
 
 export default function App() {
   // Global States
@@ -180,9 +181,21 @@ export default function App() {
 
   const activeCalculatorDef = CALCULATORS_LIST.find(c => c.id === activeCalcId);
 
+  const handleTourNavigate = (page: string, calcId?: string) => {
+    if (page === 'landing') setNavActive('landing');
+    if (page === 'workspace') {
+      setNavActive('workspace');
+      if (calcId) setActiveCalcId(calcId);
+      else if (!activeCalcId) setActiveCalcId('concrete-volume');
+    }
+    if (page === 'dashboard') setNavActive('dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#090F1C] text-slate-800 dark:text-slate-100 flex flex-col font-sans relative overflow-hidden transition-colors duration-200">
       
+      <GuidedTour onNavigate={handleTourNavigate} />
+
       {/* Ambient background blur blobs */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-blue-300/15 dark:bg-blue-900/10 rounded-full filter blur-3xl opacity-60 dark:opacity-45 animate-blob pointer-events-none"></div>
       <div className="absolute top-[30vh] right-10 w-96 h-96 bg-emerald-300/15 dark:bg-emerald-900/5 rounded-full filter blur-3xl opacity-60 dark:opacity-35 animate-blob animation-delay-2000 pointer-events-none"></div>
@@ -197,6 +210,7 @@ export default function App() {
           
           {/* Logo with Green healthy engine dot */}
           <div 
+            id="tour-logo"
             onClick={() => setNavActive('landing')}
             className="flex items-center space-x-2.5 cursor-pointer group"
           >
@@ -215,6 +229,7 @@ export default function App() {
           {/* Center Tabs Navigations */}
           <nav className="hidden md:flex items-center space-x-1 bg-slate-100/80 dark:bg-slate-900/85 border border-slate-200/85 dark:border-slate-800 backdrop-blur-md rounded-2xl p-1 text-xs font-sans font-semibold text-slate-500 dark:text-slate-400">
             <button 
+              id="tour-nav-explore"
               onClick={() => setNavActive('landing')}
               className={`px-4 py-2 rounded-xl flex items-center space-x-1.5 transition-all cursor-pointer ${navActive === 'landing' ? 'bg-[#0A84FF] text-white shadow-sm' : 'hover:text-[#0F172A] dark:hover:text-white'}`}
             >
@@ -222,6 +237,7 @@ export default function App() {
               <span>Explore Suite</span>
             </button>
             <button 
+              id="tour-nav-workspace"
               onClick={() => setNavActive('workspace')}
               className={`px-4 py-2 rounded-xl flex items-center space-x-1.5 transition-all cursor-pointer ${navActive === 'workspace' ? 'bg-[#0A84FF] text-white shadow-sm' : 'hover:text-[#0F172A] dark:hover:text-white'}`}
             >
@@ -229,6 +245,7 @@ export default function App() {
               <span>Analysis Desk</span>
             </button>
             <button 
+              id="tour-nav-analytics"
               onClick={() => setNavActive('dashboard')}
               className={`px-4 py-2 rounded-xl flex items-center space-x-1.5 transition-all cursor-pointer ${navActive === 'dashboard' ? 'bg-[#0A84FF] text-white shadow-sm' : 'hover:text-[#0F172A] dark:hover:text-white'}`}
             >
@@ -304,6 +321,7 @@ export default function App() {
       {/* MOBILE COMPANION BOTTOM TABS */}
       <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/85 dark:bg-[#090F1C]/85 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-xl backdrop-blur-lg flex items-center space-x-1 text-xs font-sans font-semibold text-slate-500 dark:text-slate-400 w-[280px] justify-between">
         <button 
+          id="tour-mob-explore"
           onClick={() => setNavActive('landing')}
           className={`flex-1 py-1.5 rounded-xl flex flex-col items-center justify-center space-y-0.5 transition-all cursor-pointer ${navActive === 'landing' ? 'bg-[#0A84FF] text-white shadow-sm' : 'hover:text-[#0F172A] dark:hover:text-white'}`}
         >
@@ -311,6 +329,7 @@ export default function App() {
           <span className="text-[9px]">Explore</span>
         </button>
         <button 
+          id="tour-mob-workspace"
           onClick={() => setNavActive('workspace')}
           className={`flex-1 py-1.5 rounded-xl flex flex-col items-center justify-center space-y-0.5 transition-all cursor-pointer ${navActive === 'workspace' ? 'bg-[#0A84FF] text-white shadow-sm' : 'hover:text-[#0F172A] dark:hover:text-white'}`}
         >
@@ -318,6 +337,7 @@ export default function App() {
           <span className="text-[9px]">Workspace</span>
         </button>
         <button 
+          id="tour-mob-analytics"
           onClick={() => setNavActive('dashboard')}
           className={`flex-1 py-1.5 rounded-xl flex flex-col items-center justify-center space-y-0.5 transition-all cursor-pointer ${navActive === 'dashboard' ? 'bg-[#0A84FF] text-white shadow-sm' : 'hover:text-[#0F172A] dark:hover:text-white'}`}
         >

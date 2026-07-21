@@ -3174,7 +3174,7 @@ export default function CalculatorWorkspace({
           : calculatorId === 'utility-convert'
           ? 'col-span-12 lg:col-span-6 w-full'
           : 'col-span-12 lg:col-span-7 xl:col-span-8 w-full'
-      } bg-white/70 border border-slate-200 rounded-3xl p-4 sm:p-5 backdrop-blur-xl flex flex-col justify-between shadow-xs text-left`} id="calculator-inputs">
+      } bg-white/70 border border-slate-200 rounded-3xl p-4 sm:p-5 backdrop-blur-xl flex flex-col justify-between shadow-xs text-left`} id="tour-input-panel">
         <div>
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-205">
             <div className="flex items-center space-x-2">
@@ -4864,6 +4864,7 @@ export default function CalculatorWorkspace({
         {/* BOTTOM: Action CTA Cards */}
         <div className="mt-6 pt-4 border-t border-slate-200 space-y-2">
           <button 
+            id="tour-save-btn"
             onClick={handleSaveWorkspace}
             className="w-full py-2.5 px-4 bg-[#0F172A] hover:bg-slate-800 text-white font-sans text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 cursor-pointer transition-all shadow-sm"
           >
@@ -5629,6 +5630,7 @@ export default function CalculatorWorkspace({
         {/* PRINT / EXPORT BUTTONS */}
         <div id="print-actions-row" className="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-2">
           <button 
+            id="tour-export-pdf"
             onClick={handleDownloadPDF}
             className="flex-1 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
           >
@@ -5637,6 +5639,7 @@ export default function CalculatorWorkspace({
           </button>
           
           <button 
+            id="tour-export-excel"
             onClick={handleDownloadExcel}
             className="flex-1 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
           >
