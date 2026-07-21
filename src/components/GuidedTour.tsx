@@ -174,20 +174,10 @@ export default function GuidedTour({ onNavigate }: GuidedTourProps) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    // Center steps — no spotlight, tooltip in middle
+    // Center steps — no spotlight; modal is flex-centered in render (no transform clipping)
     if (target.startsWith('__')) {
       setSpotlightRect(null);
-      setTooltipStyle({
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: mob ? `${vw - 32}px` : '420px',
-        maxWidth: '95vw',
-        maxHeight: `${vh - 40}px`,
-        overflow: 'hidden',
-        zIndex: 10000,
-      });
+      setTooltipStyle({});
       return;
     }
 
@@ -351,6 +341,122 @@ export default function GuidedTour({ onNavigate }: GuidedTourProps) {
   const mob = isMobileRef.current;
   const featuredCalcs = CALCULATORS_LIST.slice(0, 6);
 
+  const tourCard = (
+    <div className={`
+      rounded-2xl border shadow-2xl shadow-black/40 flex flex-col overflow-hidden w-full
+      ${isCenterStep
+        ? 'bg-gradient-to-br from-[#0c1929] via-[#0F172A] to-[#0c1929] border-[#1e3a5f]/70 max-h-[90vh]'
+        : 'bg-[#0F172A]/95 backdrop-blur-xl border-slate-700/50'
+      }
+    `}>
+
+      <div className="h-1 w-full bg-gradient-to-r from-[#0A84FF] via-[#38BDF8] to-[#818CF8] flex-shrink-0" />
+
+      {/* Scrollable body */}
+      <div className={`overflow-y-auto flex-1 min-h-0 ${mob ? 'px-4 pt-4' : 'px-5 pt-5'}`}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            {isCenterStep && (
+              <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 2.5, repeat: Infinity }}>
+                {isLast ? <Rocket className="w-5 h-5 text-[#0A84FF]" /> :
+                 isCalcSelect ? <Calculator className="w-5 h-5 text-[#0A84FF]" /> :
+                 <Sparkles className="w-5 h-5 text-[#0A84FF]" />}
+              </motion.div>
+            )}
+            <h3 className={`text-white font-bold tracking-tight ${mob ? 'text-[13px]' : 'text-sm'}`}>{step.title}</h3>
+          </div>
+          <button onClick={finish} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800/60 transition-colors flex-shrink-0" aria-label="Close">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <p className={`text-slate-300 leading-relaxed ${mob ? 'text-[11px] mb-3' : 'text-[13px] mb-4'}`}>{step.content}</p>
+
+        {isCalcSelect && (
+          <div className={`grid grid-cols-2 ${mob ? 'gap-1.5 mb-2' : 'gap-2 mb-3'}`}>
+            {featuredCalcs.map((calc) => {
+              const Icon = CATEGORY_ICONS[calc.category] || Calculator;
+              const sel = selectedCalcId === calc.id;
+              return (
+                <button
+                  key={calc.id}
+                  onClick={() => { setSelectedCalcId(calc.id); selectedCalcRef.current = calc.id; }}
+                  className={`
+                    relative text-left ${mob ? 'p-2' : 'p-2.5'} rounded-xl border transition-all cursor-pointer
+                    ${sel
+                      ? 'bg-[#0A84FF]/15 border-[#0A84FF]/60 ring-1 ring-[#0A84FF]/25'
+                      : 'bg-slate-800/40 border-slate-700/40 hover:border-slate-500/60'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={`p-1 rounded-lg flex-shrink-0 ${sel ? 'bg-[#0A84FF]/20 text-[#0A84FF]' : 'bg-slate-700/50 text-slate-400'}`}>
+                      <Icon className="w-3 h-3" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`${mob ? 'text-[9px]' : 'text-[10px]'} font-bold truncate ${sel ? 'text-[#0A84FF]' : 'text-slate-200'}`}>
+                        {calc.name}
+                      </p>
+                      <p className={`${mob ? 'text-[7px]' : 'text-[8px]'} text-slate-500 truncate`}>
+                        {calc.category.toUpperCase()}
+                      </p>
+                    </div>
+                    {sel && (
+                      <div className="w-3.5 h-3.5 bg-[#0A84FF] rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Footer — always visible, never clipped */}
+      <div className={`flex-shrink-0 border-t border-slate-700/40 ${mob ? 'px-4 py-3' : 'px-5 py-4'} ${isCenterStep ? 'bg-[#0c1424]/95' : 'bg-[#0F172A]/95'}`}>
+        <div className="w-full h-1 bg-slate-800 rounded-full mb-3 overflow-hidden">
+          <motion.div
+            className="h-full rounded-full bg-gradient-to-r from-[#0A84FF] to-[#38BDF8]"
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.4 }}
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className={`text-slate-500 font-mono ${mob ? 'text-[9px]' : 'text-[11px]'}`}>
+            {stepIdx + 1}/{STEPS.length}
+          </span>
+
+          <div className="flex items-center gap-1.5">
+            {stepIdx > 0 && (
+              <button onClick={back}
+                className={`flex items-center gap-0.5 px-2 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all cursor-pointer ${mob ? 'text-[10px]' : 'text-[12px]'}`}>
+                <ChevronLeft className="w-3 h-3" /> Back
+              </button>
+            )}
+            {isFirst && (
+              <button onClick={finish}
+                className={`px-2 py-1.5 rounded-lg font-semibold text-slate-500 hover:text-white hover:bg-slate-800 transition-all cursor-pointer ${mob ? 'text-[10px]' : 'text-[12px]'}`}>
+                Skip
+              </button>
+            )}
+            <button onClick={next}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold text-white bg-gradient-to-r from-[#0A84FF] to-[#3B82F6] shadow-lg shadow-blue-500/20 cursor-pointer active:scale-95 transition-transform ${mob ? 'text-[10px]' : 'text-[12px]'}`}>
+              {isLast ? (<>Get Started <Rocket className="w-3 h-3" /></>)
+               : isFirst ? (<>Start Tour <ArrowRight className="w-3 h-3" /></>)
+               : isCalcSelect ? (<>Open <ArrowRight className="w-3 h-3" /></>)
+               : (<>Next <ChevronRight className="w-3 h-3" /></>)}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       {/* === OVERLAY === */}
@@ -410,6 +516,19 @@ export default function GuidedTour({ onNavigate }: GuidedTourProps) {
       {/* === TOOLTIP === */}
       <AnimatePresence mode="wait">
         {!isTransitioning && (
+          isCenterStep ? (
+            <div key={`center-${stepIdx}`} className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.93, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.93 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                className={`pointer-events-auto w-full ${mob ? 'max-w-[95vw]' : 'max-w-[420px]'}`}
+              >
+                {tourCard}
+              </motion.div>
+            </div>
+          ) : (
           <motion.div
             key={`tip-${stepIdx}`}
             initial={{ opacity: 0, scale: 0.93, y: 10 }}
@@ -418,126 +537,9 @@ export default function GuidedTour({ onNavigate }: GuidedTourProps) {
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             style={tooltipStyle}
           >
-            <div className={`
-              rounded-2xl border shadow-2xl shadow-black/40 flex flex-col overflow-hidden
-              ${isCenterStep
-                ? 'bg-gradient-to-br from-[#0c1929] via-[#0F172A] to-[#0c1929] border-[#1e3a5f]/70'
-                : 'bg-[#0F172A]/95 backdrop-blur-xl border-slate-700/50'
-              }
-            `} style={{ maxHeight: mob ? 'calc(100vh - 60px)' : 'calc(100vh - 40px)' }}>
+            {tourCard}
 
-              {/* Accent bar */}
-              <div className="h-1 w-full bg-gradient-to-r from-[#0A84FF] via-[#38BDF8] to-[#818CF8] flex-shrink-0" />
-
-              <div className={`flex flex-col flex-1 min-h-0 ${mob ? 'p-4' : 'p-5'}`}>
-
-                {/* Header */}
-                <div className="flex items-center justify-between mb-2 flex-shrink-0">
-                  <div className="flex items-center gap-2">
-                    {isCenterStep && (
-                      <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 2.5, repeat: Infinity }}>
-                        {isLast ? <Rocket className="w-5 h-5 text-[#0A84FF]" /> :
-                         isCalcSelect ? <Calculator className="w-5 h-5 text-[#0A84FF]" /> :
-                         <Sparkles className="w-5 h-5 text-[#0A84FF]" />}
-                      </motion.div>
-                    )}
-                    <h3 className={`text-white font-bold tracking-tight ${mob ? 'text-[13px]' : 'text-sm'}`}>{step.title}</h3>
-                  </div>
-                  <button onClick={finish} className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-slate-800/60 transition-colors flex-shrink-0" aria-label="Close">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Body text */}
-                <p className={`text-slate-300 leading-relaxed flex-shrink-0 ${mob ? 'text-[11px] mb-3' : 'text-[13px] mb-4'}`}>{step.content}</p>
-
-                {/* === Calculator Selection Grid === */}
-                {isCalcSelect && (
-                  <div className={`grid grid-cols-2 flex-1 min-h-0 overflow-y-auto ${mob ? 'gap-1.5 mb-3' : 'gap-2 mb-4'}`}>
-                    {featuredCalcs.map((calc) => {
-                      const Icon = CATEGORY_ICONS[calc.category] || Calculator;
-                      const sel = selectedCalcId === calc.id;
-                      return (
-                        <button
-                          key={calc.id}
-                          onClick={() => { setSelectedCalcId(calc.id); selectedCalcRef.current = calc.id; }}
-                          className={`
-                            relative text-left ${mob ? 'p-2' : 'p-2.5'} rounded-xl border transition-all cursor-pointer
-                            ${sel
-                              ? 'bg-[#0A84FF]/15 border-[#0A84FF]/60 ring-1 ring-[#0A84FF]/25'
-                              : 'bg-slate-800/40 border-slate-700/40 hover:border-slate-500/60'
-                            }
-                          `}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className={`p-1 rounded-lg flex-shrink-0 ${sel ? 'bg-[#0A84FF]/20 text-[#0A84FF]' : 'bg-slate-700/50 text-slate-400'}`}>
-                              <Icon className="w-3 h-3" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className={`${mob ? 'text-[9px]' : 'text-[10px]'} font-bold truncate ${sel ? 'text-[#0A84FF]' : 'text-slate-200'}`}>
-                                {calc.name}
-                              </p>
-                              <p className={`${mob ? 'text-[7px]' : 'text-[8px]'} text-slate-500 truncate`}>
-                                {calc.category.toUpperCase()}
-                              </p>
-                            </div>
-                            {sel && (
-                              <div className="w-3.5 h-3.5 bg-[#0A84FF] rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Progress + footer — pinned so Next/Back never scroll away */}
-                <div className="flex-shrink-0 pt-2 mt-auto border-t border-slate-700/40">
-                <div className="w-full h-1 bg-slate-800 rounded-full mb-3 overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-[#0A84FF] to-[#38BDF8]"
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className={`text-slate-500 font-mono ${mob ? 'text-[9px]' : 'text-[11px]'}`}>
-                    {stepIdx + 1}/{STEPS.length}
-                  </span>
-
-                  <div className="flex items-center gap-1.5">
-                    {stepIdx > 0 && (
-                      <button onClick={back}
-                        className={`flex items-center gap-0.5 px-2 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all cursor-pointer ${mob ? 'text-[10px]' : 'text-[12px]'}`}>
-                        <ChevronLeft className="w-3 h-3" /> Back
-                      </button>
-                    )}
-                    {isFirst && (
-                      <button onClick={finish}
-                        className={`px-2 py-1.5 rounded-lg font-semibold text-slate-500 hover:text-white hover:bg-slate-800 transition-all cursor-pointer ${mob ? 'text-[10px]' : 'text-[12px]'}`}>
-                        Skip
-                      </button>
-                    )}
-                    <button onClick={next}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold text-white bg-gradient-to-r from-[#0A84FF] to-[#3B82F6] shadow-lg shadow-blue-500/20 cursor-pointer active:scale-95 transition-transform ${mob ? 'text-[10px]' : 'text-[12px]'}`}>
-                      {isLast ? (<>Get Started <Rocket className="w-3 h-3" /></>)
-                       : isFirst ? (<>Start Tour <ArrowRight className="w-3 h-3" /></>)
-                       : isCalcSelect ? (<>Open <ArrowRight className="w-3 h-3" /></>)
-                       : (<>Next <ChevronRight className="w-3 h-3" /></>)}
-                    </button>
-                  </div>
-                </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Arrow for non-center steps */}
-            {!isCenterStep && (() => {
+            {(() => {
               const pl = getPlacement(step);
               if (pl === 'center') return null;
               const arrowStyle: React.CSSProperties = { position: 'absolute' };
@@ -548,6 +550,7 @@ export default function GuidedTour({ onNavigate }: GuidedTourProps) {
               return <div className="w-2.5 h-2.5 bg-[#0F172A] border border-slate-700/50 rotate-45" style={arrowStyle} />;
             })()}
           </motion.div>
+          )
         )}
       </AnimatePresence>
     </>
