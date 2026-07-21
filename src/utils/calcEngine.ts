@@ -1028,9 +1028,15 @@ export function calculateRebarQuantity(input: RebarQuantityInput, system: UnitSy
   };
 }
 
-/**
- * Brick Wall Masonry and Mortar Quantity Estimator
- */
+export interface BrickOpening {
+  id: string;
+  type: 'door' | 'window' | 'custom';
+  length: number; // m or ft
+  height: number; // m or ft
+  x: number;      // m or ft (from left)
+  y: number;      // m or ft (from bottom)
+}
+
 export interface BrickMasonryInput {
   wallLength: number;     // m or ft
   wallHeight: number;     // m or ft
@@ -1039,75 +1045,527 @@ export interface BrickMasonryInput {
   brickWidth: number;     // mm or inches
   brickHeight: number;    // mm or inches
   mortarJoint: number;    // mm or inches
-  mixRatio: string;       // e.g. "1:3", "1:4", "1:5", "1:6"
+  mixRatio: string;       // e.g. "1:3", "1:4", "1:5", "1:6" or custom "1:x"
   wastePercent: number;
+  bondType: string;       // stretcher, header, english, flemish, stack, rat-trap, etc.
+  openings: BrickOpening[];
+  
+  // Cost inputs
+  brickPrice?: number;
+  cementPrice?: number;
+  sandPrice?: number;
+  labourCost?: number;
+  transportCost?: number;
 }
 
 export interface BrickMasonryOutput {
-  wallVolume: number;        // m³ or ft³
-  netBricksCount: number;
-  totalBricksWithWaste: number;
-  mortarVolumeWet: number;    // m³ or ft³
-  mortarVolumeDry: number;    // m³ or ft³ (with shrinkage multiplier)
-  cementBagsRequired: number; // count
-  sandWeightRequired: number; // kg or lbs
+  wallVolumeGross: number;      // m³ or ft³
+  wallVolumeNet: number;        // m³ or ft³
+  wallAreaGross: number;        // m² or ft²
+  wallAreaNet: number;          // m² or ft²
+  netBricksCount: number;       // total raw bricks equivalent
+  totalBricksWithWaste: number; // including wastage
+  fullBricksCount: number;      // actual full bricks placed
+  halfBricksCount: number;      // count of bricks cut to half
+  cutBricksCount: number;       // count of other cut bricks
+  mortarVolumeWet: number;      // m³ or ft³
+  mortarVolumeDry: number;      // m³ or ft³
+  cementBagsRequired: number;   // count
+  sandVolumeRequired: number;   // m³ or ft³
+  sandWeightRequired: number;   // kg or lbs
+  waterRequired: number;        // Liters or Gallons
+  
+  // Cost breakdowns
+  materialCost: number;
+  labourCost: number;
+  grandTotal: number;
+  costPerArea: number;          // per m² or ft²
+  costPerVolume: number;        // per m³ or ft³
+}
+
+export function generateBricksList(
+  L: number,
+  H: number,
+  T: number,
+  bl: number,
+  bw: number,
+  bh: number,
+  j: number,
+  bondType: string,
+  openings: BrickOpening[]
+): {
+  bricks: Array<{ x: number; y: number; z: number; w: number; h: number; d: number; isHeader: boolean }>;
+  cavityVolume: number;
+} {
+  const bricks: Array<{ x: number; y: number; z: number; w: number; h: number; d: number; isHeader: boolean }> = [];
+  let cavityVolume = 0;
+  
+  const ch = bh + j;
+  const num_courses = Math.max(1, Math.floor((H - bh) / ch) + 1);
+
+  // Helper to add a brick, checking openings
+  const addBrick = (x: number, y: number, z: number, w: number, h: number, d: number, isHeader: boolean) => {
+    let xStart = x;
+    let xEnd = x + w;
+    const yStart = y;
+    const yEnd = y + h;
+
+    let fullyContained = false;
+    for (const op of openings) {
+      const opXStart = op.x;
+      const opXEnd = op.x + op.length;
+      const opYStart = op.y;
+      const opYEnd = op.y + op.height;
+
+      // Check overlap in XY plane
+      if (xStart < opXEnd && xEnd > opXStart && yStart < opYEnd && yEnd > opYStart) {
+        // If the brick is fully inside the opening, discard it
+        if (xStart >= opXStart && xEnd <= opXEnd && yStart >= opYStart && yEnd <= opYEnd) {
+          fullyContained = true;
+          break;
+        }
+
+        // Cut from right
+        if (xStart < opXStart && xEnd > opXStart) {
+          xEnd = Math.min(xEnd, opXStart);
+        }
+        // Cut from left
+        if (xStart < opXEnd && xEnd > opXEnd) {
+          xStart = Math.max(xStart, opXEnd);
+        }
+      }
+    }
+
+    if (fullyContained) return;
+
+    const finalWidth = xEnd - xStart;
+    if (finalWidth > 0.005) { // at least 5mm
+      bricks.push({
+        x: xStart,
+        y: y,
+        z: z,
+        w: finalWidth,
+        h: h,
+        d: d,
+        isHeader
+      });
+    }
+  };
+
+  for (let r = 0; r < num_courses; r++) {
+    const y = r * ch;
+    
+    if (bondType === 'stretcher') {
+      const numSkins = Math.max(1, Math.round(T / bw));
+      const offset = (r % 2) * 0.5 * (bl + j);
+      const brickLen = bl + j;
+      const startX = -offset;
+      
+      for (let s = 0; s < numSkins; s++) {
+        const z = s * (bw + j);
+        let currX = startX;
+        while (currX < L) {
+          addBrick(currX, y, z, bl, bh, bw, false);
+          currX += brickLen;
+        }
+      }
+    }
+    else if (bondType === 'header') {
+      const numSkins = Math.max(1, Math.round(T / bl));
+      const offset = (r % 2) * 0.5 * (bw + j);
+      const brickLen = bw + j;
+      const startX = -offset;
+      
+      for (let s = 0; s < numSkins; s++) {
+        const z = s * (bl + j);
+        let currX = startX;
+        while (currX < L) {
+          addBrick(currX, y, z, bw, bh, bl, true);
+          currX += brickLen;
+        }
+      }
+    }
+    else if (bondType === 'english') {
+      const isHeaderCourse = (r % 2 === 1);
+      if (isHeaderCourse) {
+        const numSkins = Math.max(1, Math.round(T / bl));
+        const offset = (r % 2) * 0.5 * (bw + j);
+        const brickLen = bw + j;
+        const startX = -offset;
+        for (let s = 0; s < numSkins; s++) {
+          const z = s * (bl + j);
+          let currX = startX;
+          while (currX < L) {
+            addBrick(currX, y, z, bw, bh, bl, true);
+            currX += brickLen;
+          }
+        }
+      } else {
+        const numSkins = Math.max(1, Math.round(T / bw));
+        const offset = (r % 2) * 0.5 * (bl + j);
+        const brickLen = bl + j;
+        const startX = -offset;
+        for (let s = 0; s < numSkins; s++) {
+          const z = s * (bw + j);
+          let currX = startX;
+          while (currX < L) {
+            addBrick(currX, y, z, bl, bh, bw, false);
+            currX += brickLen;
+          }
+        }
+      }
+    }
+    else if (bondType === 'flemish') {
+      const offset = (r % 2) * 0.5 * (bl + j);
+      const numSkins = Math.max(1, Math.round(T / bw));
+      
+      for (let s = 0; s < numSkins; s++) {
+        const z = s * (bw + j);
+        let currX = -offset;
+        let toggle = (s % 2 === 0) ? (r % 2 === 0) : (r % 2 === 1);
+        while (currX < L) {
+          if (toggle) {
+            addBrick(currX, y, z, bw, bh, bl, true);
+            currX += bw + j;
+          } else {
+            addBrick(currX, y, z, bl, bh, bw, false);
+            currX += bl + j;
+          }
+          toggle = !toggle;
+        }
+      }
+    }
+    else if (bondType === 'english-garden' || bondType === 'garden-wall') {
+      const stretchersCount = bondType === 'english-garden' ? 3 : 5;
+      const isHeaderCourse = (r % (stretchersCount + 1) === stretchersCount);
+      if (isHeaderCourse) {
+        const numSkins = Math.max(1, Math.round(T / bl));
+        const offset = (r % 2) * 0.5 * (bw + j);
+        const startX = -offset;
+        for (let s = 0; s < numSkins; s++) {
+          const z = s * (bl + j);
+          let currX = startX;
+          while (currX < L) {
+            addBrick(currX, y, z, bw, bh, bl, true);
+            currX += bw + j;
+          }
+        }
+      } else {
+        const numSkins = Math.max(1, Math.round(T / bw));
+        const offset = ((r % (stretchersCount + 1)) % 2) * 0.5 * (bl + j);
+        const startX = -offset;
+        for (let s = 0; s < numSkins; s++) {
+          const z = s * (bw + j);
+          let currX = startX;
+          while (currX < L) {
+            addBrick(currX, y, z, bl, bh, bw, false);
+            currX += bl + j;
+          }
+        }
+      }
+    }
+    else if (bondType === 'flemish-garden') {
+      const offset = (r % 2) * 0.5 * (bl + j);
+      const numSkins = Math.max(1, Math.round(T / bw));
+      for (let s = 0; s < numSkins; s++) {
+        const z = s * (bw + j);
+        let currX = -offset;
+        let counter = (r % 2 === 0) ? 0 : 2;
+        while (currX < L) {
+          if (counter % 4 === 3) {
+            addBrick(currX, y, z, bw, bh, bl, true);
+            currX += bw + j;
+          } else {
+            addBrick(currX, y, z, bl, bh, bw, false);
+            currX += bl + j;
+          }
+          counter++;
+        }
+      }
+    }
+    else if (bondType === 'dutch') {
+      const isHeaderCourse = (r % 2 === 1);
+      if (isHeaderCourse) {
+        const numSkins = Math.max(1, Math.round(T / bl));
+        const offset = (r % 2) * 0.5 * (bw + j);
+        for (let s = 0; s < numSkins; s++) {
+          const z = s * (bl + j);
+          let currX = -offset;
+          while (currX < L) {
+            addBrick(currX, y, z, bw, bh, bl, true);
+            currX += bw + j;
+          }
+        }
+      } else {
+        const alternateStretcherShift = ((Math.floor(r / 2)) % 2 === 1);
+        const offset = alternateStretcherShift ? 0.5 * bl : 0;
+        const numSkins = Math.max(1, Math.round(T / bw));
+        for (let s = 0; s < numSkins; s++) {
+          const z = s * (bw + j);
+          let currX = -offset;
+          while (currX < L) {
+            addBrick(currX, y, z, bl, bh, bw, false);
+            currX += bl + j;
+          }
+        }
+      }
+    }
+    else if (bondType === 'monk') {
+      const offset = (r % 2) * 0.5 * (bl + j);
+      const numSkins = Math.max(1, Math.round(T / bw));
+      for (let s = 0; s < numSkins; s++) {
+        const z = s * (bw + j);
+        let currX = -offset;
+        let counter = (r % 2 === 0) ? 0 : 1;
+        while (currX < L) {
+          if (counter % 3 === 2) {
+            addBrick(currX, y, z, bw, bh, bl, true);
+            currX += bw + j;
+          } else {
+            addBrick(currX, y, z, bl, bh, bw, false);
+            currX += bl + j;
+          }
+          counter++;
+        }
+      }
+    }
+    else if (bondType === 'stack') {
+      const numSkins = Math.max(1, Math.round(T / bw));
+      for (let s = 0; s < numSkins; s++) {
+        const z = s * (bw + j);
+        let currX = 0;
+        while (currX < L) {
+          addBrick(currX, y, z, bl, bh, bw, false);
+          currX += bl + j;
+        }
+      }
+    }
+    else if (bondType === 'rat-trap') {
+      const offset = (r % 2) * 0.5 * (bl + j);
+      let currX = -offset;
+      let toggle = false;
+      const sh = bw; // laid on edge, height becomes width
+      const sd = bh; // Z depth
+      
+      while (currX < L) {
+        if (toggle) {
+          addBrick(currX, y, 0, sd, sh, T, true); // Header on edge spans full thickness
+          currX += sd + j;
+        } else {
+          addBrick(currX, y, 0, bl, sh, sd, false); // Front face skin
+          if (T > sd) {
+            addBrick(currX, y, T - sd, bl, sh, sd, false); // Back face skin
+            // Count empty cavity volume in this stretcher segment
+            const xOverlapL = Math.max(0, currX);
+            const xOverlapR = Math.min(L, currX + bl);
+            if (xOverlapR > xOverlapL) {
+              const segLen = xOverlapR - xOverlapL;
+              cavityVolume += segLen * sh * (T - 2 * sd);
+            }
+          }
+          currX += bl + j;
+        }
+        toggle = !toggle;
+      }
+    }
+    else if (bondType === 'facing') {
+      const numSkins = Math.max(1, Math.round(T / bw));
+      const offset = (r % 2) * 0.5 * (bl + j);
+      const brickLen = bl + j;
+      const startX = -offset;
+      
+      for (let s = 0; s < numSkins; s++) {
+        const z = s * (bw + j);
+        let currX = startX;
+        while (currX < L) {
+          addBrick(currX, y, z, bl, bh, bw, false);
+          currX += brickLen;
+        }
+      }
+    }
+    else if (bondType === 'herringbone') {
+      const brickLen = bl + j;
+      const brickWid = bw + j;
+      let currX = 0;
+      let colIdx = 0;
+      while (currX < L) {
+        let currZ = 0;
+        let rowIdx = 0;
+        while (currZ < T) {
+          const orientation = (colIdx + rowIdx) % 2 === 0;
+          if (orientation) {
+            addBrick(currX, y, currZ, bl, bh, bw, false);
+            currZ += brickWid;
+          } else {
+            addBrick(currX, y, currZ, bw, bh, bl, true);
+            currZ += brickLen;
+          }
+          rowIdx++;
+        }
+        currX += brickLen;
+        colIdx++;
+      }
+    }
+    else if (bondType === 'basket-weave') {
+      let currX = 0;
+      let blockToggle = (r % 2 === 0);
+      while (currX < L) {
+        if (blockToggle) {
+          addBrick(currX, y, 0, bl, bh, bw, false);
+          addBrick(currX, y + bh + j, 0, bl, bh, bw, false);
+          currX += bl + j;
+        } else {
+          addBrick(currX, y, 0, bw, bh, bl, true);
+          addBrick(currX + bw + j, y, 0, bw, bh, bl, true);
+          currX += 2 * (bw + j);
+        }
+        blockToggle = !blockToggle;
+      }
+    }
+  }
+
+  return { bricks, cavityVolume };
 }
 
 export function calculateBrickMasonry(input: BrickMasonryInput, system: UnitSystem): BrickMasonryOutput {
-  const { wallLength, wallHeight, wallThickness, brickLength, brickWidth, brickHeight, mortarJoint, mixRatio, wastePercent } = input;
+  const { 
+    wallLength, 
+    wallHeight, 
+    wallThickness, 
+    brickLength, 
+    brickWidth, 
+    brickHeight, 
+    mortarJoint, 
+    mixRatio, 
+    wastePercent,
+    bondType = 'stretcher',
+    openings = [],
+    brickPrice = 0,
+    cementPrice = 0,
+    sandPrice = 0,
+    labourCost = 0,
+    transportCost = 0
+  } = input;
   
   const isMetric = system === 'metric';
   
-  // 1. Calculate overall wall volume
-  const thicknessMOrFt = isMetric ? wallThickness / 1000 : wallThickness / 12;
-  const wallVolume = wallLength * wallHeight * thicknessMOrFt; // m³ or ft³
+  // 1. Compute dimensions in standard base units (meters or feet)
+  const T = isMetric ? wallThickness / 1000 : wallThickness / 12;
+  const bl = isMetric ? brickLength / 1000 : brickLength / 12;
+  const bw = isMetric ? brickWidth / 1000 : brickWidth / 12;
+  const bh = isMetric ? brickHeight / 1000 : brickHeight / 12;
+  const j = isMetric ? mortarJoint / 1000 : mortarJoint / 12;
   
-  // 2. Individual brick sizes
-  const bLen = isMetric ? brickLength / 1000 : brickLength / 12;
-  const bWid = isMetric ? brickWidth / 1000 : brickWidth / 12;
-  const bHei = isMetric ? brickHeight / 1000 : brickHeight / 12;
-  const joint = isMetric ? mortarJoint / 1000 : mortarJoint / 12;
+  const wallAreaGross = wallLength * wallHeight;
+  const wallVolumeGross = wallAreaGross * T;
   
-  const singleBrickVol = bLen * bWid * bHei; // Volume of raw brick
+  // Deduct openings
+  let totalOpeningsArea = 0;
+  let totalOpeningsVolume = 0;
   
-  // Brick Volume including mortared boundaries (nominal brick dimensions)
-  const nominalBrickVol = (bLen + joint) * (bWid + joint) * (bHei + joint);
-  
-  if (nominalBrickVol <= 0 || wallVolume <= 0) {
+  const processedOpenings = openings.map(op => {
+    const opW = Number(op.length) || 0;
+    const opH = Number(op.height) || 0;
+    const opX = Number(op.x) || 0;
+    const opY = Number(op.y) || 0;
+    
+    totalOpeningsArea += opW * opH;
+    totalOpeningsVolume += opW * opH * T;
+    
     return {
-      wallVolume: 0,
+      id: op.id,
+      type: op.type,
+      length: opW,
+      height: opH,
+      x: opX,
+      y: opY
+    };
+  });
+  
+  const wallAreaNet = Math.max(0, wallAreaGross - totalOpeningsArea);
+  const wallVolumeNet = Math.max(0, wallVolumeGross - totalOpeningsVolume);
+  
+  if (wallVolumeNet <= 0 || bl <= 0 || bw <= 0 || bh <= 0) {
+    return {
+      wallVolumeGross: parseFloat(wallVolumeGross.toFixed(3)),
+      wallVolumeNet: 0,
+      wallAreaGross: parseFloat(wallAreaGross.toFixed(2)),
+      wallAreaNet: 0,
       netBricksCount: 0,
       totalBricksWithWaste: 0,
+      fullBricksCount: 0,
+      halfBricksCount: 0,
+      cutBricksCount: 0,
       mortarVolumeWet: 0,
       mortarVolumeDry: 0,
       cementBagsRequired: 0,
-      sandWeightRequired: 0
+      sandVolumeRequired: 0,
+      sandWeightRequired: 0,
+      waterRequired: 0,
+      materialCost: 0,
+      labourCost: 0,
+      grandTotal: 0,
+      costPerArea: 0,
+      costPerVolume: 0
     };
   }
   
-  // Net raw bricks count required (excluding joints)
-  const netBricksCount = Math.ceil(wallVolume / nominalBrickVol);
-  const totalBricksWithWaste = Math.ceil(netBricksCount * (1 + wastePercent / 100));
+  // 2. Perform placement simulation to count bricks, half-bricks, cut bricks and cavity volumes
+  const { bricks, cavityVolume } = generateBricksList(
+    wallLength,
+    wallHeight,
+    T,
+    bl,
+    bw,
+    bh,
+    j,
+    bondType,
+    processedOpenings
+  );
   
-  // 3. Mortar Vol calculations
-  const bricksSolidVol = netBricksCount * singleBrickVol;
-  let mortarVolumeWet = wallVolume - bricksSolidVol; // remaining space is mortar
+  let fullBricksCount = 0;
+  let halfBricksCount = 0;
+  let cutBricksCount = 0;
+  let totalSolidBrickVolume = 0;
   
-  // Safety bounds in case calculation bounds collide
-  if (mortarVolumeWet < 0 || mortarVolumeWet > wallVolume * 0.5) {
-    mortarVolumeWet = wallVolume * 0.28; // typical 25% - 30% mortar occupancy
+  for (const b of bricks) {
+    let expectedW = bl;
+    if (b.isHeader) {
+      expectedW = (bondType === 'rat-trap') ? bh : bw;
+    }
+    
+    const ratio = b.w / expectedW;
+    
+    if (ratio > 0.95) {
+      fullBricksCount++;
+    } else if (ratio >= 0.45 && ratio <= 0.55) {
+      halfBricksCount++;
+    } else {
+      cutBricksCount++;
+    }
+    
+    totalSolidBrickVolume += b.w * b.h * b.d;
   }
   
-  // Dry mortar factor: sand and cement compaction shrinkage accounts for 25% - 30% volume loss.
-  // Dry Mortar Vol = Wet Mortar Vol * 1.27
+  const netBricksCount = fullBricksCount + Math.ceil(halfBricksCount / 2) + cutBricksCount;
+  const totalBricksWithWaste = Math.ceil(netBricksCount * (1 + wastePercent / 100));
+  
+  // 3. Mortar Volume calculations
+  let mortarVolumeWet = wallVolumeNet - totalSolidBrickVolume - cavityVolume;
+  
+  const minMortarRatio = bondType === 'rat-trap' ? 0.08 : 0.15;
+  const maxMortarRatio = bondType === 'rat-trap' ? 0.20 : 0.38;
+  
+  if (mortarVolumeWet < wallVolumeNet * minMortarRatio || mortarVolumeWet > wallVolumeNet * maxMortarRatio) {
+    mortarVolumeWet = wallVolumeNet * (bondType === 'rat-trap' ? 0.12 : 0.26);
+  }
+  
   const mortarVolumeDry = mortarVolumeWet * 1.27;
   
-  // Mix ratio parsing
   const parts = mixRatio.split(':').map(Number);
   const sandParts = parts[1] || 4;
   const totalParts = 1 + sandParts;
   
-  // Cement volume & dry metrics
   const cementVol = mortarVolumeDry / totalParts;
   const sandVol = cementVol * sandParts;
   
@@ -1115,28 +1573,48 @@ export function calculateBrickMasonry(input: BrickMasonryInput, system: UnitSyst
   let sandWeightRequired = 0;
   
   if (isMetric) {
-    // 1 m³ cement weighs approx 1440 kg. Standard bag weight is 50 kg.
     const cementWeightKg = cementVol * 1440;
     cementBagsRequired = Math.ceil(cementWeightKg / 50);
-    
-    // 1 m³ loose building sand is approximately 1600 kg. Output sand weight in Kilograms.
     sandWeightRequired = sandVol * 1600;
   } else {
-    // Imperial density: Cement density is 90 lbs/ft³. Bag weight is 94 lbs.
     const cementWeightLbs = cementVol * 90;
     cementBagsRequired = Math.ceil(cementWeightLbs / 94);
-    
-    // Sand density is approx 100 lbs/ft³. Output in lbs.
     sandWeightRequired = sandVol * 100;
   }
   
+  const waterRequired = cementBagsRequired * (isMetric ? 25 : 6.6);
+  
+  // 4. Cost Calculations
+  const materialCost = (totalBricksWithWaste * brickPrice) + 
+                       (cementBagsRequired * cementPrice) + 
+                       (sandVol * sandPrice);
+                       
+  const calculatedLabour = wallVolumeNet * labourCost;
+  const grandTotal = materialCost + calculatedLabour + transportCost;
+  
+  const costPerArea = wallAreaNet > 0 ? grandTotal / wallAreaNet : 0;
+  const costPerVolume = wallVolumeNet > 0 ? grandTotal / wallVolumeNet : 0;
+  
   return {
-    wallVolume: parseFloat(wallVolume.toFixed(3)),
+    wallVolumeGross: parseFloat(wallVolumeGross.toFixed(3)),
+    wallVolumeNet: parseFloat(wallVolumeNet.toFixed(3)),
+    wallAreaGross: parseFloat(wallAreaGross.toFixed(2)),
+    wallAreaNet: parseFloat(wallAreaNet.toFixed(2)),
     netBricksCount,
     totalBricksWithWaste,
+    fullBricksCount,
+    halfBricksCount,
+    cutBricksCount,
     mortarVolumeWet: parseFloat(mortarVolumeWet.toFixed(4)),
     mortarVolumeDry: parseFloat(mortarVolumeDry.toFixed(4)),
     cementBagsRequired,
-    sandWeightRequired: parseFloat(sandWeightRequired.toFixed(1))
+    sandVolumeRequired: parseFloat(sandVol.toFixed(3)),
+    sandWeightRequired: parseFloat(sandWeightRequired.toFixed(1)),
+    waterRequired: parseFloat(waterRequired.toFixed(1)),
+    materialCost: parseFloat(materialCost.toFixed(2)),
+    labourCost: parseFloat(calculatedLabour.toFixed(2)),
+    grandTotal: parseFloat(grandTotal.toFixed(2)),
+    costPerArea: parseFloat(costPerArea.toFixed(2)),
+    costPerVolume: parseFloat(costPerVolume.toFixed(2))
   };
 }
