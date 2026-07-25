@@ -1,10 +1,12 @@
-import { ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronRight, Share2, Printer, BookOpen,
 } from 'lucide-react';
-import { SEOHead, generateCalculatorSchema, CATEGORY_PATH_MAP, CATEGORY_META } from '../utils/seo';
+import { SEOHead, generateCalculatorSchema, CATEGORY_PATH_MAP } from '../utils/seo';
 import { CalculatorCategory } from '../types';
+import StepWizard from './StepWizard';
+import { BeginnerToggle } from './BeginnerMode';
 
 interface CalculatorPageProps {
   title: string;
@@ -15,15 +17,31 @@ interface CalculatorPageProps {
   faqs?: { question: string; answer: string }[];
   children: ReactNode;
   breadcrumbLabel?: string;
+  beginnerMode?: boolean;
+  onBeginnerModeChange?: (v: boolean) => void;
+  currentStep?: number;
+  onStepChange?: (step: number) => void;
 }
+
+const categoryPathNames: Record<string, string> = {
+  structural: 'Structural', concrete: 'Concrete', geotech: 'Geotechnical',
+  survey: 'Surveying', utility: 'Utilities', bbs: 'BBS',
+};
 
 export default function CalculatorPageTemplate({
   title, description, category, path, image, faqs, children, breadcrumbLabel,
+  beginnerMode, onBeginnerModeChange, currentStep, onStepChange,
 }: CalculatorPageProps) {
   const navigate = useNavigate();
   const categoryPath = CATEGORY_PATH_MAP[category];
-  const categoryMeta = CATEGORY_META[category];
   const displayPath = path.startsWith('/') ? path : `/${path}`;
+  const [showHelp, setShowHelp] = useState(false);
+
+  const steps = [
+    { id: 'choose', label: 'Calculator', description: 'Type & shape' },
+    { id: 'inputs', label: 'Dimensions', description: 'Enter values' },
+    { id: 'results', label: 'Results', description: 'Review output' },
+  ];
 
   const defaultFaqs = [
     {
@@ -40,10 +58,6 @@ export default function CalculatorPageTemplate({
     },
   ];
 
-  const relatedCalculators = [
-    { name: `${categoryMeta.name} Category`, path: `/${categoryPath}` },
-  ];
-
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -56,88 +70,80 @@ export default function CalculatorPageTemplate({
   return (
     <>
       <SEOHead meta={{
-        title,
-        description,
-        path: displayPath,
-        image,
-        type: 'article',
-        faqs: faqs || defaultFaqs,
+        title, description, path: displayPath, image,
+        type: 'article', faqs: faqs || defaultFaqs,
         breadcrumbs: [
           { name: 'Home', url: '/' },
-          { name: categoryMeta.name, url: `/${categoryPath}` },
+          { name: categoryPathNames[category] || category, url: `/${categoryPath}` },
           { name: breadcrumbLabel || title, url: displayPath },
         ],
-        schema: generateCalculatorSchema({
-          name: title,
-          description,
-          url: displayPath,
-          category,
-        }),
+        schema: generateCalculatorSchema({ name: title, description, url: displayPath, category }),
       }} />
 
       {/* Breadcrumbs */}
-      <nav className="flex items-center space-x-1.5 text-[10px] font-mono text-slate-500 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
-        <button onClick={() => navigate('/')} className="hover:text-[#0A84FF] cursor-pointer font-medium">Home</button>
-        <ChevronRight className="w-3 h-3 text-slate-400" />
-        <button onClick={() => navigate(`/${categoryPath}`)} className="hover:text-[#0A84FF] cursor-pointer font-medium capitalize">{categoryMeta.name}</button>
-        <ChevronRight className="w-3 h-3 text-slate-400" />
-        <span className="text-[#0A84FF] font-bold truncate max-w-[200px]">{breadcrumbLabel || title}</span>
+      <nav className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 dark:text-slate-500 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <button onClick={() => navigate('/')} className="hover:text-[#2563EB] transition-colors cursor-pointer font-semibold">Home</button>
+        <ChevronRight className="w-3 h-3 text-slate-300" />
+        <button onClick={() => navigate(`/${categoryPath}`)} className="hover:text-[#2563EB] transition-colors cursor-pointer font-semibold capitalize">
+          {categoryPathNames[category] || category}
+        </button>
+        <ChevronRight className="w-3 h-3 text-slate-300" />
+        <span className="text-[#2563EB] font-bold truncate max-w-[200px]">{breadcrumbLabel || title}</span>
       </nav>
 
       {/* Title + Actions */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white font-sans tracking-tight">{title}</h1>
-          <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">{description}</p>
+          <h1 className="text-xl lg:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{title}</h1>
+          <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">{description}</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          {onBeginnerModeChange && (
+            <BeginnerToggle enabled={!!beginnerMode} onChange={onBeginnerModeChange} />
+          )}
           <button onClick={handleShare}
-            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-semibold text-slate-600 flex items-center gap-1.5 hover:bg-slate-50 cursor-pointer transition-all">
-            <Share2 className="w-3 h-3" /> Share
+            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs">
+            <Share2 className="w-3.5 h-3.5" /> Share
           </button>
           <button onClick={() => window.print()}
-            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-semibold text-slate-600 flex items-center gap-1.5 hover:bg-slate-50 cursor-pointer transition-all">
-            <Printer className="w-3 h-3" /> Print
+            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs">
+            <Printer className="w-3.5 h-3.5" /> Print
           </button>
         </div>
       </div>
 
+      {/* Step Progress */}
+      {currentStep !== undefined && onStepChange && (
+        <div className="mb-6">
+          <StepWizard steps={steps} currentStep={currentStep} onStepClick={onStepChange} />
+        </div>
+      )}
+
       {/* Calculator Content */}
-      {children}
+      <div className="relative">
+        {children}
+      </div>
 
       {/* FAQ Section */}
       <section className="mt-10 max-w-4xl">
         <div className="flex items-center gap-2 mb-4">
-          <BookOpen className="w-4 h-4 text-[#0A84FF]" />
+          <BookOpen className="w-4 h-4 text-[#2563EB]" />
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Frequently Asked Questions</h3>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {(faqs || defaultFaqs).map((faq, idx) => (
-            <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-xs">
-              <h4 className="text-[11px] font-semibold text-slate-800 dark:text-slate-200">{faq.question}</h4>
-              <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 leading-relaxed">{faq.answer}</p>
-            </div>
+            <details key={idx} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-shadow hover:shadow-xs">
+              <summary className="px-4 py-3.5 text-[11px] font-semibold text-slate-800 dark:text-slate-200 cursor-pointer flex items-center justify-between list-none">
+                {faq.question}
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-open:rotate-90 transition-transform shrink-0" />
+              </summary>
+              <div className="px-4 pb-3.5 text-[10px] text-slate-500 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
+                {faq.answer}
+              </div>
+            </details>
           ))}
         </div>
       </section>
-
-      {/* Related Links */}
-      <section className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
-        <h3 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">Related</h3>
-        <div className="flex flex-wrap gap-2">
-          {relatedCalculators.map((rel) => (
-            <button key={rel.path} onClick={() => navigate(rel.path)}
-              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-medium text-slate-600 hover:border-[#0A84FF]/40 hover:text-[#0A84FF] transition-all cursor-pointer">
-              {rel.name}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="text-center font-mono text-[10px] text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-6 mt-8 pb-8 space-y-2">
-        <p>© 2026 CivilMath Inc. Professional Civil Calculation Labs.</p>
-      </footer>
     </>
   );
 }

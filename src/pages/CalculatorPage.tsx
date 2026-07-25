@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import CalculatorWorkspace from '../components/CalculatorWorkspace';
 import CalculatorPageTemplate from '../components/CalculatorPageTemplate';
 import { useApp } from '../context/AppContext';
@@ -20,8 +20,8 @@ export default function CalculatorPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { unitSystem, setUnitSystem, handleSaveCalculation, savedCalculations, loadedCalculation, currency, setActiveCalcId } = useApp();
+  const [beginnerMode, setBeginnerMode] = useState(true);
 
-  // Infer category from URL path since routes are per-category, not a single /:category/:calculatorId
   const category = location.pathname.split('/').filter(Boolean)[0] || '';
 
   const calcDef = useMemo(() => {
@@ -63,6 +63,10 @@ export default function CalculatorPage() {
       category={calcCategory}
       path={`/${category}/${calculatorId}`}
       breadcrumbLabel={breadcrumbLabel}
+      beginnerMode={beginnerMode}
+      onBeginnerModeChange={setBeginnerMode}
+      currentStep={1}
+      onStepChange={() => {}}
     >
       <CalculatorWorkspace
         calculatorId={fullId!}

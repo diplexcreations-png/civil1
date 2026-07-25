@@ -71,7 +71,7 @@ export default function CalculatorPageShell({
       {formulaRef && (
         <section className="mt-8 max-w-4xl">
           <div className="flex items-center gap-2 mb-4">
-            <BookOpen className="w-4 h-4 text-[#0A84FF]" />
+            <BookOpen className="w-4 h-4 text-[#2563EB]" />
             <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200">Engineering Formula & Calculation Steps</h2>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4 shadow-xs">
@@ -130,10 +130,10 @@ export default function CalculatorPageShell({
                   navigate(`/${p}/${getCalculatorSlug(calc)}`);
                   trackEvent('related_calculator_click', { from: calculatorId, to: calc.id });
                 }}
-                className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl hover:border-[#0A84FF]/40 shadow-xs hover:shadow-md transition-all cursor-pointer text-left">
-                <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-[#0A84FF] transition-colors">{calc.name}</h3>
+                className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl hover:border-[#2563EB]/40 shadow-xs hover:shadow-md transition-all cursor-pointer text-left">
+                <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-[#2563EB] transition-colors">{calc.name}</h3>
                 <p className="mt-1 text-[10px] font-mono text-slate-500 dark:text-slate-400 line-clamp-2">{calc.description}</p>
-                <div className="mt-3 flex items-center text-[9px] font-mono text-[#0A84FF]">
+                <div className="mt-3 flex items-center text-[9px] font-mono text-[#2563EB]">
                   <span>Open Calculator</span>
                   <ChevronRight className="w-3 h-3 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>

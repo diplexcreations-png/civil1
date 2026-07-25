@@ -2,7 +2,7 @@ import { useState, ComponentType } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
-  Search, ChevronRight, Sparkles, Clipboard, Layers, GitCommit, Anchor, Compass, RefreshCw, Grid,
+  Search, ChevronRight, Sparkles, Clipboard, Layers, GitCommit, Anchor, Compass, RefreshCw, Grid, Clock,
 } from 'lucide-react';
 import { SEOHead, CATEGORY_META, CATEGORY_PATH_MAP, getCalculatorSlug } from '../utils/seo';
 import { CalculatorCategory, CalculatorDef } from '../types';
@@ -81,60 +81,61 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       }} />
 
       {/* Hero */}
-      <section className="relative pt-8 md:pt-12 text-center overflow-hidden border-b border-slate-200/50 dark:border-slate-900 pb-10 mb-8">
-        <div className="absolute inset-0 blueprint-grid opacity-25 dark:opacity-10" />
-        <div className="relative max-w-4xl mx-auto px-4 space-y-4 z-10">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center space-x-1.5 bg-blue-50 dark:bg-blue-950/40 px-3.5 py-1.5 rounded-full border border-blue-200/50 dark:border-blue-900/40 text-[10px] font-mono text-[#0A84FF] tracking-wider font-extrabold uppercase">
-            <Sparkles className="w-3.5 h-3.5 text-[#0A84FF]" /><span>{meta.name}</span>
-          </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-extrabold font-sans tracking-tight text-[#0F172A] dark:text-white leading-tight">
-            {heroTitle || meta.heroTitle}
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            className="text-slate-600 dark:text-slate-400 text-xs md:text-sm font-sans max-w-2xl mx-auto leading-relaxed">
-            {heroSubtitle || meta.heroSubtitle}
-          </motion.p>
+      <section className="relative pt-10 md:pt-16 pb-8 text-center">
+        <div className="mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#2563EB]/10 dark:bg-[#2563EB]/15 border border-[#2563EB]/20 rounded-full text-[10px] font-bold text-[#2563EB] uppercase tracking-wider">
+            <Sparkles className="w-3 h-3" />
+            {meta.name}
+          </span>
         </div>
+        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight max-w-3xl mx-auto">
+          {heroTitle || meta.heroTitle}
+        </h1>
+        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          {heroSubtitle || meta.heroSubtitle}
+        </p>
       </section>
 
       {/* Search */}
-      <div className="max-w-xl mx-auto mb-8 px-4">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Search calculators..." value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-10 pr-4 text-xs text-slate-800 dark:text-slate-200 outline-none focus:border-[#0A84FF] font-mono placeholder:text-slate-400" />
+      <div className="max-w-xl mx-auto mb-8">
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#2563EB] to-[#4DA6FF] rounded-2xl opacity-15 group-hover:opacity-25 blur transition-opacity" />
+          <div className="relative flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs group-hover:shadow-sm transition-all">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input type="text" placeholder="Search calculators..." value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent pl-11 pr-4 py-3.5 text-sm outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400" />
+          </div>
         </div>
       </div>
 
       {/* Calculator Cards */}
-      <div className="max-w-7xl mx-auto px-4 pb-12">
+      <div className="pb-12">
         {filtered.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
-            <Search className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-            <p className="text-xs text-slate-500 font-mono">No calculators found.</p>
+          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+            <Search className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-xs text-slate-500">No calculators found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((calc, idx) => (
-              <motion.div key={calc.id} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: Math.min(0.2, idx * 0.03) }}
+              <motion.div key={calc.id} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: Math.min(0.15, idx * 0.03) }}
                 onClick={() => navigate(calc.path)}
-                className="group relative bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between hover:border-[#0A84FF] dark:hover:border-[#0A84FF] shadow-xs hover:shadow-md transition-all cursor-pointer overflow-hidden text-left">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-100/20 dark:bg-blue-900/15 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-[#0A84FF] transition-all font-sans leading-snug">
-                    {calc.name}
-                  </h3>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono leading-relaxed line-clamp-3">
-                    {calc.description}
-                  </p>
-                </div>
-                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex justify-between items-center text-[10px] font-mono text-[#0A84FF]">
-                  <span>Open Calculator</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer text-left"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 rounded-xl bg-[#2563EB]/10 dark:bg-[#2563EB]/15 text-[#2563EB] shrink-0">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#2563EB] transition-colors">{calc.name}</h3>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">{calc.description}</p>
+                    <div className="mt-3 flex items-center gap-2 text-[9px] text-slate-400">
+                      <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" /> ~2 min</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
                 </div>
               </motion.div>
             ))}
@@ -142,31 +143,34 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
         )}
       </div>
 
-      {/* FAQ Section */}
-      <section className="max-w-4xl mx-auto px-4 pb-16">
-        <div className="text-center space-y-2 mb-10">
-          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Frequently Asked Questions</span>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white font-sans tracking-tight">About {meta.name}</h3>
+      {/* FAQ + Explore */}
+      <section className="max-w-4xl mx-auto pb-16 space-y-10">
+        {/* FAQ */}
+        <div>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 text-center">Frequently Asked Questions</h3>
+          <div className="space-y-2">
+            {FAQS.map((faq, idx) => (
+              <details key={idx} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-shadow hover:shadow-xs">
+                <summary className="px-4 py-3.5 text-[11px] font-semibold text-slate-800 dark:text-slate-200 cursor-pointer flex items-center justify-between list-none">
+                  {faq.question}
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-open:rotate-90 transition-transform shrink-0" />
+                </summary>
+                <div className="px-4 pb-3.5 text-[10px] text-slate-500 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
+                  {faq.answer}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
-        <div className="space-y-4">
-          {FAQS.map((faq, idx) => (
-            <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-2 shadow-xs">
-              <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200">{faq.question}</h4>
-              <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 leading-relaxed">{faq.answer}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Related Categories */}
-      <section className="max-w-7xl mx-auto px-4 pb-16">
+        {/* Related Categories */}
         <div className="border-t border-slate-200 dark:border-slate-800 pt-8">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">Explore Other Categories</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {Object.entries(CATEGORY_META).filter(([key]) => key !== category).map(([key, catMeta]) => (
               <button key={key} onClick={() => navigate(`/${CATEGORY_PATH_MAP[key as CalculatorCategory]}`)}
-                className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-[#0A84FF]/40 text-left transition-all cursor-pointer">
-                <span className="text-[10px] font-bold font-mono text-slate-600 dark:text-slate-300 capitalize">{catMeta.name}</span>
+                className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-[#2563EB]/40 hover:shadow-xs transition-all text-left cursor-pointer">
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 capitalize">{catMeta.name}</span>
               </button>
             ))}
           </div>
@@ -174,14 +178,13 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       </section>
 
       {/* Footer */}
-      <footer className="text-center font-mono text-[10px] text-slate-500 dark:text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-8 pb-8 max-w-7xl mx-auto space-y-3 px-4">
-        <div className="flex justify-center items-center space-x-6 text-[#0A84FF] font-bold">
-          <button onClick={() => navigate('/about')} className="hover:underline cursor-pointer">About Us</button>
-          <button onClick={() => navigate('/contact')} className="hover:underline cursor-pointer">Contact</button>
-          <button onClick={() => navigate('/privacy')} className="hover:underline cursor-pointer">Privacy Policy</button>
+      <footer className="text-center text-[10px] text-slate-400 dark:text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-8 pb-8 space-y-3">
+        <div className="flex justify-center items-center gap-6 font-semibold">
+          <button onClick={() => navigate('/about')} className="hover:text-[#2563EB] transition-colors cursor-pointer">About Us</button>
+          <button onClick={() => navigate('/contact')} className="hover:text-[#2563EB] transition-colors cursor-pointer">Contact</button>
+          <button onClick={() => navigate('/privacy')} className="hover:text-[#2563EB] transition-colors cursor-pointer">Privacy</button>
         </div>
-        <p>© 2026 CivilMath Inc. Professional Civil Calculation Labs. Compliance: ACI, Eurocodes & ASTM Standards.</p>
-        <p className="text-slate-400">Built with rigorous engineering safety parameters.</p>
+        <p>© 2026 CivilMath Inc. Professional Civil Calculation Labs.</p>
       </footer>
     </>
   );

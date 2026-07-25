@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import UniversalBBSCalculator from '../UniversalBBSCalculator/UniversalBBSCalculator';
 import CalculatorPageTemplate from '../components/CalculatorPageTemplate';
 import ArticleSection from '../components/ArticleSection';
@@ -26,14 +26,13 @@ const STRUCTURE_DESCRIPTIONS: Record<string, string> = {
   'foundation-mesh': 'Foundation mesh reinforcement BBS. Generates top and bottom mesh bar schedules for mat foundations and ground slabs.',
 };
 
-const STRUCTURE_FAQS: Record<string, { question: string; answer: string }[]> = {};
-
 export default function BBSCalculatorPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  // Derive structureType from URL path: /bbs/{structureType}
   const structureType = location.pathname.split('/').filter(Boolean)[1] || '';
   const { unitSystem, setUnitSystem, handleSaveCalculation, savedCalculations, currency, setActiveCalcId } = useApp();
+  const [beginnerMode, setBeginnerMode] = useState(true);
+  const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
     setActiveCalcId('bbs-universal');
@@ -56,7 +55,7 @@ export default function BBSCalculatorPage() {
 
   const name = STRUCTURE_NAMES[validType];
   const description = STRUCTURE_DESCRIPTIONS[validType] || `Professional bar bending schedule calculator for ${name.toLowerCase()} reinforcement. Generates cutting lengths, bar marks, weight schedules, and shape codes.`;
-  const faqs = STRUCTURE_FAQS[validType] || [
+  const faqs = [
     { question: `What reinforcement details are calculated for ${name}?`, answer: `The ${name} BBS calculator generates complete reinforcement schedules including bar marks, diameters, cutting lengths, total lengths, weights per bar and total, shape codes with bending dimensions, and bar counts.` },
     { question: 'Which design codes can I use?', answer: 'You can switch between ACI 318, BS 8110, Eurocode 2, and IS 456 standards. The calculator adjusts development lengths, hook lengths, and lap lengths according to the selected code.' },
     { question: 'Can I manage multiple members?', answer: 'Yes. Toggle Multi-Member mode to add, duplicate, and manage multiple independent members. Each member has its own inputs, cover, grade, and quantity, with a project-wide material summary.' },
@@ -70,6 +69,10 @@ export default function BBSCalculatorPage() {
       path={`/bbs/${validType}`}
       breadcrumbLabel={name}
       faqs={faqs}
+      beginnerMode={beginnerMode}
+      onBeginnerModeChange={setBeginnerMode}
+      currentStep={currentStep}
+      onStepChange={setCurrentStep}
     >
       <UniversalBBSCalculator
         calculatorId={`bbs-${validType}`}

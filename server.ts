@@ -13,8 +13,10 @@ dotenv.config({ path: ".env.local", override: true });
 const app = express();
 const PORT = 3000;
 
-// Security middleware
-app.use(helmet());
+// Security middleware — relaxed CSP for Vite dev mode
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 app.use(express.json({ limit: '10kb' }));
 
 // Rate limiters
