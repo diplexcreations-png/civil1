@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import UniversalBBSCalculator from '../UniversalBBSCalculator/UniversalBBSCalculator';
 import CalculatorPageTemplate from '../components/CalculatorPageTemplate';
@@ -28,8 +28,10 @@ const STRUCTURE_DESCRIPTIONS: Record<string, string> = {
 const STRUCTURE_FAQS: Record<string, { question: string; answer: string }[]> = {};
 
 export default function BBSCalculatorPage() {
-  const { structureType } = useParams<{ structureType: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
+  // Derive structureType from URL path: /bbs/{structureType}
+  const structureType = location.pathname.split('/').filter(Boolean)[1] || '';
   const { unitSystem, setUnitSystem, handleSaveCalculation, savedCalculations, currency, setActiveCalcId } = useApp();
 
   useEffect(() => {

@@ -47,6 +47,7 @@ export interface CalculatorDef {
   category: CalculatorCategory;
   description: string;
   iconName: string; // from Lucide icons
+  slug?: string; // custom URL slug (defaults to id minus category prefix)
   trending?: boolean;
   featured?: boolean;
 }

@@ -11,7 +11,7 @@ import { CURRENCY_MAPPING, CalculatorCategory } from '../types';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
 import { useApp } from '../context/AppContext';
 import { ChatBot } from './ChatBot';
-import { CATEGORY_PATH_MAP, CATEGORY_META } from '../utils/seo';
+import { CATEGORY_PATH_MAP, CATEGORY_META, getCalculatorSlug } from '../utils/seo';
 
 export default function AppLayout() {
   const {
@@ -54,11 +54,6 @@ export default function AppLayout() {
 
   const toggleCategory = (catId: string) => {
     setExpandedCategories(p => ({ ...p, [catId]: !p[catId] }));
-  };
-
-  const getCalculatorSlug = (calc: typeof CALCULATORS_LIST[0]) => {
-    if (calc.id.startsWith(calc.category + '-')) return calc.id.substring(calc.category.length + 1);
-    return calc.id; // e.g. steel-calculator, rebar-calculator don't have category prefix
   };
 
   const handleSelectCalculator = (id: string) => {

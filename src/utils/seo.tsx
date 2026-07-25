@@ -94,6 +94,7 @@ export function generateCalculatorSchema(calc: {
 }
 
 export function getCalculatorSlug(calc: typeof CALCULATORS_LIST[0]): string {
+  if (calc.slug) return calc.slug;
   if (calc.id.startsWith(calc.category + '-')) return calc.id.substring(calc.category.length + 1);
   return calc.id;
 }

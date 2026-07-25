@@ -1,6 +1,6 @@
 import { CALCULATORS_LIST } from '../data/calculatorsData';
 import { STRUCTURES } from '../UniversalBBSCalculator/types';
-import { CATEGORY_PATH_MAP, CATEGORY_META } from './seo';
+import { CATEGORY_PATH_MAP, CATEGORY_META, getCalculatorSlug } from './seo';
 import { CalculatorCategory } from '../types';
 
 const SITE_URL = 'https://civilmath.com';
@@ -10,11 +10,6 @@ interface SitemapEntry {
   changefreq: string;
   priority: number;
   lastmod?: string;
-}
-
-function getCalculatorSlug(calc: typeof CALCULATORS_LIST[0]): string {
-  if (calc.id.startsWith(calc.category + '-')) return calc.id.substring(calc.category.length + 1);
-  return calc.id;
 }
 
 export function generateSitemapEntries(): SitemapEntry[] {

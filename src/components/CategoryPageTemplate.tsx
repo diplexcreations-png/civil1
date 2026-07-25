@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import {
   Search, ChevronRight, Sparkles, Clipboard, Layers, GitCommit, Anchor, Compass, RefreshCw, Grid,
 } from 'lucide-react';
-import { SEOHead, CATEGORY_META, CATEGORY_PATH_MAP } from '../utils/seo';
+import { SEOHead, CATEGORY_META, CATEGORY_PATH_MAP, getCalculatorSlug } from '../utils/seo';
 import { CalculatorCategory, CalculatorDef } from '../types';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
 
@@ -36,7 +36,7 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       id: c.id,
       name: c.name,
       description: c.description,
-      path: `/${categoryPath}/${getSlug(c)}`,
+      path: `/${categoryPath}/${getSlug(c) || getCalculatorSlug(c)}`,
     }));
 
   const filtered = calculators.filter(c =>
