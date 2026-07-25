@@ -188,9 +188,9 @@ body {
 
 /* Inputs */
 input, select, textarea {
-  min-height: 44px; border-radius: 12px;
+  border-radius: 12px;
   border: 1.5px solid #E2E8F0; background: white;
-  padding: 10px 14px; font-size: 14px; color: #0F172A;
+  font-size: 14px; color: #0F172A;
   transition: all 0.2s ease; outline: none; width: 100%;
 }
 
