@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import UniversalBBSCalculator from '../UniversalBBSCalculator/UniversalBBSCalculator';
 import CalculatorPageTemplate from '../components/CalculatorPageTemplate';
+import ArticleSection from '../components/ArticleSection';
 import { useApp } from '../context/AppContext';
 import { STRUCTURES } from '../UniversalBBSCalculator/types';
 
@@ -78,6 +79,7 @@ export default function BBSCalculatorPage() {
         savedCalculations={savedCalculations}
         currency={currency}
       />
+      <ArticleSection calculatorId={`bbs-${validType}`} />
     </CalculatorPageTemplate>
   );
 }

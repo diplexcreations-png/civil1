@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import CalculatorWorkspace from '../../components/CalculatorWorkspace';
 import CalculatorPageTemplate from '../../components/CalculatorPageTemplate';
+import ArticleSection from '../../components/ArticleSection';
 import { useApp } from '../../context/AppContext';
 import { FORMULA_REFERENCES } from '../../data/calculatorsData';
 import { CalculatorCategory } from '../../types';
@@ -72,6 +73,9 @@ export default function CalculatorPageShell({
           </div>
         </section>
       )}
+
+      {/* Engineering Article */}
+      <ArticleSection calculatorId={calculatorId} />
     </>
   );
 }
