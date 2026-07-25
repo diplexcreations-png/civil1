@@ -192,7 +192,7 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
       // Watermark Text / Active State Indicators
       ctx.fillStyle = '#475569';
       ctx.font = '9px monospace';
-      ctx.fillText(`CIVICORE ANALYTICAL ENGINE // V3D`, 16, 22);
+      ctx.fillText(`CIVILMATH ANALYTICAL ENGINE // V3D`, 16, 22);
 
       // Camera State Telemetry
       const angleYawDeg = Math.round((yaw * 180) / Math.PI);

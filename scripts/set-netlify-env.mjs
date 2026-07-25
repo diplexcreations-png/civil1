@@ -12,7 +12,7 @@ for (const line of raw.split(/\r?\n/)) {
 }
 
 const openrouterKey = env.OPENROUTER_API_KEY || '';
-const appUrl = 'https://civicore-civil.netlify.app';
+const appUrl = 'https://civilmath-civil.netlify.app';
 
 if (!openrouterKey) {
   console.error('MISSING_OPENROUTER_KEY');

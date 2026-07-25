@@ -79,7 +79,7 @@ Provide a production-ready, peer-reviewed engineering review with explanation, r
             headers: {
               "Authorization": `Bearer ${openrouterKey}`,
               "HTTP-Referer": process.env.APP_URL || "https://ai.studio/build",
-              "X-Title": "CiviCore AI Assistant",
+              "X-Title": "CivilMath AI Assistant",
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
@@ -179,7 +179,7 @@ app.post("/api/chat", async (req, res) => {
 
     const systemMessage = {
       role: "system",
-      content: "You are CiviCore AI, an elite principal structural civil engineer assistant. Provide accurate, professional, safety-focused, and formula-grounded advice. Always respect standard building codes (ACI, ASTM, AISC, Eurocode). Keep your responses concise, clear, and well-formatted in markdown. You can answer general civil engineering questions or analyze calculations if context is provided."
+      content: "You are CivilMath AI, an elite principal structural civil engineer assistant. Provide accurate, professional, safety-focused, and formula-grounded advice. Always respect standard building codes (ACI, ASTM, AISC, Eurocode). Keep your responses concise, clear, and well-formatted in markdown. You can answer general civil engineering questions or analyze calculations if context is provided."
     };
 
     const apiMessages = [systemMessage, ...messages];
@@ -202,7 +202,7 @@ app.post("/api/chat", async (req, res) => {
             headers: {
               "Authorization": `Bearer ${openrouterKey}`,
               "HTTP-Referer": process.env.APP_URL || "https://ai.studio/build",
-              "X-Title": "CiviCore AI Assistant Chat",
+              "X-Title": "CivilMath AI Assistant Chat",
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
@@ -276,7 +276,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`CiviCore Full-Stack server booted at http://localhost:${PORT}`);
+    console.log(`CivilMath Full-Stack server booted at http://localhost:${PORT}`);
   });
 }
 

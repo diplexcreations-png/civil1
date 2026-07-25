@@ -1,4 +1,4 @@
-# CiviCore
+# CivilMath
 
 Premium civil engineering workspace for structural load, concrete volumes, BBS schedules, geotechnical bearing, and surveying reports — with interactive visualizations and AI explanations.
 

@@ -16,16 +16,16 @@ export function AboutPage({ onBack }: StaticPageProps) {
       <button onClick={onBack} className="inline-flex items-center text-xs text-[#0A84FF] hover:underline font-mono mb-4 cursor-pointer">
         <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
       </button>
-      <h2 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">About CiviCore</h2>
+      <h2 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">About CivilMath</h2>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-xs space-y-4 text-slate-700 dark:text-slate-300 font-sans text-sm leading-relaxed">
         <p>
-          CiviCore is a professional civil engineering calculation suite designed for structural engineers, site contractors, and surveying professionals. Our mission is to digitize standard building code calculations (such as ACI 318, Eurocodes, and ASTM) into a streamlined, highly responsive digital workspace.
+          CivilMath is a professional civil engineering calculation suite designed for structural engineers, site contractors, and surveying professionals. Our mission is to digitize standard building code calculations (such as ACI 318, Eurocodes, and ASTM) into a streamlined, highly responsive digital workspace.
         </p>
         <p>
           We provide tools ranging from Bar Bending Schedules (BBS) to Geotechnical Bearing Capacity limits, ensuring that every design parameter is safely evaluated and easily adjustable. 
         </p>
         <p>
-          Developed with a focus on modern aesthetics and robust engineering safety parameters, CiviCore aims to replace manual spreadsheet estimations with an integrated, intelligent analytics platform.
+          Developed with a focus on modern aesthetics and robust engineering safety parameters, CivilMath aims to replace manual spreadsheet estimations with an integrated, intelligent analytics platform.
         </p>
       </div>
     </motion.div>
@@ -59,7 +59,7 @@ export function ContactPage({ onBack }: StaticPageProps) {
           </div>
           <div>
             <h4 className="font-bold text-slate-900 dark:text-white">General Inquiries</h4>
-            <p className="mt-1 font-mono text-xs">support@civicore-example.com</p>
+            <p className="mt-1 font-mono text-xs">support@civilmath.com</p>
           </div>
         </div>
       </div>
@@ -83,12 +83,12 @@ export function PrivacyPolicyPage({ onBack }: StaticPageProps) {
         <p><strong>Effective Date:</strong> July 2026</p>
         <h3 className="font-bold text-slate-900 dark:text-white text-base pt-2">1. Information Collection</h3>
         <p>
-          CiviCore utilizes Google Analytics to collect anonymous usage data to improve our engineering tools. 
+          CivilMath utilizes Google Analytics to collect anonymous usage data to improve our engineering tools. 
           Saved calculations are stored strictly in your browser's local storage; we do not transmit or store your proprietary engineering data on our servers.
         </p>
         <h3 className="font-bold text-slate-900 dark:text-white text-base pt-2">2. Local Storage</h3>
         <p>
-          By using CiviCore, you agree that your active projects, material parameters, and drafting notes will be kept offline on your device using HTML5 LocalStorage.
+          By using CivilMath, you agree that your active projects, material parameters, and drafting notes will be kept offline on your device using HTML5 LocalStorage.
         </p>
         <h3 className="font-bold text-slate-900 dark:text-white text-base pt-2">3. Third-party Services</h3>
         <p>

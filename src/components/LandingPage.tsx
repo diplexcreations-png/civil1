@@ -42,7 +42,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard, onN
   // FAQ block config
   const FAQS = [
     {
-      q: 'Which structural standard codes are implemented in CiviCore?',
+      q: 'Which structural standard codes are implemented in CivilMath?',
       a: 'The computing formulas strictly represent building codes including ACI 318-19 (American Concrete Institute) short columns, concrete mixture models, and classic Euler-Bernoulli beam formulas.'
     },
     {
@@ -50,7 +50,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard, onN
       a: 'Yes, toggling the unit systems globally updates the input thresholds, conversions, material densities, safety parameters, dynamic canvas markings, and final aggregate weights instantly.'
     },
     {
-      q: 'Does the CiviCore AI principal review look into local code books?',
+      q: 'Does the CivilMath AI principal review look into local code books?',
       a: 'Yes. The OpenRouter-powered AI assistant processes computed results and anchors safety evaluations against international concrete design standards and ASTM specifications.'
     }
   ];
@@ -333,7 +333,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard, onN
           <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-72 h-72 bg-[#0A84FF]/15 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="space-y-4 max-w-xl relative z-10">
-            <span className="text-[9px] font-mono bg-[#0A84FF]/20 text-[#0A84FF] px-3 py-1 rounded-full border border-[#0A84FF]/30 uppercase font-bold tracking-widest">CiviCore AI Assistant</span>
+            <span className="text-[9px] font-mono bg-[#0A84FF]/20 text-[#0A84FF] px-3 py-1 rounded-full border border-[#0A84FF]/30 uppercase font-bold tracking-widest">CivilMath AI Assistant</span>
             <h3 className="text-2xl md:text-3xl font-bold font-sans tracking-tight text-white">Ask AI to optimize parameters on the fly.</h3>
             <p className="text-xs text-slate-300 leading-relaxed font-mono">
               Not sure why your footing undergoes stress failures or why structural beam deflection slips? Type any inquiry inside our AI-Expert grounder to review soil parameters against code books instantly.
@@ -343,7 +343,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard, onN
           <div className="p-4 bg-[#1e293b]/50 dark:bg-[#0F172A]/80 border border-slate-700/60 dark:border-slate-800 rounded-2xl w-full md:w-80 font-mono text-[11px] space-y-3.5 backdrop-blur-md relative z-10 shadow-lg text-slate-300">
             <div className="text-slate-400 dark:text-slate-500 text-[9px] border-b border-slate-800 pb-1.5 uppercase">AI SIMULATION LABS</div>
             <div className="text-[#0A84FF] font-bold flex items-center">
-              <Sparkles className="w-3.5 h-3.5 mr-1 text-emerald-450 dark:text-emerald-400 animate-spin" style={{ animationDuration: '4s' }} /> CiviCore Assistant:
+              <Sparkles className="w-3.5 h-3.5 mr-1 text-emerald-450 dark:text-emerald-400 animate-spin" style={{ animationDuration: '4s' }} /> CivilMath Assistant:
             </div>
             <p className="text-slate-200 leading-normal">
               "We recommend increasing structural footing widths to 1.8m. This leverages Terzaghi\'s cohesive factors and elevates the factor of safety margin to 3.2, passing building protocols is achieved."
@@ -381,7 +381,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard, onN
           <button onClick={() => onNavigate('contact')} className="hover:underline transition-all cursor-pointer">Contact</button>
           <button onClick={() => onNavigate('privacy')} className="hover:underline transition-all cursor-pointer">Privacy Policy</button>
         </div>
-        <p>© 2026 CiviCore Inc. Professional Civil Calculation Labs. Compliance: ACI, Eurocodes & ASTM Standards.</p>
+        <p>© 2026 CivilMath Inc. Professional Civil Calculation Labs. Compliance: ACI, Eurocodes & ASTM Standards.</p>
         <p className="mt-1 text-slate-400 dark:text-slate-500">
           Product vision built with rigorous engineering safety parameters. Developed by{" "}
           <a 

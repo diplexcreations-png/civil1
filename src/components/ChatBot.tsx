@@ -35,7 +35,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hello! I am your **CiviCore AI Assistant**. Ask me anything about structural calculations, concrete mix designs, surveying traverses, or code compliance guidelines (ACI 318, ASTM, Eurocodes).'
+      content: 'Hello! I am your **CivilMath AI Assistant**. Ask me anything about structural calculations, concrete mix designs, surveying traverses, or code compliance guidelines (ACI 318, ASTM, Eurocodes).'
     }
   ]);
   const [inputValue, setInputValue] = useState<string>('');
@@ -53,7 +53,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
 
   // Load chat history from local storage
   useEffect(() => {
-    const savedChat = localStorage.getItem('civicore_chat_history');
+    const savedChat = localStorage.getItem('civilmath_chat_history');
     if (savedChat) {
       try {
         setMessages(JSON.parse(savedChat));
@@ -66,14 +66,14 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
   // Save chat history to local storage
   const saveChatHistory = (newMessages: Message[]) => {
     setMessages(newMessages);
-    localStorage.setItem('civicore_chat_history', JSON.stringify(newMessages));
+    localStorage.setItem('civilmath_chat_history', JSON.stringify(newMessages));
   };
 
   const handleClearHistory = () => {
     const initialMsg: Message[] = [
       {
         role: 'assistant',
-        content: 'Hello! I am your **CiviCore AI Assistant**. Ask me anything about structural calculations, concrete mix designs, surveying traverses, or code compliance guidelines (ACI 318, ASTM, Eurocodes).'
+        content: 'Hello! I am your **CivilMath AI Assistant**. Ask me anything about structural calculations, concrete mix designs, surveying traverses, or code compliance guidelines (ACI 318, ASTM, Eurocodes).'
       }
     ];
     saveChatHistory(initialMsg);
@@ -96,7 +96,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
       // Build messages payload with optional context about the active calculator
       const contextMessage = activeCalcDef 
         ? `[Note: The user is currently viewing the "${activeCalcDef.name}" (${activeCalcDef.category}) tool. Current unit system: ${unitSystem}. Keep responses relevant to civil/structural engineering.]`
-        : `[Note: The user is browsing the CiviCore structural suite. Current unit system: ${unitSystem}.]`;
+        : `[Note: The user is browsing the CivilMath structural suite. Current unit system: ${unitSystem}.]`;
 
       const apiPayload = [
         { role: 'system', content: contextMessage },
@@ -127,7 +127,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
         ...updatedMessages, 
         { 
           role: 'assistant', 
-          content: `**Connection Error**: Failed to communicate with the CiviCore AI engine. Details: ${err.message || err}` 
+          content: `**Connection Error**: Failed to communicate with the CivilMath AI engine. Details: ${err.message || err}` 
         }
       ]);
     } finally {
@@ -204,7 +204,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="relative w-14 h-14 bg-[#0A84FF] text-white hover:bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/25 cursor-pointer border border-blue-400/20 transition-transform duration-200 hover:scale-105 active:scale-95 group focus:outline-none"
-          aria-label="CiviCore AI Assistant Chat"
+          aria-label="CivilMath AI Assistant Chat"
         >
           <AnimatePresence mode="wait">
             {isOpen ? (
@@ -253,7 +253,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
                 </div>
                 <div>
                   <h3 className="text-xs font-black font-sans tracking-tight text-white flex items-center">
-                    CiviCore AI Assistant
+                    CivilMath AI Assistant
                     <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full ml-1.5 inline-block animate-ping"></span>
                   </h3>
                   <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block">Principal Engineer Bot</span>
@@ -357,7 +357,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
             >
               <input
                 type="text"
-                placeholder="Ask CiviCore AI... (e.g. concrete slump)"
+                placeholder="Ask CivilMath AI... (e.g. concrete slump)"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={isLoading}

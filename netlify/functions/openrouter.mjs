@@ -27,7 +27,7 @@ export async function callOpenRouter({
   messages,
   temperature = 0.7,
   jsonObject = false,
-  title = "CiviCore AI Assistant",
+  title = "CivilMath AI Assistant",
 }) {
   const openrouterKey = process.env.OPENROUTER_API_KEY;
   if (!openrouterKey) {
@@ -54,7 +54,7 @@ export async function callOpenRouter({
           method: "POST",
           headers: {
             Authorization: `Bearer ${openrouterKey}`,
-            "HTTP-Referer": process.env.APP_URL || "https://civicore.netlify.app",
+            "HTTP-Referer": process.env.APP_URL || "https://civilmath.netlify.app",
             "X-Title": title,
             "Content-Type": "application/json",
           },

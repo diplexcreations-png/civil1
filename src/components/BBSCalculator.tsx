@@ -55,6 +55,112 @@ const isFieldInMeters = (key: string, calcId: string) => {
   return false;
 };
 
+// Engineering input tooltips for every BBS field
+const FIELD_TOOLTIPS: Record<string, string> = {
+  length: 'Total length of the structural member (center-to-center of supports)',
+  width: 'Cross-sectional width or breadth of the member',
+  depth: 'Overall depth or height of the member section',
+  height: 'Vertical height of the column or wall element',
+  span: 'Clear span length between supports (face-to-face)',
+  cover: 'Clear concrete cover measured to the outermost rebar surface (durability & fire protection)',
+  mainDia: 'Nominal diameter of primary/main longitudinal reinforcement',
+  mainSpacing: 'Center-to-center spacing of main reinforcement bars',
+  distDia: 'Nominal diameter of secondary/distribution reinforcement',
+  distSpacing: 'Center-to-center spacing of distribution bars',
+  thickness: 'Overall slab or footing thickness',
+  mainCount: 'Total number of main longitudinal bars in the cross-section',
+  tieDia: 'Diameter of transverse ties or stirrups',
+  tieSpacing: 'Center-to-center spacing of ties/stirrups along the member length',
+  lapLengthFactor: 'Development/lap length as a multiple of bar diameter (typical: 40-60 for tension)',
+  embedment: 'Embedment depth of rebar into supporting member (development length)',
+  topDia: 'Diameter of top (compression/hanger) reinforcement',
+  topCount: 'Number of top bars in the cross-section',
+  botDia: 'Diameter of bottom (tension) reinforcement',
+  botCount: 'Number of bottom tension bars',
+  stirrupDia: 'Diameter of shear stirrup / link reinforcement',
+  stirrupSpacing: 'Spacing of shear stirrups along the beam span',
+  hookLengthFactor: 'Hook/anchor length as a multiple of bar diameter',
+  crankAngle: 'Angle of bent-up/cranked bars (typically 45° for slabs)',
+  chairDia: 'Diameter of chair/ spacer bars used for top mesh support',
+  chairCount: 'Number of chair supports per panel',
+  chairSpacing: 'Grid spacing of support chairs (center-to-center)',
+  waistSlab: 'Thickness of the inclined waist slab in a staircase',
+  riser: 'Vertical height of each stair step',
+  tread: 'Horizontal depth of each stair step (going)',
+  steps: 'Total number of steps in the flight',
+  landingTop: 'Length of the top landing slab (measured along the flight direction)',
+  landingBot: 'Length of the bottom landing slab',
+  landingWidth: 'Width of the staircase (perpendicular to the flight)',
+  clearSpan: 'Clear opening span (face-to-face of supports)',
+  bearing: 'Length of bearing/support at each end of the lintel',
+  stemHeight: 'Height of retaining wall stem from base to top',
+  stemBaseThk: 'Thickness of retaining wall stem at the base',
+  stemTopThk: 'Thickness of retaining wall stem at the top',
+  baseLength: 'Total length of retaining wall base (heel + toe + stem width)',
+  baseThk: 'Thickness of retaining wall base slab',
+  keyDepth: 'Depth of shear key below retaining wall base',
+  starterHook: 'Length of starter bar hook extension above the pedestal',
+  vertDia: 'Diameter of vertical reinforcement in the retaining wall stem',
+  vertSpacing: 'Spacing of vertical reinforcement bars along the wall',
+  horizDia: 'Diameter of horizontal/shrinkage reinforcement',
+  horizSpacing: 'Spacing of horizontal reinforcement layers',
+  longitudinalDia: 'Diameter of longitudinal bars running along the strip footing length',
+  longitudinalCount: 'Number of longitudinal bars in the strip footing',
+  transverseDia: 'Diameter of transverse reinforcement bars crossing the footing',
+  transverseSpacing: 'Spacing of transverse bars along the strip footing',
+  botMainDia: 'Diameter of bottom mesh main reinforcement (parallel to length)',
+  botMainSpacing: 'Spacing of bottom mesh main bars',
+  botDistDia: 'Diameter of bottom mesh distribution bars (parallel to width)',
+  botDistSpacing: 'Spacing of bottom mesh distribution bars',
+  topMainDia: 'Diameter of top mesh main reinforcement',
+  topMainSpacing: 'Spacing of top mesh main bars',
+  topDistDia: 'Diameter of top mesh distribution bars',
+  topDistSpacing: 'Spacing of top mesh distribution bars',
+};
+
+// Validation rules for engineering inputs
+const FIELD_VALIDATION: Record<string, { min: number; max: number; step?: number; warning?: string }> = {
+  length: { min: 0.1, max: 100, warning: 'Structural length seems unusual. Verify dimension.' },
+  width: { min: 0.05, max: 20, warning: 'Width seems unusual for this member type.' },
+  depth: { min: 0.05, max: 10, warning: 'Depth seems unusual. Verify section dimension.' },
+  height: { min: 0.1, max: 50, warning: 'Height seems unusual. Verify vertical dimension.' },
+  span: { min: 0.1, max: 50, warning: 'Span seems unusual for a typical beam.' },
+  cover: { min: 10, max: 150, warning: 'Cover outside typical range (10-150mm / 0.4-6in). Check durability requirements.' },
+  thickness: { min: 50, max: 2000, warning: 'Thickness seems unusual for this element type.' },
+  mainSpacing: { min: 25, max: 600, warning: 'Bar spacing outside typical range (25-600mm / 1-24in).' },
+  distSpacing: { min: 25, max: 600, warning: 'Distribution bar spacing outside typical range.' },
+  tieSpacing: { min: 25, max: 600, warning: 'Tie spacing outside typical range (25-600mm).' },
+  stirrupSpacing: { min: 25, max: 600, warning: 'Stirrup spacing outside typical range (25-600mm).' },
+  mainCount: { min: 2, max: 32, warning: 'Main bar count seems unusual for standard detailing.' },
+  topCount: { min: 2, max: 20, warning: 'Top bar count seems unusual.' },
+  botCount: { min: 2, max: 20, warning: 'Bottom bar count seems unusual.' },
+  lapLengthFactor: { min: 20, max: 100, warning: 'Lap length factor typically ranges from 30-70 bar diameters.' },
+  embedment: { min: 100, max: 2000, warning: 'Embedment length outside typical range.' },
+  steps: { min: 1, max: 50, warning: 'Step count seems unusual for a single flight.' },
+  riser: { min: 50, max: 300, warning: 'Riser height outside typical range (50-300mm / 2-12in).' },
+  tread: { min: 150, max: 600, warning: 'Tread depth outside typical range (150-600mm / 6-24in).' },
+  stemHeight: { min: 0.5, max: 25, warning: 'Retaining wall height seems unusual.' },
+  bearing: { min: 0.05, max: 1, warning: 'Bearing length seems unusual.' },
+  clearSpan: { min: 0.3, max: 10, warning: 'Clear span seems unusual for a lintel.' },
+  chairSpacing: { min: 0.2, max: 5, warning: 'Chair spacing seems unusual.' },
+  stirrupDia: { min: 4, max: 20, warning: 'Stirrup diameter seems unusual for standard detailing.' },
+  mainDia: { min: 6, max: 40, warning: 'Main bar diameter seems unusual.' },
+  distDia: { min: 4, max: 25, warning: 'Distribution bar diameter seems unusual.' },
+  topDia: { min: 6, max: 40, warning: 'Top bar diameter seems unusual.' },
+  botDia: { min: 6, max: 40, warning: 'Bottom bar diameter seems unusual.' },
+  tieDia: { min: 4, max: 20, warning: 'Tie diameter seems unusual for standard detailing.' },
+};
+
+const getFieldTooltip = (key: string): string => {
+  const cleanKey = key.replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, '');
+  return FIELD_TOOLTIPS[cleanKey] || FIELD_TOOLTIPS[key] || '';
+};
+
+const getFieldValidation = (key: string): { min: number; max: number; warning?: string } | null => {
+  const cleanKey = key.replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, '');
+  return FIELD_VALIDATION[cleanKey] || FIELD_VALIDATION[key] || null;
+};
+
 interface BBSRebarItem {
   mark: string;
   description: string;
@@ -202,6 +308,58 @@ export default function BBSCalculator({
   // Core dimensions and parameters depending on active calculatorId
   const [inputs, setInputs] = useState<Record<string, any>>({});
   const footingSections = Array.isArray(inputs.footings) ? inputs.footings : [];
+  const [warnings, setWarnings] = useState<Record<string, string>>({});
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [calcHistory, setCalcHistory] = useState<{ timestamp: number; totalSteel: number; concreteVol: number; totalCost: number }[]>(() => {
+    try {
+      const stored = localStorage.getItem('civilmath_bbs_history');
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const draftKey = `civilmath_bbs_draft_${calculatorId}`;
+
+  // Restore draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const draft = localStorage.getItem(draftKey);
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        if (parsed.inputs && Object.keys(parsed.inputs).length > 0) {
+          setInputs(parsed.inputs);
+          if (parsed.paramUnits) setParamUnits(parsed.paramUnits);
+          if (parsed.projectName) setProjectName(parsed.projectName);
+          if (parsed.engineerName) setEngineerName(parsed.engineerName);
+          if (parsed.codeStandard) setCodeStandard(parsed.codeStandard);
+          if (parsed.notes) setNotes(parsed.notes);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to restore BBS draft:', e);
+    }
+  }, []);
+
+  // Auto-save draft on every input change (debounced via the dependency)
+  useEffect(() => {
+    const hasInputs = Object.keys(inputs).length > 0;
+    if (!hasInputs) return;
+    const timer = setTimeout(() => {
+      try {
+        const draft = {
+          inputs,
+          paramUnits,
+          projectName,
+          engineerName,
+          codeStandard,
+          notes,
+          savedAt: Date.now(),
+        };
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+      } catch (e) {
+        console.warn('Failed to auto-save BBS draft:', e);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [inputs, paramUnits, projectName, engineerName, codeStandard, notes]);
 
   const updateFootingSection = (index: number, field: string, value: any) => {
     const nextFootings = footingSections.map((footing: Record<string, any>, footingIndex: number) =>
@@ -323,10 +481,43 @@ export default function BBSCalculator({
     setIsSavedSuccessfully(false);
   }, [loadedCalculation, calculatorId]);
 
-  // Handle single input adjustment
+  // Brief calculation indicator
+  useEffect(() => {
+    if (Object.keys(inputs).length > 0) {
+      setIsCalculating(true);
+      const timer = setTimeout(() => setIsCalculating(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [inputs]);
+
+  // Handle single input adjustment with validation
   const handleInputChange = (field: string, value: number | string) => {
     setInputs(prev => ({ ...prev, [field]: value }));
     setIsSavedSuccessfully(false);
+
+    // Validate field if it's a number
+    if (typeof value === 'number' && !isNaN(value)) {
+      const rule = getFieldValidation(field);
+      if (rule && value > 0) {
+        const metricMin = isMetric ? rule.min : rule.min * (field.endsWith('Spacing') ? 25.4 : 0.03937);
+        const metricMax = isMetric ? rule.max : rule.max * (field.endsWith('Spacing') ? 25.4 : 0.03937);
+        if (value < metricMin || value > metricMax) {
+          setWarnings(prev => ({ ...prev, [field]: rule.warning || `Value outside recommended range (${rule.min}-${rule.max}).` }));
+        } else {
+          setWarnings(prev => {
+            const next = { ...prev };
+            delete next[field];
+            return next;
+          });
+        }
+      } else {
+        setWarnings(prev => {
+          const next = { ...prev };
+          delete next[field];
+          return next;
+        });
+      }
+    }
   };
 
   // Convert generic rebar diameter to actual mm and weight factor
@@ -922,6 +1113,18 @@ export default function BBSCalculator({
   const totalConcreteCost = concreteVolume * concretePrice;
   const totalProjectCost = totalSteelCost + totalConcreteCost;
 
+  // Track calculation history when results change
+  useEffect(() => {
+    if (rebarList.length > 0 && !isNaN(totalSteelWeight) && totalSteelWeight > 0) {
+      const entry = { timestamp: Date.now(), totalSteel: totalSteelWeight, concreteVol: concreteVolume, totalCost: totalProjectCost };
+      setCalcHistory(prev => {
+        const updated = [entry, ...prev].filter(e => e.totalSteel > 0).slice(0, 25);
+        try { localStorage.setItem('civilmath_bbs_history', JSON.stringify(updated)); } catch {}
+        return updated;
+      });
+    }
+  }, [rebarList.length, totalSteelWeight]);
+
   // Project Save implementation
   const handleSaveProject = () => {
     const calcOutput = {
@@ -1051,7 +1254,7 @@ export default function BBSCalculator({
     doc.setTextColor(255, 255, 255);
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("CIVICORE BAR BENDING SCHEDULE REPORT", 12, 11);
+    doc.text("CIVILMATH BAR BENDING SCHEDULE REPORT", 12, 11);
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(8);
     doc.text(`REGULATORY COMPLIANCE STANDARD: ${codeStandard.toUpperCase()}`, 12, 18);
@@ -1193,7 +1396,7 @@ export default function BBSCalculator({
     const rows: any[] = [];
 
     // Title Row
-    rows.push([`CIVICORE STRUCTURAL BBS - ${projectName.toUpperCase()}`]);
+    rows.push([`CIVILMATH STRUCTURAL BBS - ${projectName.toUpperCase()}`]);
     rows.push([`Standard Code: ${codeStandard} | Engineer: ${engineerName} | Date: ${new Date().toLocaleDateString()}`]);
     rows.push([]); // blank
 
@@ -1293,6 +1496,138 @@ export default function BBSCalculator({
     XLSX.utils.book_append_sheet(wb, ws, "Bar Bending Schedule");
     XLSX.writeFile(wb, `BBS-${projectName.replace(/\s+/g, '_')}.xlsx`);
   };
+
+  // CSV Export
+  const handleExportCSV = () => {
+    const rows: string[] = [];
+    rows.push(`CIVILMATH STRUCTURAL BBS - ${projectName.toUpperCase()}`);
+    rows.push(`Standard Code: ${codeStandard} | Engineer: ${engineerName} | Date: ${new Date().toLocaleDateString()}`);
+    rows.push('');
+    const headers = [
+      'Bar Mark', 'Description', 'Diameter', 'Shape Code',
+      'Dim A', 'Dim B', 'Dim C', 'Bars/Member', 'Total Bars',
+      isMetric ? 'Cut Len (m)' : 'Cut Len (ft)',
+      isMetric ? 'Total Len (m)' : 'Total Len (ft)',
+      isMetric ? 'Unit Wt (kg/m)' : 'Unit Wt (lb/ft)',
+      isMetric ? 'Total Wt (kg)' : 'Total Wt (lb)'
+    ];
+    rows.push(headers.join(','));
+
+    rebarList.forEach(row => {
+      rows.push([
+        row.mark,
+        `"${row.description}"`,
+        getRebarData(row.dia).label,
+        `Shape ${row.shapeCode}`,
+        row.dims.a, row.dims.b, row.dims.c,
+        row.barsPerMember, row.totalBars,
+        row.cuttingLength, row.totalLength,
+        row.unitWeight, row.totalWeight
+      ].join(','));
+    });
+
+    rows.push('');
+    rows.push('Summary Quantities:');
+    rows.push(`Concrete Volume,${concreteVolume} ${isMetric ? 'm³' : 'yd³'}`);
+    rows.push(`Total Steel Weight,${totalSteelWeight} ${isMetric ? 'kg' : 'lbs'}`);
+    rows.push(`Reinforcement Ratio,${reinforcementRatio.toFixed(2)} kg/m³`);
+    rows.push(`Concrete Cost,${currency} ${totalConcreteCost.toFixed(2)}`);
+    rows.push(`Steel Cost,${currency} ${totalSteelCost.toFixed(2)}`);
+    rows.push(`Grand Total Cost,${currency} ${totalProjectCost.toFixed(2)}`);
+
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `BBS-${projectName.replace(/\s+/g, '_')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Formula explanations for each calculator type
+  const getFormulaExplanation = (): { title: string; formula: string; steps: string[] } => {
+    const formulas: Record<string, { title: string; formula: string; steps: string[] }> = {
+      'bbs-footing': {
+        title: 'Isolated Footing Reinforcement',
+        formula: 'Cut Len = L_clear + 2×Hook - 2×d (bends) | Bars = ceil(L_eff / Spacing) + 1',
+        steps: [
+          'Clear dimension = Member dimension - 2 × cover',
+          'Hook length = Thickness - 2 × cover (standard 90° hook)',
+          'Total bars = ceil(Clear span / Spacing) + 1 (starter bar)',
+          'Cutting length = Clear length + 2 × Hook - 2 × d (90° bend deduction)',
+          'Steel weight = Total length × (d² / 162) for metric (d in mm)'
+        ]
+      },
+      'bbs-column': {
+        title: 'Reinforced Column (Longitudinal + Ties)',
+        formula: 'Cut Len = H + L_d + L_embed | Tie Len = 2×(b+d) + 2×10d - 6d',
+        steps: [
+          'Longitudinal bar length = Column height + lap length + foundation embedment',
+          'Lap length = bar dia × lap factor (typically 40-60d)',
+          'Tie perimeter = 2 × (clear width + clear depth)',
+          'Tie cutting length = perimeter + 2 × 10d (hooks) - 6d (3 × 90° bends)',
+          'Number of ties = ceil(Column height / tie spacing) + 1'
+        ]
+      },
+      'bbs-beam': {
+        title: 'Structural Beam (Top + Bottom + Stirrups)',
+        formula: 'Main Len = Span_clear + 2×Hook - 2×d | Stirrup Len = 2×(b+d) + hook allowance',
+        steps: [
+          'Top & bottom bar length = Clear span + 2 × hook length - 2 × d (bend deduction)',
+          'Hook length = bar dia × hook factor (typically 10-12d)',
+          'Stirrup perimeter = 2 × (beam width - 2×cover + beam depth - 2×cover)',
+          'Stirrup cutting length = Perimeter + 2 × 10d - 6d (bend deductions)',
+          'Number of stirrups = ceil(Beam span / stirrup spacing) + 1'
+        ]
+      },
+      'bbs-slab': {
+        title: 'One/Two-Way Slab (Cranked + Distribution + Chairs)',
+        formula: 'Crank Len = L_clear + 2×hook + 0.42×crank_h - 4×d',
+        steps: [
+          'Main cranked bar length = Clear span + 2 × hook + 0.42 × crank height - 4 × d',
+          'Crank height = Slab thickness - 2 × cover - bar diameter',
+          'Crank angle addition: 0.42×h for 45°, 0.27×h for 30°',
+          'Distribution bars = Straight bars across the secondary direction',
+          'Chair height = Thickness - 2 × cover - 2 × bar diameter (top + bottom)'
+        ]
+      },
+      'bbs-stair': {
+        title: 'Staircase Waist Slab Reinforcement',
+        formula: 'Inclined Len = √(Going² + Height²) | Main Steel = Inclined + Landing - Cover',
+        steps: [
+          'Going = Step count × tread depth',
+          'Height = Step count × riser height',
+          'Inclined length of waist slab = √(Going² + Height²)',
+          'Total main bar length = Inclined length + top landing + bottom landing - 2 × cover',
+          'Number of main bars = ceil(Stair width / main spacing) + 1'
+        ]
+      },
+      'bbs-retaining-wall': {
+        title: 'Cantilever Retaining Wall',
+        formula: 'Vert Dowel = Stem_H + Base_Hook | Horiz Steel = Wall running length',
+        steps: [
+          'Vertical dowel length = Stem height + base hook (into base slab - cover)',
+          'Base hook = Base thickness - cover (for development into heel/toe)',
+          'Vertical bars per meter = ceil(1.0m / vertical spacing) + 1 (per running meter)',
+          'Horizontal bars = ceil(Stem height / horizontal spacing) × 2 (both faces)',
+          'Concrete volume = 0.5 × (base + top) thickness × stem height + base × base thickness'
+        ]
+      }
+    };
+    return formulas[calculatorId] || {
+      title: 'Reinforcement Schedule',
+      formula: 'Cut Len = Σ(segment lengths) - Σ(bend deductions) + Σ(hook allowances)',
+      steps: [
+        'Bar dimensions derived from clear member dimensions minus cover',
+        'Shape code determines bend deductions: 90° = 2d, 135° = 3d',
+        'Hook allowance: 180° = 9d, 135° stirrup hook = 10d',
+        'Total bars = Number of members × bars per member',
+        'Total weight = Total length × unit weight (d²/162 for metric)'
+      ]
+    };
+  };
+
+  const formulaInfo = getFormulaExplanation();
 
   // Human descriptive title for the active module
   const calculatorTitle = CALCULATORS_LIST.find(c => c.id === calculatorId)?.name || "Bar Bending Schedule";
@@ -1397,6 +1732,15 @@ export default function BBSCalculator({
           </button>
 
           <button 
+            onClick={handleExportCSV}
+            className="px-3.5 py-1.5 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5 cursor-pointer shadow-3xs transition-all"
+            title="Export CSV data file"
+          >
+            <Download className="w-3.5 h-3.5 text-purple-500" />
+            <span>Export CSV</span>
+          </button>
+
+          <button 
             onClick={() => setIsPrintPreviewMode?.(!isPrintPreviewMode)}
             className={`px-3.5 py-1.5 border rounded-xl text-xs font-semibold flex items-center space-x-1.5 cursor-pointer shadow-3xs transition-all ${isPrintPreviewMode ? 'bg-[#0A84FF] text-white border-blue-500 hover:bg-blue-600' : 'bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'}`}
             title="Toggle high-fidelity Print Preview state"
@@ -1423,48 +1767,88 @@ export default function BBSCalculator({
           
           {/* Project Details */}
           <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg shadow-xs space-y-4">
-            <h3 className="text-xs font-bold font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">PROJECT HEAD METADATA</h3>
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <h3 className="text-xs font-bold font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-[#0A84FF]" />
+                PROJECT METADATA
+              </h3>
+              {calcHistory.length > 0 && (
+                <span className="text-[8px] font-mono text-slate-400">{calcHistory.length} calculations</span>
+              )}
+            </div>
             
             <div className="space-y-3 text-xs">
               <div>
-                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold">Project Name</label>
+                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold" title="Name of the construction project or structural element">Project Name</label>
                 <input 
                   type="text" 
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
                   className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500"
+                  placeholder="e.g. Residential Building Phase 1"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold">QC / Civil Engineer</label>
+                  <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold" title="Name of the responsible QC engineer or structural designer">QC / Civil Engineer</label>
                   <input 
                     type="text" 
                     value={engineerName}
                     onChange={(e) => setEngineerName(e.target.value)}
                     className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500"
+                    placeholder="e.g. John Smith, P.E."
                   />
                 </div>
                 <div>
-                  <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold">Standard Code</label>
+                  <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold" title="Structural design code standard for compliance verification">Standard Code</label>
                   <input 
                     type="text" 
                     value={codeStandard}
                     onChange={(e) => setCodeStandard(e.target.value)}
                     className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500"
+                    placeholder="e.g. ACI 318-19 / IS 456:2000"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold">Engineering Remarks / Notes</label>
+                <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold" title="Additional engineering remarks or site-specific notes">Engineering Remarks / Notes</label>
                 <textarea 
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="w-full h-16 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 text-xs font-sans resize-none"
+                  placeholder="Enter project-specific notes, material specs, or construction remarks..."
                 />
               </div>
+
+              {/* Quick calculation history */}
+              {calcHistory.length > 0 && (
+                <div className="border-t border-slate-100 dark:border-slate-800 pt-3 mt-3">
+                  <div className="flex items-center gap-1 mb-2">
+                    <RefreshCw className="w-3 h-3 text-slate-400" />
+                    <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider font-bold">Recent Calculations</span>
+                  </div>
+                  <div className="space-y-1 max-h-24 overflow-y-auto">
+                    {calcHistory.slice(0, 5).map((entry, i) => (
+                      <div key={i} className="flex justify-between text-[9px] font-mono text-slate-500 bg-slate-50 dark:bg-slate-950 rounded-lg px-2 py-1">
+                        <span>{new Date(entry.timestamp).toLocaleTimeString()}</span>
+                        <span className="font-bold">{entry.totalSteel.toFixed(1)} {isMetric ? 'kg' : 'lbs'}</span>
+                        <span className="text-emerald-600 dark:text-emerald-400">{entry.concreteVol.toFixed(2)} {isMetric ? 'm³' : 'yd³'}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setCalcHistory([]);
+                      try { localStorage.removeItem('civilmath_bbs_history'); } catch {}
+                    }}
+                    className="mt-1 text-[8px] font-mono text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                  >
+                    Clear history
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1472,9 +1856,22 @@ export default function BBSCalculator({
           <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
               <h3 className="text-xs font-bold font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest">REINFORCEMENT INPUTS</h3>
-              <span className="text-[9px] font-mono bg-blue-50 dark:bg-blue-950 text-[#0A84FF] px-2 py-0.5 rounded-full border border-blue-100/50 dark:border-blue-900/40 font-bold uppercase">
-                {unitSystem.toUpperCase()}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { localStorage.removeItem(draftKey); } catch {}
+                    setWarnings({});
+                  }}
+                  className="text-[8px] font-mono text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                  title="Clear auto-saved draft"
+                >
+                  Clear draft
+                </button>
+                <span className="text-[9px] font-mono bg-blue-50 dark:bg-blue-950 text-[#0A84FF] px-2 py-0.5 rounded-full border border-blue-100/50 dark:border-blue-900/40 font-bold uppercase">
+                  {unitSystem.toUpperCase()}
+                </span>
+              </div>
             </div>
 
             <div className="space-y-4 text-xs font-mono">
@@ -1525,9 +1922,17 @@ export default function BBSCalculator({
                           ['width', 'Width', isMetric ? 'm' : 'ft'],
                           ['thickness', 'Height', isMetric ? 'm' : 'ft'],
                           ['cover', 'Cover', isMetric ? 'mm' : 'in']
-                        ].map(([field, label, unit]) => (
+                        ].map(([field, label, unit]) => {
+                          const ft = getFieldTooltip(field);
+                          const fv = getFieldValidation(field);
+                          return (
                           <div key={field}>
-                            <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
+                            <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans flex items-center gap-1" title={ft}>
+                              {label}
+                              {ft && (
+                                <span className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[7px] font-bold cursor-help" title={ft}>?</span>
+                              )}
+                            </label>
                             <div className="relative flex items-center">
                               <input
                                 type="number"
@@ -1535,11 +1940,13 @@ export default function BBSCalculator({
                                 value={footing[field] ?? ''}
                                 onChange={(e) => updateFootingSection(index, field, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
                                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                                title={ft}
                               />
                               <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold">{unit}</span>
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       {footing.includeBottomBars && (
@@ -1674,28 +2081,35 @@ export default function BBSCalculator({
                 } else if (key.endsWith('Spacing')) {
                   suffix = paramUnits[key] || (isMetric ? 'mm' : 'in');
                   label = label.replace('Spacing', ' Spacing');
-                } else if (key.endsWith('Dia')) {
-                  label = label.replace('Dia', ' Diameter');
-                  return (
-                    <div key={key}>
-                      <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
-                      <select
-                        value={inputs[key] || ''}
-                        onChange={(e) => handleInputChange(key, parseInt(e.target.value) || 0)}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 cursor-pointer h-9 text-xs"
-                      >
-                        {isMetric ? (
-                          Object.keys(METRIC_REBAR_DATA).map(dia => (
-                            <option key={dia} value={dia}>Ø {dia} mm (T{dia})</option>
-                          ))
-                        ) : (
-                          Object.keys(IMPERIAL_REBAR_DATA).map(dia => (
-                            <option key={dia} value={dia}>{IMPERIAL_REBAR_DATA[Number(dia)].name} rebar (Ø {IMPERIAL_REBAR_DATA[Number(dia)].diaMm}mm)</option>
-                          ))
-                        )}
-                      </select>
-                    </div>
-                  );
+                  } else if (key.endsWith('Dia')) {
+                    label = label.replace('Dia', ' Diameter');
+                    const diaTooltip = getFieldTooltip(key);
+                    return (
+                      <div key={key}>
+                        <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans flex items-center gap-1" title={diaTooltip}>
+                          {label}
+                          {diaTooltip && (
+                            <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[8px] font-bold cursor-help" title={diaTooltip}>?</span>
+                          )}
+                        </label>
+                        <select
+                          value={inputs[key] || ''}
+                          onChange={(e) => handleInputChange(key, parseInt(e.target.value) || 0)}
+                          className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 cursor-pointer h-9 text-xs"
+                          title={diaTooltip}
+                        >
+                          {isMetric ? (
+                            Object.keys(METRIC_REBAR_DATA).map(dia => (
+                              <option key={dia} value={dia}>Ø {dia} mm (T{dia})</option>
+                            ))
+                          ) : (
+                            Object.keys(IMPERIAL_REBAR_DATA).map(dia => (
+                              <option key={dia} value={dia}>{IMPERIAL_REBAR_DATA[Number(dia)].name} rebar (Ø {IMPERIAL_REBAR_DATA[Number(dia)].diaMm}mm)</option>
+                            ))
+                          )}
+                        </select>
+                      </div>
+                    );
                 }
                 
                 if (typeof inputs[key] === 'boolean') {
@@ -1728,10 +2142,17 @@ export default function BBSCalculator({
                   );
                 }
 
+                const tooltip = getFieldTooltip(key);
+                const warning = warnings[key];
                 return (
                   <div key={key}>
                     <div className="flex justify-between items-center mb-1 gap-2">
-                      <label className="text-slate-600 dark:text-slate-400 font-semibold font-sans">{label}</label>
+                      <label className="text-slate-600 dark:text-slate-400 font-semibold font-sans flex items-center gap-1" title={tooltip}>
+                        {label}
+                        {tooltip && (
+                          <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[8px] font-bold cursor-help" title={tooltip}>?</span>
+                        )}
+                      </label>
                       {supportsMultiUnits && (
                         <select
                           value={paramUnits[key] || getDefaultUnitForField(key)}
@@ -1752,12 +2173,19 @@ export default function BBSCalculator({
                         step="any"
                         value={getDisplayValue(key, inputs[key])}
                         onChange={(e) => handleDisplayInputChange(key, e.target.value)}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                        className={`w-full bg-white dark:bg-slate-950 border ${warning ? 'border-amber-400 dark:border-amber-500' : 'border-slate-200 dark:border-slate-800'} rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold transition-colors`}
+                        title={tooltip}
                       />
                       {suffix && (
                         <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold pointer-events-none">{suffix}</span>
                       )}
                     </div>
+                    {warning && (
+                      <p className="text-[9px] mt-1 text-amber-600 dark:text-amber-400 font-mono flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                        {warning}
+                      </p>
+                    )}
                   </div>
                 );
               })
@@ -1775,9 +2203,17 @@ export default function BBSCalculator({
               <Box className="w-40 h-40" />
             </div>
 
-            <div className="flex items-center space-x-2 mb-4 pb-2 border-b border-slate-800">
-              <Layers className="w-5 h-5 text-[#0A84FF]" />
-              <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest">QUANTITY SURVEY SUMMARY</h3>
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+              <div className="flex items-center space-x-2">
+                <Layers className="w-5 h-5 text-[#0A84FF]" />
+                <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest">QUANTITY SURVEY SUMMARY</h3>
+              </div>
+              {isCalculating && (
+                <RefreshCw className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+              )}
+              <span className={`text-[8px] font-mono text-slate-500 transition-opacity ${rebarList.length > 0 ? 'opacity-100' : 'opacity-0'}`}>
+                {rebarList.length} items · {Object.keys(steelWeightByDia).length} sizes
+              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1930,6 +2366,30 @@ export default function BBSCalculator({
                   </span>
                 ))}
               </div>
+            </div>
+          </div>
+
+          {/* FORMULA EXPLANATION SECTION */}
+          <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <h4 className="text-xs font-bold font-mono text-slate-700 dark:text-slate-350 uppercase tracking-wider flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-[#0A84FF]" />
+                {formulaInfo.title} — Formula Reference
+              </h4>
+            </div>
+            <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 font-mono text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+              <code className="text-[#0A84FF] font-bold">{formulaInfo.formula}</code>
+            </div>
+            <div className="space-y-2">
+              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">Calculation Steps</span>
+              <ol className="space-y-1.5">
+                {formulaInfo.steps.map((step, si) => (
+                  <li key={si} className="flex items-start gap-2 text-[10px] text-slate-600 dark:text-slate-400 font-sans">
+                    <span className="flex-shrink-0 w-4 h-4 rounded-full bg-[#0A84FF]/10 text-[#0A84FF] flex items-center justify-center text-[8px] font-bold mt-0.5">{si + 1}</span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
 

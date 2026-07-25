@@ -11,27 +11,31 @@ for (const line of raw.split(/\r?\n/)) {
   env[key] = val;
 }
 
-const openrouterKey = env.OPENROUTER_API_KEY || '';
-if (!openrouterKey) {
-  console.error('MISSING_OPENROUTER_KEY');
-  process.exit(1);
-}
-
-function run(args) {
-  // Do not print secret values
-  console.log(`Running: vercel ${args.filter((a, i) => !(args[i - 1] === 'add' && args[i - 2] === 'env')).join(' ').replace(openrouterKey, '[REDACTED]')}`);
-  execFileSync('npx', ['vercel', ...args], { stdio: 'inherit', shell: true });
-}
-
-// Production + Preview env
-for (const target of ['production', 'preview']) {
-  // vercel env add NAME environment < value via stdin
-  console.log(`Setting OPENROUTER_API_KEY for ${target}...`);
-  execFileSync('npx', ['vercel', 'env', 'add', 'OPENROUTER_API_KEY', target, '--force'], {
-    input: openrouterKey + '\n',
+function setEnv(name, value, target) {
+  if (!value) {
+    console.warn(`Skipping ${name} for ${target} — no value in .env`);
+    return;
+  }
+  console.log(`Setting ${name} for ${target}...`);
+  execFileSync('npx', ['vercel', 'env', 'add', name, target, '--force'], {
+    input: `${value}\n`,
     stdio: ['pipe', 'inherit', 'inherit'],
     shell: true,
   });
 }
 
-console.log('ENV_SET_PARTIAL_DONE');
+const targets = ['production', 'preview'];
+
+for (const target of targets) {
+  setEnv('OPENROUTER_API_KEY', env.OPENROUTER_API_KEY, target);
+  setEnv('VITE_GA_MEASUREMENT_ID', env.VITE_GA_MEASUREMENT_ID, target);
+  setEnv(
+    'APP_URL',
+    env.APP_URL && !env.APP_URL.includes('MY_APP') && !env.APP_URL.includes('localhost')
+      ? env.APP_URL
+      : 'https://civilmath-civil.vercel.app',
+    target
+  );
+}
+
+console.log('VERCEL_ENV_SYNC_DONE');

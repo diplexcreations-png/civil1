@@ -116,131 +116,14 @@ export const CALCULATORS_LIST: CalculatorDef[] = [
   },
   // BBS Category Modules
   {
-    id: 'bbs-footing',
-    name: 'Complete Footing BBS Solver',
+    id: 'bbs-universal',
+    name: '★ Universal Bar Bending Schedule Calculator',
     category: 'bbs',
-    description: 'Bar Bending Schedule for isolated pad or sloped concrete footings, compiling steel schedules and cutting lengths.',
+    description: 'One unified BBS calculator for all structure types: footing, column, beam, slab, staircase, retaining wall, raft, pedestal, and more. Select structure type, enter dimensions, get professional BBS output.',
     iconName: 'Clipboard',
     trending: true,
     featured: true
   },
-  {
-    id: 'bbs-foundation',
-    name: 'Foundation Mesh BBS Estimator',
-    category: 'bbs',
-    description: 'Computes multi-mesh bottom and top foundation reinforcement quantities with structural development hooks.',
-    iconName: 'Clipboard',
-    trending: false,
-    featured: true
-  },
-  {
-    id: 'bbs-column',
-    name: 'Reinforced Column BBS Planner',
-    category: 'bbs',
-    description: 'Coordinates longitudinal main bars, floor laps, and transverse stirrup/tie schedules for columns.',
-    iconName: 'Clipboard',
-    trending: true,
-    featured: true
-  },
-  {
-    id: 'bbs-beam',
-    name: 'Structural Beam BBS Designer',
-    category: 'bbs',
-    description: 'Generates detailed schedules for top hanger bars, bottom tensile reinforcements, stirrups, and side face bars.',
-    iconName: 'Clipboard',
-    trending: true,
-    featured: true
-  },
-  {
-    id: 'bbs-slab',
-    name: 'One-Way / Two-Way Slab BBS Analyst',
-    category: 'bbs',
-    description: 'Calculates structural slab rebar mats, main bent-up crank curves, distribution bars, and chair supports.',
-    iconName: 'Clipboard',
-    trending: true,
-    featured: true
-  },
-  {
-    id: 'bbs-stair',
-    name: 'Staircase Waist Slab BBS Estimator',
-    category: 'bbs',
-    description: 'Computes waist slab, riser steps, landings, and main inclined rebar bar markings and bending tables.',
-    iconName: 'Clipboard',
-    trending: false,
-    featured: false
-  },
-  {
-    id: 'bbs-tie-beam',
-    name: 'Tie Beam Reinforcement BBS Solver',
-    category: 'bbs',
-    description: 'Schedules tie beams connecting foundations, optimizing anchor hooks, stirrup spacings, and tension laps.',
-    iconName: 'Clipboard',
-    trending: false,
-    featured: false
-  },
-  {
-    id: 'bbs-plinth-beam',
-    name: 'Plinth Beam BBS Planner',
-    category: 'bbs',
-    description: 'Detailed bar schedules for plinth beams supporting superstructure brickworks, resolving lap zones and shear ties.',
-    iconName: 'Clipboard',
-    trending: false,
-    featured: false
-  },
-  {
-    id: 'bbs-lintel-beam',
-    name: 'Lintel Beam Door-Opening BBS',
-    category: 'bbs',
-    description: 'Calculates opening clear span reinforcements, bearing configurations, hangers, and shear links.',
-    iconName: 'Clipboard',
-    trending: false,
-    featured: false
-  },
-  {
-    id: 'bbs-retaining-wall',
-    name: 'Cantilever Retaining Wall BBS',
-    category: 'bbs',
-    description: 'Structural stem, heel slab, toe slab vertical dowels, and horizontal spacing schedules.',
-    iconName: 'Clipboard',
-    trending: true,
-    featured: false
-  },
-  {
-    id: 'bbs-pedestal',
-    name: 'Column Pedestal BBS Planner',
-    category: 'bbs',
-    description: 'Compiles foundation pedestals with vertical main dowels, starter lacing ties, and anchorage hook calculations.',
-    iconName: 'Clipboard',
-    trending: false,
-    featured: false
-  },
-  {
-    id: 'bbs-combined-footing',
-    name: 'Combined Column Footing BBS',
-    category: 'bbs',
-    description: 'Coordinates heavy top longitudinal steel, bottom mesh spacing, and main lateral column ties for double column loads.',
-    iconName: 'Clipboard',
-    trending: true,
-    featured: true
-  },
-  {
-    id: 'bbs-raft-foundation',
-    name: 'Heavy Raft Foundation BBS Solver',
-    category: 'bbs',
-    description: 'Handles complete continuous raft sheets, including top/bottom heavy mats, shear chairs, and side perimeter bars.',
-    iconName: 'Clipboard',
-    trending: true,
-    featured: true
-  },
-  {
-    id: 'bbs-strip-footing',
-    name: 'Continuous Strip Footing BBS',
-    category: 'bbs',
-    description: 'Designs continuous wall footings, generating longitudinal ties, lateral wraps, and starter joint schedules.',
-    iconName: 'Clipboard',
-    trending: false,
-    featured: false
-  }
 ];
 
 export interface FormulaReference {

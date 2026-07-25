@@ -11,6 +11,7 @@ import XLSX from 'xlsx-js-style';
 import { UnitSystem, SavedCalculation, CURRENCY_MAPPING } from '../types';
 import Visual3DPreview from './Visual3DPreview';
 import BBSCalculator from './BBSCalculator';
+import { UniversalBBSCalculator } from '../UniversalBBSCalculator';
 import { CALCULATORS_LIST, FORMULA_REFERENCES } from '../data/calculatorsData';
 import { 
   calculateConcreteVolume, 
@@ -1229,7 +1230,7 @@ export default function CalculatorWorkspace({
 
     // Dynamic logging messages during heavy computation
     const statusSequence = [
-      'Initializing CiviCore AI principal agent...',
+      'Initializing CivilMath AI principal agent...',
       'Mapping material parameters and boundary constants...',
       'Solving finite serviceability deflection charts...',
       'Validating stress distributions against ACI building code sheets...',
@@ -2286,14 +2287,14 @@ export default function CalculatorWorkspace({
         docObj.rect(10, 10, 190, 24, 'F');
         
         // Dynamic Accent line separator
-        docObj.setFillColor(10, 132, 255); // civicore blue
+        docObj.setFillColor(10, 132, 255); // civilmath blue
         docObj.rect(10, 34, 190, 1.8, 'F');
         
         // Title Text on Top dark bar
         docObj.setTextColor(255, 255, 255);
         docObj.setFont('helvetica', 'bold');
         docObj.setFontSize(11.5);
-        docObj.text('CIVICORE™ ENGINEERING REPORT SYSTEMS', 15, 21);
+        docObj.text('CIVILMATH™ ENGINEERING REPORT SYSTEMS', 15, 21);
         
         // Sub-bar dynamic subtitle
         docObj.setFont('helvetica', 'normal');
@@ -2454,7 +2455,7 @@ export default function CalculatorWorkspace({
         doc.setTextColor(15, 23, 42);
         doc.text('III. FIELD SURVEY LEVELING FIELD BOOK SHEET', 15, currentY);
 
-        doc.setFillColor(10, 132, 255); // civicore blue
+        doc.setFillColor(10, 132, 255); // civilmath blue
         doc.rect(15, currentY + 1.5, 180, 0.5, 'F');
         currentY += 8;
 
@@ -3060,7 +3061,7 @@ export default function CalculatorWorkspace({
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         className="w-full"
       >
-        <BBSCalculator
+        <UniversalBBSCalculator
           calculatorId={calculatorId}
           unitSystem={unitSystem}
           setUnitSystem={setUnitSystem}
@@ -5626,7 +5627,7 @@ export default function CalculatorWorkspace({
             </span>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-md font-semibold text-slate-800 font-sans tracking-tight">CiviCore AI Assistant</h3>
+                <h3 className="text-md font-semibold text-slate-800 font-sans tracking-tight">CivilMath AI Assistant</h3>
                 <span className="text-[9px] font-mono bg-blue-50 text-[#0A84FF] px-2 py-0.5 rounded-full border border-blue-100 font-bold uppercase tracking-wider">OpenRouter Active</span>
               </div>
               <p className="text-xs text-slate-500 font-mono">PROMPT PRINCIPAL STRUCTURAL REVIEW & CODE AUDITING LOGS</p>
@@ -5818,7 +5819,7 @@ export default function CalculatorWorkspace({
 
               {/* Footer */}
               <div className="p-4 border-t border-slate-800 bg-slate-950/80 backdrop-blur-md flex items-center justify-between">
-                <span className="text-[9px] font-mono text-slate-500 uppercase">CiviCore v1.4.2 Engine</span>
+                <span className="text-[9px] font-mono text-slate-500 uppercase">CivilMath v1.4.2 Engine</span>
                 <button
                   onClick={() => setIsFormulasExpanded(false)}
                   className="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-sans font-bold text-xs rounded-lg transition-all cursor-pointer shadow-md shadow-amber-500/10"

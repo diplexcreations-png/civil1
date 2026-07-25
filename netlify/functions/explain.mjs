@@ -44,7 +44,7 @@ Provide a production-ready, peer-reviewed engineering review with explanation, r
       ],
       temperature: 0.3,
       jsonObject: true,
-      title: "CiviCore AI Assistant",
+      title: "CivilMath AI Assistant",
     });
 
     const resultJson = JSON.parse(stripMarkdownJson(content));

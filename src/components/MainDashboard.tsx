@@ -395,7 +395,7 @@ export default function MainDashboard({
           <div className="flex items-center space-x-2">
             <HardHat className="w-5 h-5 text-amber-500" />
             <div>
-              <h4 className="text-xs font-mono text-amber-500 uppercase tracking-widest font-bold">CIVICORE REBAR CODES & MATRICES</h4>
+              <h4 className="text-xs font-mono text-amber-500 uppercase tracking-widest font-bold">CIVILMATH REBAR CODES & MATRICES</h4>
               <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">ASTM STEEL STANDARDS / REBAR DIAMETERS & NOMINAL WEIGHTS</p>
             </div>
           </div>
