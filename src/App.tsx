@@ -9,7 +9,6 @@ import BBSCategoryPage from './pages/BBSCategoryPage';
 import DashboardPage from './pages/DashboardPage';
 import StaticPage from './pages/StaticPage';
 import { trackPageView } from './utils/analytics';
-import { generateSitemapXML, generateRobotsTxt } from './utils/sitemap';
 
 // Lazy-loaded calculator pages for code splitting
 const ConcreteVolumePage = lazy(() => import('./pages/calculators/ConcreteVolumePage'));
@@ -37,33 +36,6 @@ function SuspenseFallback() {
   );
 }
 
-// Inject sitemap and robots into the head (for static SPA deployment)
-function SEOSetup() {
-  useEffect(() => {
-    const sitemapContent = generateSitemapXML();
-    const robotsContent = generateRobotsTxt();
-
-    let sitemapLink = document.querySelector('link[rel="sitemap"]') as HTMLLinkElement;
-    if (!sitemapLink) {
-      sitemapLink = document.createElement('link');
-      sitemapLink.setAttribute('rel', 'sitemap');
-      sitemapLink.setAttribute('type', 'application/xml');
-      document.head.appendChild(sitemapLink);
-    }
-    sitemapLink.setAttribute('href', `data:application/xml,${encodeURIComponent(sitemapContent)}`);
-
-    let robotsMeta = document.querySelector('meta[name="robots"]');
-    if (!robotsMeta) {
-      robotsMeta = document.createElement('meta');
-      robotsMeta.setAttribute('name', 'robots');
-      document.head.appendChild(robotsMeta);
-    }
-    robotsMeta.setAttribute('content', 'index, follow');
-  }, []);
-
-  return null;
-}
-
 function AnalyticsTracker() {
   const location = useLocation();
   useEffect(() => {
@@ -77,7 +49,6 @@ export default function App() {
     <HelmetProvider>
       <BrowserRouter>
         <AppProvider>
-          <SEOSetup />
           <AnalyticsTracker />
           <Routes>
             <Route element={<AppLayout />}>
