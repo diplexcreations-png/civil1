@@ -1,6 +1,8 @@
 import express from "express";
 import path from "path";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { createServer as createViteServer } from "vite";
 
 // Load environment variables (.env.local overrides .env when present)
@@ -11,8 +13,36 @@ dotenv.config({ path: ".env.local", override: true });
 const app = express();
 const PORT = 3000;
 
-// Middleware
-app.use(express.json());
+// Security middleware
+app.use(helmet());
+app.use(express.json({ limit: '10kb' }));
+
+// Rate limiters
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: "Too many requests, please try again later.", status: "error" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: { error: "Too many requests, please try again later.", status: "error" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+function validateString(val: unknown, maxLen = 5000): string {
+  if (typeof val !== 'string' || val.length > maxLen) return '';
+  return val;
+}
+
+function validateObject(val: unknown): Record<string, unknown> {
+  if (typeof val !== 'object' || val === null || Array.isArray(val)) return {};
+  return val as Record<string, unknown>;
+}
 
 // Health Check API
 app.get("/api/health", (req, res) => {
@@ -20,15 +50,24 @@ app.get("/api/health", (req, res) => {
 });
 
 // AI Explanation endpoint
-app.post("/api/explain", async (req, res) => {
-  const { calculatorId, calculatorName, inputs, outputs, unitSystem, customQuestion } = req.body;
+app.post("/api/explain", apiLimiter, async (req, res) => {
+  const calculatorId = validateString(req.body?.calculatorId, 100);
+  const calculatorName = validateString(req.body?.calculatorName, 200);
+  const inputs = validateObject(req.body?.inputs);
+  const outputs = validateObject(req.body?.outputs);
+  const unitSystem = validateString(req.body?.unitSystem, 50);
+  const customQuestion = validateString(req.body?.customQuestion, 2000);
+
+  if (!calculatorId || !calculatorName) {
+    return res.status(400).json({ error: "Missing required fields.", status: "error" });
+  }
 
   try {
     const openrouterKey = process.env.OPENROUTER_API_KEY;
 
     if (!openrouterKey) {
       return res.status(500).json({
-        error: "OpenRouter API Key not configured.",
+        error: "AI service not configured.",
         status: "error"
       });
     }
@@ -150,21 +189,30 @@ Provide a production-ready, peer-reviewed engineering review with explanation, r
     return res.json({ ...resultJson, status: "success" });
 
   } catch (error: any) {
-    console.error("OpenRouter AI API Error:", error);
+    console.error("AI API Error:", error);
     return res.status(500).json({
-      error: "Error processing the computation with OpenRouter AI engine.",
-      details: error.message || error,
+      error: "Unable to process your request. Please try again.",
       status: "error"
     });
   }
 });
 
 // AI Chatbot endpoint
-app.post("/api/chat", async (req, res) => {
+app.post("/api/chat", chatLimiter, async (req, res) => {
   const { messages } = req.body;
 
-  if (!messages || !Array.isArray(messages)) {
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "Invalid request. 'messages' array is required." });
+  }
+
+  // Validate message structure
+  for (const msg of messages) {
+    if (typeof msg !== 'object' || typeof msg.role !== 'string' || typeof msg.content !== 'string') {
+      return res.status(400).json({ error: "Invalid message format." });
+    }
+    if (msg.content.length > 4000) {
+      return res.status(400).json({ error: "Message too long." });
+    }
   }
 
   try {
@@ -248,10 +296,9 @@ app.post("/api/chat", async (req, res) => {
     return res.json({ response: resultText, status: "success" });
 
   } catch (error: any) {
-    console.error("OpenRouter AI Chat Error:", error);
+    console.error("AI Chat Error:", error);
     return res.status(500).json({
-      error: "Error processing the chat with OpenRouter AI engine.",
-      details: error.message || error,
+      error: "Unable to process your message. Please try again.",
       status: "error"
     });
   }
@@ -275,7 +322,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(PORT, "127.0.0.1", () => {
     console.log(`CivilMath Full-Stack server booted at http://localhost:${PORT}`);
   });
 }

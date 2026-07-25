@@ -20,7 +20,7 @@ if (!openrouterKey) {
 }
 
 function setEnv(key, value) {
-  console.log(`Setting ${key} (length=${value.length}) for production...`);
+  console.log(`Setting ${key} for production...`);
   execFileSync('npx', ['netlify', 'env:set', key, value, '--context', 'production'], {
     stdio: 'inherit',
     shell: true,

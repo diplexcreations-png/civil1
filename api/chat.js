@@ -39,10 +39,9 @@ export default async function handler(req, res) {
         status: "error",
       });
     }
-    console.error("OpenRouter AI Chat Error:", error);
+    console.error("AI Chat Error:", error);
     return res.status(500).json({
-      error: "Error processing the chat with OpenRouter AI engine.",
-      details: error.message || String(error),
+      error: "Unable to process your message. Please try again.",
       status: "error",
     });
   }

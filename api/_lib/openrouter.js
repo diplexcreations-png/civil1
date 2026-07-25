@@ -7,7 +7,8 @@ const MODELS = [
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function setCors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = process.env.APP_URL || "https://www.civilmath.com";
+  res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 }

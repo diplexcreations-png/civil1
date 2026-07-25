@@ -6,12 +6,14 @@ const MODELS = [
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const ALLOWED_ORIGIN = process.env.APP_URL || "https://www.civilmath.com";
+
 export function jsonResponse(statusCode, payload) {
   return {
     statusCode,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     },

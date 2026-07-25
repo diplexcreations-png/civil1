@@ -63,10 +63,9 @@ Provide a production-ready, peer-reviewed engineering review with explanation, r
         status: "error",
       });
     }
-    console.error("OpenRouter AI API Error:", error);
+    console.error("AI API Error:", error);
     return res.status(500).json({
-      error: "Error processing the computation with OpenRouter AI engine.",
-      details: error.message || String(error),
+      error: "Unable to process your request. Please try again.",
       status: "error",
     });
   }
