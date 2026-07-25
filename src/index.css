@@ -343,5 +343,56 @@ body {
   max-width: 100% !important;
 }
 
+/* Mobile Responsiveness Improvements */
+@media (max-width: 480px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .gap-2 {
+    gap: 0.5rem !important;
+  }
+  button, select, input, textarea {
+    font-size: 16px !important;
+  }
+  .text-\[10px\] {
+    font-size: 11px !important;
+  }
+  .text-\[9px\] {
+    font-size: 10px !important;
+  }
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+  .p-5 {
+    padding: 1rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}
+
+button, a, select, input[type="checkbox"], input[type="radio"] {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+input, select, textarea, button {
+  min-height: 36px;
+}
+
+/* Table horizontal scroll on mobile */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.overflow-x-auto table {
+  min-width: max-content;
+}
+
 
 

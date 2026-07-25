@@ -556,7 +556,7 @@ export default function UniversalBBSCalculator({
                     {renderNumberField('waistSlab', 'Waist Slab Thk', inputs.waistSlab, v => handleInputChange('waistSlab', v), isMetric ? 'mm' : 'in')}
                     {renderNumberField('cover', 'Cover', inputs.cover, v => handleInputChange('cover', v), isMetric ? 'mm' : 'in')}
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {renderNumberField('riser', 'Riser', inputs.riser, v => handleInputChange('riser', v), isMetric ? 'mm' : 'in')}
                     {renderNumberField('tread', 'Tread', inputs.tread, v => handleInputChange('tread', v), isMetric ? 'mm' : 'in')}
                     {renderNumberField('steps', 'Steps', inputs.steps, v => handleInputChange('steps', v), '')}
@@ -743,7 +743,7 @@ export default function UniversalBBSCalculator({
                           <button onClick={() => removeFootingSection(idx)} className="p-1 rounded-lg bg-red-50 dark:bg-red-950 hover:bg-red-100 text-red-500 cursor-pointer"><Trash2 className="w-3 h-3" /></button>
                         )}
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {renderNumberField(`len-${idx}`, 'Length', footing.length, v => handleFootingSectionChange(idx, 'length', v), isMetric ? 'm' : 'ft')}
                         {renderNumberField(`wid-${idx}`, 'Width', footing.width, v => handleFootingSectionChange(idx, 'width', v), isMetric ? 'm' : 'ft')}
                         {renderNumberField(`thk-${idx}`, 'Height', footing.thickness, v => handleFootingSectionChange(idx, 'thickness', v), isMetric ? 'm' : 'ft')}

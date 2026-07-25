@@ -3384,7 +3384,7 @@ export default function CalculatorWorkspace({
                 {inputs.mixType === 'custom' && (
                   <div className="bg-slate-50/80 p-3 rounded-2xl border border-slate-200/50 space-y-3">
                     <div className="text-slate-500 text-[9px] uppercase tracking-wider font-semibold">Custom Volume Proportions</div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <div>
                         <label htmlFor="custom-cement-input" className="text-slate-600 block mb-1 text-[10px] font-semibold">Cement ratio</label>
                         <input
