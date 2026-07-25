@@ -43,8 +43,28 @@ export function trackPageView(pageName: string): void {
 
 export function trackEvent(
   eventName: string,
-  params?: Record<string, string | number | boolean>
+  params?: Record<string, string | number | boolean | undefined>
 ): void {
   if (!isAnalyticsEnabled() || !window.gtag) return;
   window.gtag('event', eventName, params);
+}
+
+export function trackCalculatorView(calculatorId: string, category: string): void {
+  trackEvent('calculator_view', { calculator_id: calculatorId, category });
+}
+
+export function trackCalculatorResult(calculatorId: string, unitSystem: string): void {
+  trackEvent('calculator_result', { calculator_id: calculatorId, unit_system: unitSystem });
+}
+
+export function trackCalculatorFeedback(calculatorId: string, feedback: 'up' | 'down'): void {
+  trackEvent('calculator_feedback', { calculator_id: calculatorId, feedback });
+}
+
+export function trackSearch(query: string, resultCount: number): void {
+  trackEvent('search', { search_query: query.slice(0, 100), result_count: resultCount });
+}
+
+export function trackError(errorType: string, context?: string): void {
+  trackEvent('error', { error_type: errorType, context: context?.slice(0, 200) });
 }
