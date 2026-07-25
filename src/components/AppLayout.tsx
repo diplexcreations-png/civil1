@@ -23,7 +23,7 @@ const categoryConfig = [
 const RECENT_CALCULATORS_KEY = 'civilmath_recent';
 
 export default function AppLayout() {
-  const { unitSystem, setUnitSystem, theme, toggleTheme, activeCalcId, setActiveCalcId } = useApp();
+  const { unitSystem, setUnitSystem, theme, toggleTheme, activeCalcId, setActiveCalcId, currency, setCurrency } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -192,6 +192,18 @@ export default function AppLayout() {
                     <button onClick={() => setUnitSystem('imperial')}
                       className={`px-2 py-1 text-[9px] font-bold rounded-md transition-all cursor-pointer ${unitSystem === 'imperial' ? 'bg-white dark:bg-[#0D1527] text-[#2563EB] shadow-xs' : 'text-[#64748B]'}`}>IMP</button>
                   </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-bold text-[#64748B] uppercase">Currency</span>
+                  <select value={currency} onChange={e => setCurrency(e.target.value)}
+                    className="bg-[#F1F5F9] dark:bg-[#1E293B] border-0 rounded-lg px-2 py-1 text-[9px] font-bold text-[#475569] dark:text-[#94A3B8] outline-none cursor-pointer">
+                    <option value="USD">USD ($)</option>
+                    <option value="LKR">LKR (Rs)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="INR">INR (₹)</option>
+                    <option value="AED">AED (د.إ)</option>
+                  </select>
                 </div>
                 <div className="flex items-center justify-between">
                   <button onClick={toggleTheme}
