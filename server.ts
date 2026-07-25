@@ -20,7 +20,7 @@ app.use(express.json({ limit: '10kb' }));
 // Rate limiters
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 30,
   message: { error: "Too many requests, please try again later.", status: "error" },
   standardHeaders: true,
   legacyHeaders: false,
@@ -28,7 +28,7 @@ const apiLimiter = rateLimit({
 
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 20,
+  max: 60,
   message: { error: "Too many requests, please try again later.", status: "error" },
   standardHeaders: true,
   legacyHeaders: false,

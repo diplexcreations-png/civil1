@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, CSSProperties } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, ChevronLeft, X, Sparkles, Rocket, ArrowRight, Calculator, Layers, GitCommit, Anchor, Compass, RefreshCw, Clipboard } from 'lucide-react';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
@@ -143,7 +143,7 @@ export default function GuidedTour({ onNavigate }: GuidedTourProps) {
   const [isActive, setIsActive] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
   const [spotlightRect, setSpotlightRect] = useState<DOMRect | null>(null);
-  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
+  const [tooltipStyle, setTooltipStyle] = useState<CSSProperties>({});
   const [useMobileSheet, setUseMobileSheet] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedCalcId, setSelectedCalcId] = useState('concrete-volume');
