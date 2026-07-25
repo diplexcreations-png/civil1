@@ -260,6 +260,7 @@ export default function LandingPage({ onSelectCalculator, onLaunchDashboard, onN
             {filteredCalculators.map((calc, idx) => (
               <motion.div 
                 key={calc.id}
+                id={idx === 0 ? "tour-calc-card" : undefined}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

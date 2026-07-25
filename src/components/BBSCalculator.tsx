@@ -2119,7 +2119,7 @@ export default function BBSCalculator({
                       <input
                         type="checkbox"
                         checked={Boolean(inputs[key])}
-                        onChange={(e) => handleInputChange(key, e.target.checked)}
+                        onChange={(e) => handleInputChange(key, e.target.checked as any)}
                         className="h-4 w-4 accent-[#0A84FF] cursor-pointer"
                       />
                     </label>

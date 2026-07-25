@@ -10,6 +10,7 @@ import { jsPDF } from 'jspdf';
 import XLSX from 'xlsx-js-style';
 import { UnitSystem, SavedCalculation, CURRENCY_MAPPING } from '../types';
 import Visual3DPreview from './Visual3DPreview';
+import BrickEstimator3D from './BrickEstimator3D';
 import BBSCalculator from './BBSCalculator';
 import { UniversalBBSCalculator } from '../UniversalBBSCalculator';
 import { CALCULATORS_LIST, FORMULA_REFERENCES } from '../data/calculatorsData';
@@ -974,7 +975,14 @@ export default function CalculatorWorkspace({
         brickHeight: unitSystem === 'metric' ? 76 : 3,
         mortarJoint: unitSystem === 'metric' ? 10 : 0.375,
         mixRatio: '1:4',
-        wastePercent: 10
+        wastePercent: 10,
+        bondType: 'stretcher',
+        openings: [],
+        brickPrice: 0.6,
+        cementPrice: 8.5,
+        sandPrice: 35.0,
+        labourCost: 20.0,
+        transportCost: 45.0
       };
     } else if (calculatorId === 'utility-convert') {
       setConvCategory('length');
@@ -1147,7 +1155,14 @@ export default function CalculatorWorkspace({
           brickHeight: Number(inputs.brickHeight) || 0,
           mortarJoint: Number(inputs.mortarJoint) || 0,
           mixRatio: inputs.mixRatio || '1:4',
-          wastePercent: Number(inputs.wastePercent) || 0
+          wastePercent: Number(inputs.wastePercent) || 0,
+          bondType: inputs.bondType || 'stretcher',
+          openings: inputs.openings || [],
+          brickPrice: Number(inputs.brickPrice) || 0,
+          cementPrice: Number(inputs.cementPrice) || 0,
+          sandPrice: Number(inputs.sandPrice) || 0,
+          labourCost: Number(inputs.labourCost) || 0,
+          transportCost: Number(inputs.transportCost) || 0
         }, unitSystem);
       }
     } catch (e) {
@@ -1475,13 +1490,22 @@ export default function CalculatorWorkspace({
       list.push({ label: 'Nominal Unit Weight', value: outputs.unitWeight ?? 0, unit: isMetric ? 'kg/m' : 'lbs/ft' });
       list.push({ label: 'Total Rebar Weight', value: outputs.totalWeight ?? 0, unit: isMetric ? 'kg' : 'lbs' });
     } else if (calculatorId === 'brick-calculator') {
-      list.push({ label: 'Total Wall Volume', value: outputs.wallVolume ?? 0, unit: isMetric ? 'm³' : 'ft³' });
-      list.push({ label: 'Net Bricks Needed', value: outputs.netBricksCount ?? 0, unit: 'bricks' });
+      list.push({ label: 'Gross Wall Volume', value: outputs.wallVolumeGross ?? 0, unit: isMetric ? 'm³' : 'ft³' });
+      list.push({ label: 'Net Wall Volume', value: outputs.wallVolumeNet ?? 0, unit: isMetric ? 'm³' : 'ft³' });
+      list.push({ label: 'Net Wall Area', value: outputs.wallAreaNet ?? 0, unit: isMetric ? 'm²' : 'ft²' });
+      list.push({ label: 'Full Bricks Placed', value: outputs.fullBricksCount ?? 0, unit: 'bricks' });
+      list.push({ label: 'Half Bricks Count', value: outputs.halfBricksCount ?? 0, unit: 'half-bricks' });
+      list.push({ label: 'Cut Bricks Count', value: outputs.cutBricksCount ?? 0, unit: 'cut-bricks' });
       list.push({ label: 'Total Bricks (+ waste)', value: outputs.totalBricksWithWaste ?? 0, unit: 'bricks' });
       list.push({ label: 'Mortar Volume (Wet)', value: outputs.mortarVolumeWet ?? 0, unit: isMetric ? 'm³' : 'ft³' });
       list.push({ label: 'Mortar Volume (Dry)', value: outputs.mortarVolumeDry ?? 0, unit: isMetric ? 'm³' : 'ft³' });
-      list.push({ label: 'Portland Cement Bags (50kg/94lbs)', value: outputs.cementBagsRequired ?? 0, unit: 'bags' });
-      list.push({ label: 'Clean Masonry Sand', value: outputs.sandWeightRequired ?? 0, unit: isMetric ? 'kg' : 'lbs' });
+      list.push({ label: 'Portland Cement Bags', value: outputs.cementBagsRequired ?? 0, unit: 'bags' });
+      list.push({ label: 'Masonry Sand Volume', value: outputs.sandVolumeRequired ?? 0, unit: isMetric ? 'm³' : 'ft³' });
+      list.push({ label: 'Masonry Sand Weight', value: outputs.sandWeightRequired ?? 0, unit: isMetric ? 'kg' : 'lbs' });
+      list.push({ label: 'Mixing Water Required', value: outputs.waterRequired ?? 0, unit: isMetric ? 'L' : 'gal' });
+      list.push({ label: 'Material Cost Estimate', value: outputs.materialCost ?? 0, unit: currencySymbol });
+      list.push({ label: 'Labour Cost Estimate', value: outputs.labourCost ?? 0, unit: currencySymbol });
+      list.push({ label: 'Grand Total Cost', value: outputs.grandTotal ?? 0, unit: currencySymbol });
     } else if (calculatorId === 'utility-convert') {
       list.push({ label: 'Converted Output Value', value: outputs.convertedValue ?? 0, unit: convTo });
     }
@@ -1700,10 +1724,10 @@ export default function CalculatorWorkspace({
       });
     } else if (calculatorId === 'brick-calculator') {
       items.push({
-        name: 'Wall Mass Volume',
+        name: 'Net Wall Volume',
         val: isMetric 
-          ? `${((outputs.wallVolume || 0) * 35.3147).toFixed(1)} ft³` 
-          : `${((outputs.wallVolume || 0) / 35.3147).toFixed(1)} m³`,
+          ? `${((outputs.wallVolumeNet || 0) * 35.3147).toFixed(1)} ft³` 
+          : `${((outputs.wallVolumeNet || 0) / 35.3147).toFixed(1)} m³`,
         calculatorId
       });
     }
@@ -2196,43 +2220,66 @@ export default function CalculatorWorkspace({
     const volUnit = isM ? 'm³' : 'ft³';
     const wtUnit = isM ? 'kg' : 'lbs';
     const sizeUnit = isM ? 'mm' : 'in';
+    const areaUnit = isM ? 'm²' : 'ft²';
+    const opCount = inputs.openings?.length || 0;
 
     return (
       <div className="space-y-4 font-mono text-xs text-slate-350">
         <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5 text-left">
-          <span className="text-amber-450 font-bold block uppercase tracking-wider text-[10px]">Step 1: Solid Wall & Masonry Sizing</span>
+          <span className="text-amber-450 font-bold block uppercase tracking-wider text-[10px]">Step 1: Solid Wall Sizing & Deductions</span>
           <div className="p-2 py-3 bg-slate-900/60 border border-slate-800 rounded-lg text-center font-sans font-medium text-emerald-400">
-            Nominal Unit Area = (Brick Length + Joint) × (Brick Height + Joint)
+            Net Volume = (Length × Height × Thickness) - Openings Volume
           </div>
           <p className="text-slate-300 leading-normal">
-            Wall envelope volume: <span className="text-white font-bold">{outputs.wallVolume ?? 0} {volUnit}</span><br />
-            Given brick unit raw dimensions: <span className="text-white font-bold">{inputs.brickLength ?? 0} × {inputs.brickWidth ?? 0} × {inputs.brickHeight ?? 0} {sizeUnit}</span>:<br />
-            • Net Brick Units needed = <span className="text-white font-bold">{outputs.netBricksCount ?? 0} units</span><br />
-            • Total order (+ <span className="text-white font-bold">{inputs.wastePercent ?? 10}%</span> wastage) = <span className="text-emerald-405 font-bold text-sm">{outputs.totalBricksWithWaste ?? 0} bricks</span>
+            • Gross Wall Volume: <span className="text-white font-bold">{outputs.wallVolumeGross ?? 0} {volUnit}</span><br />
+            • Net Wall Volume: <span className="text-white font-bold">{outputs.wallVolumeNet ?? 0} {volUnit}</span> (After deducting {opCount} opening(s))<br />
+            • Net Wall Face Area: <span className="text-white font-bold">{outputs.wallAreaNet ?? 0} {areaUnit}</span><br />
+            • Brick Preset Size: <span className="text-white font-bold">{inputs.brickLength ?? 0} × {inputs.brickWidth ?? 0} × {inputs.brickHeight ?? 0} {sizeUnit}</span>
           </p>
         </div>
 
         <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5 text-left">
-          <span className="text-amber-450 font-bold block uppercase tracking-wider text-[10px]">Step 2: Wet & Dry Mortar Voluminosity</span>
+          <span className="text-amber-450 font-bold block uppercase tracking-wider text-[10px]">Step 2: Simulation Brick Placements & Cuts</span>
           <div className="p-2 py-3 bg-slate-900/60 border border-slate-800 rounded-lg text-center font-sans font-bold text-emerald-400">
-            Dry Volume = (Wall Volume - Raw Solid Bricks Volume) × 1.27
+            Net Bricks = Full Bricks + Math.ceil(Half Bricks / 2) + Cut Bricks
           </div>
-          <p className="text-slate-305 leading-normal">
-            Shrinkage allowance is calibrated to account for compaction when dry powder cement and sand mixes consolidate with water (approx 27% loss).<br />
-            • Computed Wet Mortar = <span className="text-white font-bold">{outputs.mortarVolumeWet ?? 0} {volUnit}</span><br />
-            • Computed Dry Mortar = <span className="text-white font-bold">{outputs.mortarVolumeDry ?? 0} {volUnit}</span>
+          <p className="text-slate-300 leading-normal">
+            We run the exact pattern placement algorithm for the selected bond type (<span className="text-amber-500 font-bold">{inputs.bondType || 'stretcher'}</span>):<br />
+            • Full Bricks laid: <span className="text-white font-bold">{outputs.fullBricksCount ?? 0}</span> units<br />
+            • Half Bricks cut: <span className="text-white font-bold">{outputs.halfBricksCount ?? 0}</span> units<br />
+            • Cut Bricks details: <span className="text-white font-bold">{outputs.cutBricksCount ?? 0}</span> units<br />
+            • Net units required: <span className="text-white font-bold">{outputs.netBricksCount ?? 0}</span> units<br />
+            • Order (+ <span className="text-white font-bold">{inputs.wastePercent ?? 10}%</span> wastage): <span className="text-emerald-400 font-bold text-sm">{outputs.totalBricksWithWaste ?? 0} bricks</span>
           </p>
         </div>
 
         <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5 text-left">
-          <span className="text-amber-450 font-bold block uppercase tracking-wider text-[10px]">Step 3: Sand & Cement Parting ratio</span>
-          <div className="p-2 py-3 bg-slate-900/60 border border-slate-800 rounded-lg text-left font-sans text-xs text-emerald-450 space-y-1">
-            <strong>Mix Proportion Model:</strong> 1 part Cement : {inputs.mixRatio ? inputs.mixRatio.split(':')[1] : 4} parts Sand<br />
-            <strong>Portland Cement standard bag:</strong> 50 kg (Metric) | 94 lbs (Imperial)
+          <span className="text-amber-450 font-bold block uppercase tracking-wider text-[10px]">Step 3: Mortar & Dry Compaction Quantities</span>
+          <div className="p-2 py-3 bg-slate-900/60 border border-slate-800 rounded-lg text-center font-sans font-bold text-emerald-400">
+            Dry Mortar Vol = (Wall Net Volume - Solid Bricks Volume - Cavity Volume) × 1.27
           </div>
           <p className="text-slate-300 leading-normal">
-            • Cement Bags required = <span className="text-emerald-405 font-bold text-sm">{outputs.cementBagsRequired ?? 0} bags</span><br />
-            • Clean Masonry Sand required = <span className="text-emerald-405 font-bold text-sm">{outputs.sandWeightRequired ?? 0} {wtUnit}</span>
+            Shrinkage compaction allowance accounts for ~27% volume loss when dry sand/cement powder is hydrated.<br />
+            • Wet Mortar Volume: <span className="text-white font-bold">{outputs.mortarVolumeWet ?? 0} {volUnit}</span><br />
+            • Dry Mortar Volume: <span className="text-white font-bold">{outputs.mortarVolumeDry ?? 0} {volUnit}</span><br />
+            • Mix Ratio Model: <span className="text-white font-bold">1 : {inputs.mixRatio ? inputs.mixRatio.split(':')[1] : 4} (C : S)</span><br />
+            • Cement bags (50kg/94lbs): <span className="text-emerald-400 font-bold">{outputs.cementBagsRequired ?? 0} bags</span><br />
+            • Sand needed: <span className="text-emerald-400 font-bold">{outputs.sandVolumeRequired ?? 0} {volUnit} ({outputs.sandWeightRequired ?? 0} {wtUnit})</span><br />
+            • Hydration Water: <span className="text-emerald-400 font-bold">{outputs.waterRequired ?? 0} {isM ? 'Liters' : 'Gallons'}</span>
+          </p>
+        </div>
+
+        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5 text-left">
+          <span className="text-amber-450 font-bold block uppercase tracking-wider text-[10px]">Step 4: Engineering Cost Valuation</span>
+          <div className="p-2 py-3 bg-slate-900/60 border border-slate-800 rounded-lg text-left font-sans text-xs text-emerald-450 space-y-1">
+            <strong>Materials cost:</strong> {currencySymbol}{outputs.materialCost ?? 0}<br />
+            <strong>Labour cost:</strong> {currencySymbol}{outputs.labourCost ?? 0}<br />
+            <strong>Transport flat rate:</strong> {currencySymbol}{inputs.transportCost ?? 0}
+          </div>
+          <p className="text-slate-300 leading-normal">
+            • Grand Project Total: <span className="text-emerald-400 font-black text-sm">{currencySymbol}{outputs.grandTotal ?? 0}</span><br />
+            • Cost density (per unit area): <span className="text-white font-bold">{currencySymbol}{outputs.costPerArea ?? 0} /{areaUnit}</span><br />
+            • Cost density (per unit volume): <span className="text-white font-bold">{currencySymbol}{outputs.costPerVolume ?? 0} /{volUnit}</span>
           </p>
         </div>
       </div>
@@ -3128,7 +3175,7 @@ export default function CalculatorWorkspace({
           : calculatorId === 'utility-convert'
           ? 'col-span-12 lg:col-span-6 w-full'
           : 'col-span-12 lg:col-span-7 xl:col-span-8 w-full'
-      } bg-white/70 border border-slate-200 rounded-3xl p-4 sm:p-5 backdrop-blur-xl flex flex-col justify-between shadow-xs text-left`} id="calculator-inputs">
+      } bg-white/70 border border-slate-200 rounded-3xl p-4 sm:p-5 backdrop-blur-xl flex flex-col justify-between shadow-xs text-left`} id="tour-input-panel">
         <div>
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-205">
             <div className="flex items-center space-x-2">
@@ -4818,6 +4865,7 @@ export default function CalculatorWorkspace({
         {/* BOTTOM: Action CTA Cards */}
         <div className="mt-6 pt-4 border-t border-slate-200 space-y-2">
           <button 
+            id="tour-save-btn"
             onClick={handleSaveWorkspace}
             className="w-full py-2.5 px-4 bg-[#0F172A] hover:bg-slate-800 text-white font-sans text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 cursor-pointer transition-all shadow-sm"
           >
@@ -5583,6 +5631,7 @@ export default function CalculatorWorkspace({
         {/* PRINT / EXPORT BUTTONS */}
         <div id="print-actions-row" className="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-2">
           <button 
+            id="tour-export-pdf"
             onClick={handleDownloadPDF}
             className="flex-1 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
           >
@@ -5591,6 +5640,7 @@ export default function CalculatorWorkspace({
           </button>
           
           <button 
+            id="tour-export-excel"
             onClick={handleDownloadExcel}
             className="flex-1 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
           >
