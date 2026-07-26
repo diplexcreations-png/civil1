@@ -1,10 +1,13 @@
 import {
   collection, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc,
-  query, onSnapshot, type Unsubscribe,
+  query, onSnapshot, getDocs, where, type Unsubscribe,
 } from 'firebase/firestore';
-import { db } from './config';
+import { ref, uploadBytes, getDownloadURL, deleteObject, type UploadResult } from 'firebase/storage';
+import { db, storage } from './config';
 import type {
   ProjectMember, Task, ActivityLog, Comment, ProgressRecord,
+  Issue, Document, ChatMessage, AppNotification, ProjectSettings,
+  DailyReport, CostItem, MaterialItem,
 } from '../collaboration/types';
 
 /* ── Helpers ── */
@@ -19,11 +22,6 @@ function docRef(path: string) {
   return doc(db, path);
 }
 
-function snapData<T>(snap: any): T | null {
-  return snap.exists() ? ({ id: snap.id, ...snap.data() } as T) : null;
-}
-
-/** Wraps onSnapshot with error logging — returns noop unsub if db is null */
 function safeSubscribe<T>(
   path: string,
   cb: (data: T[]) => void,
@@ -42,10 +40,25 @@ function safeSubscribe<T>(
   }
 }
 
-/** Wraps a Firestore write, returns true on success */
 async function safeWrite(fn: () => Promise<void>): Promise<boolean> {
   if (!db) return false;
   try { await fn(); return true; } catch (e) { console.warn('Firestore write error:', e); return false; }
+}
+
+/* ── Storage ── */
+
+export async function uploadFile(path: string, file: File): Promise<string | null> {
+  if (!storage) return null;
+  try {
+    const storageRef = ref(storage, path);
+    const result: UploadResult = await uploadBytes(storageRef, file);
+    return await getDownloadURL(result.ref);
+  } catch (e) { console.warn('Storage upload error:', e); return null; }
+}
+
+export async function deleteFile(path: string): Promise<boolean> {
+  if (!storage) return false;
+  try { await deleteObject(ref(storage, path)); return true; } catch (e) { console.warn('Storage delete error:', e); return false; }
 }
 
 /* ── Project ── */
@@ -68,8 +81,17 @@ export async function createProject(name: string, ownerId: string): Promise<stri
 export async function getProject(projectId: string): Promise<FireProject | null> {
   if (!db) return null;
   try {
-    return snapData<FireProject>(await getDoc(docRef(`projects/${projectId}`)));
+    const snap = await getDoc(docRef(`projects/${projectId}`));
+    return snap.exists() ? ({ id: snap.id, ...snap.data() } as FireProject) : null;
   } catch { return null; }
+}
+
+export async function getUserProjects(userId: string): Promise<FireProject[]> {
+  if (!db) return [];
+  try {
+    const snap = await getDocs(query(coll('projects'), where('ownerId', '==', userId)));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as FireProject));
+  } catch (e) { console.warn('getUserProjects error:', e); return []; }
 }
 
 /* ── Members ── */
@@ -148,4 +170,133 @@ export async function updateRecordFB(projectId: string, recordId: string, data: 
 
 export async function removeRecordFB(projectId: string, recordId: string): Promise<boolean> {
   return safeWrite(() => deleteDoc(docRef(`projects/${projectId}/records/${recordId}`)));
+}
+
+/* ── Issues ── */
+
+export function onIssuesChange(projectId: string, cb: (issues: Issue[]) => void): Unsubscribe {
+  return safeSubscribe(`projects/${projectId}/issues`, cb, d => d as Issue);
+}
+
+export async function addIssueFB(projectId: string, issue: Issue): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`projects/${projectId}/issues/${issue.id}`), issue));
+}
+
+export async function updateIssueFB(projectId: string, issueId: string, data: Partial<Issue>): Promise<boolean> {
+  return safeWrite(() => updateDoc(docRef(`projects/${projectId}/issues/${issueId}`), data));
+}
+
+export async function removeIssueFB(projectId: string, issueId: string): Promise<boolean> {
+  return safeWrite(() => deleteDoc(docRef(`projects/${projectId}/issues/${issueId}`)));
+}
+
+/* ── Documents ── */
+
+export function onDocumentsChange(projectId: string, cb: (docs: Document[]) => void): Unsubscribe {
+  return safeSubscribe(`projects/${projectId}/documents`, cb, d => d as Document);
+}
+
+export async function addDocumentFB(projectId: string, docData: Document): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`projects/${projectId}/documents/${docData.id}`), docData));
+}
+
+export async function removeDocumentFB(projectId: string, docId: string): Promise<boolean> {
+  return safeWrite(() => deleteDoc(docRef(`projects/${projectId}/documents/${docId}`)));
+}
+
+/* ── Chat Messages ── */
+
+export function onChatMessagesChange(projectId: string, cb: (msgs: ChatMessage[]) => void): Unsubscribe {
+  return safeSubscribe(`projects/${projectId}/chat`, cb, d => d as ChatMessage);
+}
+
+export async function addChatMessageFB(projectId: string, msg: ChatMessage): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`projects/${projectId}/chat/${msg.id}`), msg));
+}
+
+/* ── Notifications ── */
+
+export async function addNotificationFB(notification: AppNotification): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`notifications/${notification.id}`), notification));
+}
+
+export async function markNotificationReadFB(notificationId: string): Promise<boolean> {
+  return safeWrite(() => updateDoc(docRef(`notifications/${notificationId}`), { read: true }));
+}
+
+export async function markAllNotificationsReadFB(userId: string): Promise<boolean> {
+  if (!db) return false;
+  try {
+    const snap = await getDocs(query(coll('notifications'), where('userId', '==', userId), where('read', '==', false)));
+    const batch = snap.docs.map(d => updateDoc(docRef(`notifications/${d.id}`), { read: true }));
+    await Promise.all(batch);
+    return true;
+  } catch (e) { console.warn('Firestore markAllRead error:', e); return false; }
+}
+
+/* ── Project Settings ── */
+
+export function onSettingsChange(projectId: string, cb: (settings: ProjectSettings | null) => void): Unsubscribe {
+  if (!db) return () => {};
+  try {
+    return onSnapshot(
+      doc(db, `projects/${projectId}/settings/general`),
+      snap => cb(snap.exists() ? ({ id: snap.id, ...snap.data() } as unknown as ProjectSettings) : null),
+      err => console.warn('Firestore settings error:', err.code),
+    );
+  } catch { return () => {}; }
+}
+
+export async function saveSettingsFB(projectId: string, settings: ProjectSettings): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`projects/${projectId}/settings/general`), settings));
+}
+
+/* ── Daily Reports ── */
+
+export function onDailyReportsChange(projectId: string, cb: (reports: DailyReport[]) => void): Unsubscribe {
+  return safeSubscribe(`projects/${projectId}/dailyReports`, cb, d => d as DailyReport);
+}
+
+export async function addDailyReportFB(projectId: string, report: DailyReport): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`projects/${projectId}/dailyReports/${report.id}`), report));
+}
+
+export async function removeDailyReportFB(projectId: string, reportId: string): Promise<boolean> {
+  return safeWrite(() => deleteDoc(docRef(`projects/${projectId}/dailyReports/${reportId}`)));
+}
+
+/* ── Cost Items ── */
+
+export function onCostItemsChange(projectId: string, cb: (items: CostItem[]) => void): Unsubscribe {
+  return safeSubscribe(`projects/${projectId}/costItems`, cb, d => d as CostItem);
+}
+
+export async function addCostItemFB(projectId: string, item: CostItem): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`projects/${projectId}/costItems/${item.id}`), item));
+}
+
+export async function updateCostItemFB(projectId: string, itemId: string, data: Partial<CostItem>): Promise<boolean> {
+  return safeWrite(() => updateDoc(docRef(`projects/${projectId}/costItems/${itemId}`), data));
+}
+
+export async function removeCostItemFB(projectId: string, itemId: string): Promise<boolean> {
+  return safeWrite(() => deleteDoc(docRef(`projects/${projectId}/costItems/${itemId}`)));
+}
+
+/* ── Material Items ── */
+
+export function onMaterialItemsChange(projectId: string, cb: (items: MaterialItem[]) => void): Unsubscribe {
+  return safeSubscribe(`projects/${projectId}/materialItems`, cb, d => d as MaterialItem);
+}
+
+export async function addMaterialItemFB(projectId: string, item: MaterialItem): Promise<boolean> {
+  return safeWrite(() => setDoc(docRef(`projects/${projectId}/materialItems/${item.id}`), item));
+}
+
+export async function updateMaterialItemFB(projectId: string, itemId: string, data: Partial<MaterialItem>): Promise<boolean> {
+  return safeWrite(() => updateDoc(docRef(`projects/${projectId}/materialItems/${itemId}`), data));
+}
+
+export async function removeMaterialItemFB(projectId: string, itemId: string): Promise<boolean> {
+  return safeWrite(() => deleteDoc(docRef(`projects/${projectId}/materialItems/${itemId}`)));
 }

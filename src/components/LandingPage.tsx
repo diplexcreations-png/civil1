@@ -122,22 +122,22 @@ export default function LandingPage() {
             <TrendingUp className="w-4 h-4 text-[#2563EB]" />
             <h2 className="text-sm font-bold text-[#0F172A] dark:text-[#F1F5F9]">Popular Calculators</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {popularCalcs.map((calc, idx) => (
               <motion.button key={calc.id}
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.04 }}
                 onClick={() => handleSelectCalc(calc.id)}
-                className="bg-white dark:bg-[#0D1527] border border-[#E2E8F0] dark:border-[#1E293B] rounded-2xl p-4 text-left hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group">
-                <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB] inline-flex mb-3">
-                  <Calculator className="w-4 h-4" />
+                className="bg-white dark:bg-[#0D1527] border border-[#E2E8F0] dark:border-[#1E293B] rounded-2xl p-5 text-left hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group">
+                <div className="p-3 rounded-xl bg-[#2563EB]/10 text-[#2563EB] inline-flex mb-3">
+                  <Calculator className="w-5 h-5" />
                 </div>
-                <div className="text-[11px] font-bold text-[#0F172A] dark:text-[#F1F5F9] leading-tight group-hover:text-[#2563EB] transition-colors">{calc.name}</div>
-                <div className="flex items-center gap-1 mt-1.5">
-                  <span className="text-[8px] px-1.5 py-0.5 bg-[#F1F5F9] dark:bg-[#1E293B] rounded-md font-semibold text-[#64748B] uppercase">
+                <div className="text-sm font-bold text-[#0F172A] dark:text-[#F1F5F9] leading-tight group-hover:text-[#2563EB] transition-colors">{calc.name}</div>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className="text-[10px] px-2 py-0.5 bg-[#F1F5F9] dark:bg-[#1E293B] rounded-md font-semibold text-[#64748B] uppercase">
                     {calc.category === 'bbs' ? 'Steel' : calc.category}
                   </span>
-                  <Clock className="w-2.5 h-2.5 text-[#94A3B8]" />
-                  <span className="text-[8px] text-[#94A3B8]">2 min</span>
+                  <Clock className="w-3 h-3 text-[#94A3B8]" />
+                  <span className="text-[10px] text-[#94A3B8]">2 min</span>
                 </div>
               </motion.button>
             ))}
@@ -152,18 +152,18 @@ export default function LandingPage() {
             <Star className="w-4 h-4 text-[#2563EB]" />
             <h2 className="text-sm font-bold text-[#0F172A] dark:text-[#F1F5F9]">Browse by Category</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {categories.map((cat, idx) => (
               <motion.button key={cat.id}
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
                 onClick={() => { setSelectedCategory(cat.id); setSearchQuery(''); }}
-                className="bg-white dark:bg-[#0D1527] border border-[#E2E8F0] dark:border-[#1E293B] rounded-2xl p-4 text-left hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group">
-                <div className="p-2.5 rounded-xl mb-3 inline-flex" style={{ background: `${cat.color}15` }}>
+                className="bg-white dark:bg-[#0D1527] border border-[#E2E8F0] dark:border-[#1E293B] rounded-2xl p-5 text-left hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group">
+                <div className="p-3 rounded-xl mb-3 inline-flex" style={{ background: `${cat.color}15` }}>
                   <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
                 </div>
-                <div className="text-[11px] font-bold text-[#0F172A] dark:text-[#F1F5F9] leading-tight">{cat.label}</div>
-                <div className="text-[8px] text-[#94A3B8] mt-1 line-clamp-2">{cat.desc}</div>
-                <div className="text-[8px] text-[#2563EB] font-semibold mt-1.5">{cat.count} calculators →</div>
+                <div className="text-sm font-bold text-[#0F172A] dark:text-[#F1F5F9] leading-tight">{cat.label}</div>
+                <div className="text-[10px] text-[#94A3B8] mt-1 line-clamp-2">{cat.desc}</div>
+                <div className="text-[10px] text-[#2563EB] font-semibold mt-1.5">{cat.count} calculators →</div>
               </motion.button>
             ))}
           </div>

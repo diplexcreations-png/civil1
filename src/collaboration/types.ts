@@ -147,12 +147,186 @@ export interface Milestone {
   completedDate: string | null;
 }
 
+/* ── Issue Tracking ── */
+
+export type IssueStatus = 'open' | 'in-progress' | 'resolved' | 'closed';
+export type IssuePriority = 'low' | 'medium' | 'high' | 'critical';
+export type IssueSeverity = 'minor' | 'major' | 'critical';
+
+export interface Issue {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  status: IssueStatus;
+  priority: IssuePriority;
+  severity: IssueSeverity;
+  category: string;
+  assignedTo: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt: string | null;
+  attachments: string[];
+  commentIds: string[];
+}
+
+/* ── Document Management ── */
+
+export type DocType = 'drawing' | 'specification' | 'report' | 'photo' | 'contract' | 'correspondence' | 'other';
+
+export interface Document {
+  id: string;
+  projectId: string;
+  name: string;
+  type: DocType;
+  category: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  version: number;
+  tags: string[];
+  description: string;
+}
+
+/* ── Real-time Chat ── */
+
+export interface ChatMessage {
+  id: string;
+  projectId: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar: string;
+  text: string;
+  timestamp: string;
+  attachments: string[];
+  replyTo: string | null;
+  editedAt: string | null;
+}
+
+/* ── Notifications ── */
+
+export type NotificationType = 'mention' | 'task_assigned' | 'issue_updated' | 'new_document' | 'new_member' | 'progress_update' | 'comment' | 'system';
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  projectId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link: string;
+  read: boolean;
+  createdAt: string;
+}
+
+/* ── Project Settings ── */
+
+export type ProjectStatus = 'planning' | 'active' | 'on-hold' | 'completed';
+
+export interface ProjectSettings {
+  projectId: string;
+  name: string;
+  description: string;
+  location: string;
+  startDate: string;
+  targetEndDate: string;
+  status: ProjectStatus;
+  budget: number;
+  currency: string;
+  ownerId: string;
+  defaultRole: MemberRole;
+  logo: string;
+  tags: string[];
+  updatedAt: string;
+}
+
+/* ── Daily Reports ── */
+
+export interface DailyReport {
+  id: string;
+  projectId: string;
+  date: string;
+  createdBy: string;
+  weather: string;
+  temperature: string;
+  summary: string;
+  workers: number;
+  equipment: string[];
+  materialDeliveries: string[];
+  safetyIncidents: string[];
+  delays: string[];
+  notes: string;
+  photos: string[];
+  createdAt: string;
+}
+
+/* ── Cost Tracking ── */
+
+export type CostStatus = 'pending' | 'approved' | 'rejected' | 'paid';
+
+export interface CostItem {
+  id: string;
+  projectId: string;
+  category: string;
+  description: string;
+  estimatedCost: number;
+  actualCost: number;
+  committedCost: number;
+  currency: string;
+  status: CostStatus;
+  vendor: string;
+  dueDate: string;
+  paidDate: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ── Material Tracking ── */
+
+export type MaterialStatus = 'ordered' | 'partial' | 'delivered' | 'installed';
+
+export interface MaterialItem {
+  id: string;
+  projectId: string;
+  name: string;
+  category: string;
+  specification: string;
+  unit: string;
+  quantityRequired: number;
+  quantityOrdered: number;
+  quantityReceived: number;
+  quantityUsed: number;
+  unitCost: number;
+  totalCost: number;
+  supplier: string;
+  status: MaterialStatus;
+  expectedDelivery: string;
+  deliveredDate: string | null;
+  notes: string;
+  createdBy: string;
+  updatedAt: string;
+}
+
+/* ── Full State ── */
+
 export interface CollaborationState {
   projects: Record<string, ProjectProgress>;
   members: Record<string, ProjectMember[]>;
   tasks: Record<string, Task[]>;
   activities: Record<string, ActivityLog[]>;
   comments: Record<string, Comment[]>;
+  issues: Record<string, Issue[]>;
+  documents: Record<string, Document[]>;
+  chatMessages: Record<string, ChatMessage[]>;
+  notifications: AppNotification[];
+  settings: Record<string, ProjectSettings>;
+  dailyReports: Record<string, DailyReport[]>;
+  costItems: Record<string, CostItem[]>;
+  materialItems: Record<string, MaterialItem[]>;
   favorites: FavoritedCalculator[];
   pinned: PinnedCalculator[];
   history: CalcHistoryEntry[];
@@ -180,6 +354,14 @@ export function defaultCollaborationState(): CollaborationState {
     tasks: {},
     activities: {},
     comments: {},
+    issues: {},
+    documents: {},
+    chatMessages: {},
+    notifications: [],
+    settings: {},
+    dailyReports: {},
+    costItems: {},
+    materialItems: {},
     favorites: [],
     pinned: [],
     history: [],
@@ -194,3 +376,35 @@ export const WORK_CATEGORIES: WorkCategory[] = [
   'Roof', 'Plaster', 'Floor Finish', 'Painting',
   'External Works', 'Drainage', 'Water Supply', 'Electrical', 'Other',
 ];
+
+export const ISSUE_CATEGORIES = ['Structural', 'Architectural', 'MEP', 'Safety', 'Quality', 'Design', 'Material', 'Other'];
+
+export const DOCUMENT_CATEGORIES = ['Structural', 'Architectural', 'MEP', 'Civil', 'Contracts', 'Reports', 'Photos', 'Other'];
+
+export const COST_CATEGORIES = ['Materials', 'Labor', 'Equipment', 'Subcontractor', 'Permits', 'Overhead', 'Contingency', 'Other'];
+
+export const MATERIAL_CATEGORIES = ['Cement', 'Steel', 'Aggregate', 'Sand', 'Bricks', 'Timber', 'MEP', 'Finishing', 'Other'];
+
+export const ISSUE_STATUS_LABELS: Record<IssueStatus, string> = {
+  open: 'Open', 'in-progress': 'In Progress', resolved: 'Resolved', closed: 'Closed',
+};
+
+export const ISSUE_PRIORITY_LABELS: Record<IssuePriority, string> = {
+  low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical',
+};
+
+export const ISSUE_SEVERITY_LABELS: Record<IssueSeverity, string> = {
+  minor: 'Minor', major: 'Major', critical: 'Critical',
+};
+
+export const COST_STATUS_LABELS: Record<CostStatus, string> = {
+  pending: 'Pending', approved: 'Approved', rejected: 'Rejected', paid: 'Paid',
+};
+
+export const MATERIAL_STATUS_LABELS: Record<MaterialStatus, string> = {
+  ordered: 'Ordered', partial: 'Partial', delivered: 'Delivered', installed: 'Installed',
+};
+
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  planning: 'Planning', active: 'Active', 'on-hold': 'On Hold', completed: 'Completed',
+};
