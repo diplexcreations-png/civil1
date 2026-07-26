@@ -25,6 +25,7 @@ const RetainingWallPage = lazy(() => import('./pages/calculators/RetainingWallPa
 const UnitConverterPage = lazy(() => import('./pages/calculators/UnitConverterPage'));
 const BBSCalculatorPage = lazy(() => import('./pages/BBSCalculatorPage'));
 const BOQBuilderPage = lazy(() => import('./boq/BOQBuilderPage'));
+const CollaborationHub = lazy(() => import('./collaboration/CollaborationHub'));
 
 function SuspenseFallback() {
   return (
@@ -117,6 +118,9 @@ export default function App() {
 
               {/* BOQ Builder */}
               <Route path="/boq-builder" element={<Suspense fallback={<SuspenseFallback />}><BOQBuilderPage /></Suspense>} />
+
+              {/* Project Management */}
+              <Route path="/project-management" element={<Suspense fallback={<SuspenseFallback />}><CollaborationHub /></Suspense>} />
 
               {/* Dashboard */}
               <Route path="/dashboard" element={<DashboardPage />} />
