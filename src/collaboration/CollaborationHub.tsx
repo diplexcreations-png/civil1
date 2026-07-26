@@ -6,6 +6,7 @@ import {
   Camera, Paperclip, AlertCircle, ArrowRight, Search, Filter,
   HardHat, Columns, Beaker, Layers, Grid, Compass, RefreshCw,
   FileText, Package, Truck, Wrench, Hammer, Settings, UserPlus,
+  Link, Copy, LogOut, Globe,
 } from 'lucide-react';
 import { CollaborationProvider, useCollab } from './CollaborationContext';
 import {
@@ -252,7 +253,8 @@ function ProgressSection() {
 function TeamSection() {
   const { state, currentMembers, currentTasks, currentActivities, currentComments,
     addMember, updateMember, removeMember, addTask, updateTask, removeTask,
-    addComment, removeComment, addActivity } = useCollab();
+    addComment, removeComment, addActivity, isOnline, fbUser, inviteLink,
+    generateInviteLink, loginGoogle, logout } = useCollab();
 
   const pid = state.currentProjectId || 'default';
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -431,6 +433,54 @@ function TeamSection() {
               ))}
             </div>
           </Card>
+
+          {isOnline && (
+            <Card title="Invite Link">
+              <p className="text-[10px] text-[#64748B] mb-3">Share this link with teammates to join the project.</p>
+              <button onClick={generateInviteLink} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors cursor-pointer">
+                <Link className="w-3.5 h-3.5" /> Generate Invite Link
+              </button>
+              {inviteLink && (
+                <div className="mt-2 flex items-center gap-1">
+                  <input readOnly value={inviteLink} className="flex-1 bg-[#F8FAFC] dark:bg-[#080d19] border border-[#E2E8F0] dark:border-[#1E293B] rounded-lg px-2 py-1.5 text-[9px] outline-none truncate" />
+                  <button onClick={() => { navigator.clipboard.writeText(inviteLink); }} className="p-1.5 bg-[#F1F5F9] dark:bg-[#1E293B] rounded-lg hover:bg-[#E2E8F0] dark:hover:bg-[#2A3040] cursor-pointer">
+                    <Copy className="w-3 h-3 text-[#64748B]" />
+                  </button>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {isOnline && !fbUser && (
+            <Card title="Sign In">
+              <p className="text-[10px] text-[#64748B] mb-3">Sign in with Google to collaborate in real-time.</p>
+              <button onClick={loginGoogle} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-[#E2E8F0] dark:bg-[#1E293B] dark:border-[#2A3040] text-[#0F172A] dark:text-white rounded-xl text-xs font-bold hover:bg-[#F8FAFC] dark:hover:bg-[#2A3040] transition-colors cursor-pointer">
+                <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Sign in with Google
+              </button>
+            </Card>
+          )}
+
+          {isOnline && fbUser && (
+            <Card title="Account">
+              <div className="flex items-center gap-2 mb-2">
+                {fbUser.photoURL ? (
+                  <img src={fbUser.photoURL} alt="" className="w-7 h-7 rounded-full" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] text-[10px] font-bold">
+                    {fbUser.displayName?.charAt(0) || 'U'}
+                  </div>
+                )}
+                <div>
+                  <div className="text-xs font-semibold text-[#0F172A] dark:text-white">{fbUser.displayName || 'User'}</div>
+                  <div className="text-[9px] text-[#64748B]">{fbUser.email}</div>
+                </div>
+              </div>
+              <button onClick={logout} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 border border-[#EF4444] text-[#EF4444] rounded-xl text-xs font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
+                <LogOut className="w-3.5 h-3.5" /> Sign Out
+              </button>
+            </Card>
+          )}
         </div>
       )}
 
@@ -668,6 +718,7 @@ function FavoritesSection() {
 }
 
 function CollaborationHubContent() {
+  const { isOnline, fbUser, loginGoogle, logout } = useCollab();
   const [activeModule, setActiveModule] = useState<'progress' | 'team' | 'favorites'>('progress');
 
   const modules = [
@@ -683,10 +734,38 @@ function CollaborationHubContent() {
         <div className="flex items-center gap-3">
           <ClipboardList className="w-5 h-5 text-[#2563EB]" />
           <div>
-            <h1 className="text-base font-extrabold text-[#0F172A] dark:text-white">Project Management</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-extrabold text-[#0F172A] dark:text-white">Project Management</h1>
+              <span className={cls("inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider",
+                isOnline ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+              )}>
+                <Globe className="w-2.5 h-2.5" />
+                {isOnline ? 'Live' : 'Local'}
+              </span>
+            </div>
             <p className="text-[10px] text-[#64748B]">Progress tracking, team collaboration & favorites</p>
           </div>
         </div>
+        {isOnline && !fbUser && (
+          <button onClick={loginGoogle} className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#2A3040] rounded-xl text-[10px] font-bold hover:bg-[#F8FAFC] dark:hover:bg-[#2A3040] transition-colors cursor-pointer whitespace-nowrap">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Sign In
+          </button>
+        )}
+        {isOnline && fbUser && (
+          <div className="flex items-center gap-2">
+            {fbUser.photoURL ? (
+              <img src={fbUser.photoURL} alt="" className="w-6 h-6 rounded-full" />
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] text-[9px] font-bold">
+                {fbUser.displayName?.charAt(0) || 'U'}
+              </div>
+            )}
+            <button onClick={logout} className="p-1.5 text-[#64748B] hover:text-[#EF4444] rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer">
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Module Tabs */}

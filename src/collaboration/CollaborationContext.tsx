@@ -1,10 +1,21 @@
-import React, { createContext, useContext, useReducer, useCallback, useMemo, type ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, useState, useEffect, type ReactNode } from 'react';
 import {
   CollaborationState, ProgressRecord, ProjectMember, Task, Comment,
   ActivityLog, FavoritedCalculator, PinnedCalculator, CalcHistoryEntry,
   Milestone, ProgressPhoto, MemberRole, WorkCategory, ProgressStatus,
   defaultCollaborationState, defaultCurrentUser,
 } from './types';
+import { isConfigured } from '../firebase/config';
+import { onAuthChange, loginWithGoogle, logout as fbLogout } from '../firebase/auth';
+import {
+  onMembersChange, addMemberFB, updateMemberFB, removeMemberFB,
+  onTasksChange, addTaskFB, updateTaskFB, removeTaskFB,
+  onActivitiesChange, addActivityFB,
+  onCommentsChange, addCommentFB, removeCommentFB,
+  onRecordsChange, addRecordFB, updateRecordFB, removeRecordFB,
+  createProject, getProject,
+} from '../firebase/firestore';
+import { generateInvite, acceptInvite } from '../firebase/invite';
 
 const STORAGE_KEY = 'civilmath_collab';
 
@@ -194,9 +205,16 @@ function persist(state: CollaborationState) {
   } catch {}
 }
 
+/* ── Context interface ── */
+
 interface CollabContextValue {
   state: CollaborationState;
   dispatch: React.Dispatch<CollabAction>;
+  fbUser: any;
+  isOnline: boolean;
+  inviteLink: string | null;
+  generateInviteLink: () => Promise<void>;
+
   // Computed
   currentRecords: ProgressRecord[];
   currentMembers: ProjectMember[];
@@ -240,6 +258,8 @@ interface CollabContextValue {
   isPinned: (calculatorId: string) => boolean;
   hasProject: (projectId: string) => boolean;
   updateRecord: (projectId: string, recordId: string, data: Partial<ProgressRecord>) => void;
+  loginGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const CollabContext = createContext<CollabContextValue | null>(null);
@@ -253,14 +273,50 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
     return defaultCollaborationState();
   });
 
-  React.useEffect(() => { persist(state); }, [state]);
+  const online = isConfigured();
+  const [fbUser, setFbUser] = useState<any>(null);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+
+  // Firebase state mirrors for real-time data
+  const [fbMembers, setFbMembers] = useState<ProjectMember[]>([]);
+  const [fbTasks, setFbTasks] = useState<Task[]>([]);
+  const [fbActivities, setFbActivities] = useState<ActivityLog[]>([]);
+  const [fbComments, setFbComments] = useState<Comment[]>([]);
+  const [fbRecords, setFbRecords] = useState<ProgressRecord[]>([]);
+
+  // Auth listener
+  useEffect(() => {
+    if (!online) return;
+    const unsub = onAuthChange(user => setFbUser(user));
+    return () => unsub();
+  }, [online]);
+
+  // Real-time listeners for current project
+  useEffect(() => {
+    if (!online) return;
+    const pid = state.currentProjectId || 'default';
+    const unsubs: (() => void)[] = [];
+
+    unsubs.push(onMembersChange(pid, setFbMembers));
+    unsubs.push(onTasksChange(pid, setFbTasks));
+    unsubs.push(onActivitiesChange(pid, setFbActivities));
+    unsubs.push(onCommentsChange(pid, setFbComments));
+    unsubs.push(onRecordsChange(pid, setFbRecords));
+
+    return () => unsubs.forEach(u => u());
+  }, [online, state.currentProjectId]);
+
+  // Persist local-only state (favorites, history)
+  useEffect(() => { persist(state); }, [state]);
 
   const pid = state.currentProjectId || 'default';
-  const currentRecords = state.projects[pid]?.records || [];
-  const currentMembers = state.members[pid] || [];
-  const currentTasks = state.tasks[pid] || [];
-  const currentActivities = state.activities[pid] || [];
-  const currentComments = state.comments[pid] || [];
+
+  // Use Firebase data if online, else fall back to reducer state
+  const currentRecords = online ? fbRecords : (state.projects[pid]?.records || []);
+  const currentMembers = online ? fbMembers : (state.members[pid] || []);
+  const currentTasks = online ? fbTasks : (state.tasks[pid] || []);
+  const currentActivities = online ? fbActivities : (state.activities[pid] || []);
+  const currentComments = online ? fbComments : (state.comments[pid] || []);
 
   const overallProgress = useMemo(() => {
     if (currentRecords.length === 0) return 0;
@@ -311,12 +367,21 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
   }, [currentRecords]);
 
   const setProject = useCallback((id: string) => dispatch({ type: 'SET_PROJECT', projectId: id }), []);
-  const setUser = useCallback((user: Partial<ProjectMember>) => dispatch({ type: 'SET_USER', user }), []);
+
+  const setUser = useCallback((user: Partial<ProjectMember>) => {
+    dispatch({ type: 'SET_USER', user });
+  }, []);
 
   const updateRecord = useCallback((projectId: string, recordId: string, data: Partial<ProgressRecord>) => {
-    dispatch({ type: 'UPDATE_PROGRESS', projectId, recordId, data });
-    dispatch({ type: 'ADD_ACTIVITY', projectId, activity: { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'updated progress', details: `Updated record ${recordId}`, timestamp: new Date().toISOString() } });
-  }, [state.currentUser]);
+    if (online) {
+      updateRecordFB(projectId, recordId, data);
+      const act: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'updated progress', details: `Updated record ${recordId}`, timestamp: new Date().toISOString() };
+      addActivityFB(projectId, act);
+    } else {
+      dispatch({ type: 'UPDATE_PROGRESS', projectId, recordId, data });
+      dispatch({ type: 'ADD_ACTIVITY', projectId, activity: { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'updated progress', details: `Updated record ${recordId}`, timestamp: new Date().toISOString() } });
+    }
+  }, [online, state.currentUser]);
 
   const addProgress = useCallback((projectId: string, record?: Partial<ProgressRecord>) => {
     const r: ProgressRecord = {
@@ -325,13 +390,23 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
       status: 'pending', engineerNotes: '', photos: [], createdBy: state.currentUser.id,
       createdAt: new Date().toISOString(), ...record,
     };
-    dispatch({ type: 'ADD_PROGRESS', projectId, record: r });
-    dispatch({ type: 'ADD_ACTIVITY', projectId, activity: { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'added progress', details: `New ${r.category} record`, timestamp: new Date().toISOString() } });
-  }, [state.currentUser]);
+    if (online) {
+      addRecordFB(projectId, r);
+      const act: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'added progress', details: `New ${r.category} record`, timestamp: new Date().toISOString() };
+      addActivityFB(projectId, act);
+    } else {
+      dispatch({ type: 'ADD_PROGRESS', projectId, record: r });
+      dispatch({ type: 'ADD_ACTIVITY', projectId, activity: { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'added progress', details: `New ${r.category} record`, timestamp: new Date().toISOString() } });
+    }
+  }, [online, state.currentUser]);
 
   const removeProgress = useCallback((projectId: string, recordId: string) => {
-    dispatch({ type: 'REMOVE_PROGRESS', projectId, recordId });
-  }, []);
+    if (online) {
+      removeRecordFB(projectId, recordId);
+    } else {
+      dispatch({ type: 'REMOVE_PROGRESS', projectId, recordId });
+    }
+  }, [online]);
 
   const addPhoto = useCallback((projectId: string, recordId: string, photo: ProgressPhoto) => {
     dispatch({ type: 'ADD_PHOTO', projectId, recordId, photo });
@@ -351,16 +426,28 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
       id: nextId('mem'), name: '', email: '', role: 'viewer', avatar: '',
       lastActive: new Date().toISOString(), assignedTasks: [], joinedAt: new Date().toISOString(), ...member,
     };
-    dispatch({ type: 'ADD_MEMBER', projectId, member: m });
-  }, []);
+    if (online) {
+      addMemberFB(projectId, m);
+    } else {
+      dispatch({ type: 'ADD_MEMBER', projectId, member: m });
+    }
+  }, [online]);
 
   const updateMember = useCallback((projectId: string, memberId: string, data: Partial<ProjectMember>) => {
-    dispatch({ type: 'UPDATE_MEMBER', projectId, memberId, data });
-  }, []);
+    if (online) {
+      updateMemberFB(projectId, memberId, data);
+    } else {
+      dispatch({ type: 'UPDATE_MEMBER', projectId, memberId, data });
+    }
+  }, [online]);
 
   const removeMember = useCallback((projectId: string, memberId: string) => {
-    dispatch({ type: 'REMOVE_MEMBER', projectId, memberId });
-  }, []);
+    if (online) {
+      removeMemberFB(projectId, memberId);
+    } else {
+      dispatch({ type: 'REMOVE_MEMBER', projectId, memberId });
+    }
+  }, [online]);
 
   const addTask = useCallback((projectId: string, task?: Partial<Task>) => {
     const t: Task = {
@@ -368,30 +455,54 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
       assignedTo: '', dueDate: '', status: 'todo', category: '', createdBy: state.currentUser.id,
       createdAt: new Date().toISOString(), ...task,
     };
-    dispatch({ type: 'ADD_TASK', projectId, task: t });
-  }, [state.currentUser]);
+    if (online) {
+      addTaskFB(projectId, t);
+    } else {
+      dispatch({ type: 'ADD_TASK', projectId, task: t });
+    }
+  }, [online, state.currentUser]);
 
   const updateTask2 = useCallback((projectId: string, taskId: string, data: Partial<Task>) => {
-    dispatch({ type: 'UPDATE_TASK', projectId, taskId, data });
-  }, []);
+    if (online) {
+      updateTaskFB(projectId, taskId, data);
+    } else {
+      dispatch({ type: 'UPDATE_TASK', projectId, taskId, data });
+    }
+  }, [online]);
 
   const removeTask = useCallback((projectId: string, taskId: string) => {
-    dispatch({ type: 'REMOVE_TASK', projectId, taskId });
-  }, []);
+    if (online) {
+      removeTaskFB(projectId, taskId);
+    } else {
+      dispatch({ type: 'REMOVE_TASK', projectId, taskId });
+    }
+  }, [online]);
 
   const addActivity = useCallback((projectId: string, action: string, details: string) => {
     const a: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action, details, timestamp: new Date().toISOString() };
-    dispatch({ type: 'ADD_ACTIVITY', projectId, activity: a });
-  }, [state.currentUser]);
+    if (online) {
+      addActivityFB(projectId, a);
+    } else {
+      dispatch({ type: 'ADD_ACTIVITY', projectId, activity: a });
+    }
+  }, [online, state.currentUser]);
 
   const addComment = useCallback((projectId: string, text: string, parentId?: string) => {
     const c: Comment = { id: nextId('cmt'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, text, mentions: [], attachments: [], parentId: parentId || null, createdAt: new Date().toISOString() };
-    dispatch({ type: 'ADD_COMMENT', projectId, comment: c });
-  }, [state.currentUser]);
+    if (online) {
+      addCommentFB(projectId, c);
+    } else {
+      dispatch({ type: 'ADD_COMMENT', projectId, comment: c });
+    }
+  }, [online, state.currentUser]);
 
   const removeComment = useCallback((projectId: string, commentId: string) => {
-    dispatch({ type: 'REMOVE_COMMENT', projectId, commentId });
-  }, []);
+    if (online) {
+      removeCommentFB(projectId, commentId);
+    } else {
+      dispatch({ type: 'REMOVE_COMMENT', projectId, commentId });
+    }
+  }, [online]);
 
   const toggleFavorite = useCallback((calculatorId: string, name: string) => {
     dispatch({ type: 'TOGGLE_FAVORITE', calculatorId, name });
@@ -429,8 +540,62 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
     return !!state.projects[projectId];
   }, [state.projects]);
 
+  const loginGoogle = useCallback(async () => {
+    if (!online) return;
+    const user = await loginWithGoogle();
+    if (user) {
+      setFbUser(user);
+      dispatch({ type: 'SET_USER', user: { id: user.uid, name: user.displayName || 'User', email: user.email || '', avatar: user.photoURL || '' } });
+      // Try to create/find project
+      const currentPid = state.currentProjectId || 'default';
+      const existing = await getProject(currentPid);
+      if (!existing && currentPid === 'default') {
+        const newId = await createProject('My Project', user.uid);
+        dispatch({ type: 'SET_PROJECT', projectId: newId });
+      }
+    }
+  }, [online, state.currentProjectId]);
+
+  const logout = useCallback(async () => {
+    if (!online) return;
+    await fbLogout();
+    setFbUser(null);
+  }, [online]);
+
+  const generateInviteLink = useCallback(async () => {
+    if (!online) return;
+    const pid = state.currentProjectId || 'default';
+    const inviteId = await generateInvite(pid, state.currentUser.id);
+    if (inviteId) {
+      const base = window.location.origin + window.location.pathname;
+      setInviteLink(`${base}?invite=${inviteId}`);
+    }
+  }, [online, state.currentProjectId, state.currentUser.id]);
+
+  // Handle invite from URL
+  useEffect(() => {
+    if (!online) return;
+    const params = new URLSearchParams(window.location.search);
+    const inviteId = params.get('invite');
+    if (inviteId) {
+      acceptInvite(inviteId).then(result => {
+        if (result) {
+          dispatch({ type: 'SET_PROJECT', projectId: result.projectId });
+          const newMember: ProjectMember = {
+            id: fbUser?.uid || nextId('mem'), name: fbUser?.displayName || state.currentUser.name,
+            email: fbUser?.email || state.currentUser.email, role: result.role as MemberRole,
+            avatar: fbUser?.photoURL || '', lastActive: new Date().toISOString(),
+            assignedTasks: [], joinedAt: new Date().toISOString(),
+          };
+          addMemberFB(result.projectId, newMember);
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+      });
+    }
+  }, [online]);
+
   const value = useMemo<CollabContextValue>(() => ({
-    state, dispatch,
+    state, dispatch, fbUser, isOnline: online, inviteLink, generateInviteLink,
     currentRecords, currentMembers, currentTasks, currentActivities, currentComments,
     overallProgress, todayProgress, weeklyProgress, monthlyProgress,
     completedTasks, pendingTasks, delayedTasks, categoryProgress,
@@ -443,6 +608,7 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
     toggleFavorite, pinCalculator, unpinCalculator,
     addHistory, deleteHistory, clearHistory,
     isFavorited, isPinned, hasProject, updateRecord,
+    loginGoogle, logout,
   }), [state, currentRecords, currentMembers, currentTasks, currentActivities, currentComments,
       overallProgress, todayProgress, weeklyProgress, monthlyProgress,
       completedTasks, pendingTasks, delayedTasks, categoryProgress,
@@ -453,6 +619,7 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
       addActivity, addComment, removeComment,
       toggleFavorite, pinCalculator, unpinCalculator,
       addHistory, deleteHistory, clearHistory, isFavorited, isPinned, hasProject,
+      fbUser, online, inviteLink, generateInviteLink, loginGoogle, logout,
     ]);
 
   return <CollabContext.Provider value={value}>{children}</CollabContext.Provider>;
