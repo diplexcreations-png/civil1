@@ -17,10 +17,12 @@ export interface ReinfCalcResult {
   };
 }
 
-// Bar weight per meter = d²/162 (metric), d²/533 (imperial)
+// Bar weight per meter = d²/162 (metric, kg/m, d in mm)
+// Bar weight per foot  = d²/241 (imperial, lb/ft, d in mm) -- derived by converting the
+// metric kg/m formula to lb/ft (×0.6720), verified against ASTM nominal bar weights.
 export function barUnitWeight(diaMm: number, isMetric: boolean): number {
   if (isMetric) return (diaMm * diaMm) / 162;
-  return (diaMm * diaMm) / 533;
+  return (diaMm * diaMm) / 241;
 }
 
 export function calcNumberOfBars(

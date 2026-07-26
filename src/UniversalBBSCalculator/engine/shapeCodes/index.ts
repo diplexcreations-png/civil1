@@ -1,4 +1,5 @@
-import { ShapeCodeDef } from '../types';
+import { ShapeCodeDef, DesignStandard } from '../types';
+import { getStandard } from '../standards';
 
 export const SHAPE_CODES: ShapeCodeDef[] = [
   {
@@ -80,7 +81,8 @@ export function getShapeCode(code: string): ShapeCodeDef | undefined {
 export function calculateCuttingLength(
   shapeCode: string,
   dims: number[],
-  diaMm: number
+  diaMm: number,
+  standard: DesignStandard = 'IS 456'
 ): { length: number; formula: string; steps: string[] } {
   const d = diaMm;
   let length = 0;
@@ -122,10 +124,11 @@ export function calculateCuttingLength(
     }
     case '51': {
       const [a, b] = dims;
-      length = 2 * a + 2 * b + 2 * (10 * d) - 6 * d;
-      formula = `L = 2×${a} + 2×${b} + 2×10×${d} - 6×${d} = ${length}`;
-      steps.push(`Closed stirrup: L = 2a + 2b + 2×10d - 6d`);
-      steps.push(`= 2×${a} + 2×${b} + 20×${d} - 6×${d} = ${length} mm`);
+      const hookL = getStandard(standard).hookLength(d, '135deg');
+      length = 2 * a + 2 * b + 2 * hookL - 6 * d;
+      formula = `L = 2×${a} + 2×${b} + 2×${hookL} - 6×${d} = ${length}`;
+      steps.push(`Closed stirrup: L = 2a + 2b + 2×hook - 6d`);
+      steps.push(`= 2×${a} + 2×${b} + 2×${hookL} - 6×${d} = ${length} mm`);
       break;
     }
     case '61': {
@@ -146,7 +149,7 @@ export function calculateCuttingLength(
     }
     case '81': {
       const [a, b] = dims;
-      const hookL = 4 * d;
+      const hookL = getStandard(standard).hookLength(d, '180deg');
       length = a + 2 * b + 2 * hookL - 4 * d;
       formula = `L = ${a} + 2×${b} + 2×${hookL} - 4×${d} = ${length}`;
       steps.push(`Hairpin: L = a + 2b + 2×hook - 4d`);
@@ -156,10 +159,11 @@ export function calculateCuttingLength(
     case '91': {
       const [a, b] = dims;
       const diag = Math.sqrt(a * a + b * b);
-      length = diag + 2 * (10 * d) - 2 * d;
-      formula = `L = √(${a}²+${b}²) + 20×${d} - 2×${d} = ${length}`;
+      const hookL = getStandard(standard).hookLength(d, '135deg');
+      length = diag + 2 * hookL - 2 * d;
+      formula = `L = √(${a}²+${b}²) + 2×${hookL} - 2×${d} = ${length}`;
       steps.push(`Cross tie: L = √(a²+b²) + 2×hook - 2d`);
-      steps.push(`= √(${a}²+${b}²) + 20×${d} - 2×${d} = ${length} mm`);
+      steps.push(`= √(${a}²+${b}²) + 2×${hookL} - 2×${d} = ${length} mm`);
       break;
     }
     default: {

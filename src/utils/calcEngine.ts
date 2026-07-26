@@ -312,17 +312,18 @@ export function calculateColumn(input: ColumnInput, system: UnitSystem): ColumnO
 
   if (system === 'metric') {
     // fc, fy in MPa (N/mm²), grossArea & steelArea in mm².
-    // Pn in Newtons = 0.85 * (0.85 * fc * (Ag - Ast) + fy * Ast)
-    const factor085 = 0.85;
-    const Pn_N = factor085 * (0.85 * fc * (grossArea - steelArea) + fy * steelArea);
+    // Pn (N) = 0.85·fc·(Ag − Ast) + fy·Ast   (ACI 318 Eq. 22.4.2.2)
+    // The outer 0.85 factor is NOT applied here — it is already baked into the concrete term 0.85·fc.
+    // φPn = 0.65 × 0.80 × Pn  (tied column, ACI 318 Table 21.2.2 + 22.4.2.1)
+    const Pn_N = 0.85 * fc * (grossArea - steelArea) + fy * steelArea;
     nominalCapacityPn = Pn_N / 1000; // kN
     
     // Factored design load (tied column): Phi = 0.65, reduction factor = 0.80 for accidential eccentricity
     factoredCapacityPhiPn = 0.65 * 0.80 * nominalCapacityPn; // kN
   } else {
     // fc, fy in psi. Ag, Ast in in².
-    // Pn in lbs = 0.85 * (0.85 * fc * (Ag - Ast) + fy * Ast)
-    const Pn_lbs = 0.85 * (0.85 * fc * (grossArea - steelArea) + fy * steelArea);
+    // Pn (lbs) = 0.85·fc·(Ag − Ast) + fy·Ast
+    const Pn_lbs = 0.85 * fc * (grossArea - steelArea) + fy * steelArea;
     nominalCapacityPn = Pn_lbs / 1000; // kips (thousand lbs)
     factoredCapacityPhiPn = 0.65 * 0.80 * nominalCapacityPn; // kips
   }

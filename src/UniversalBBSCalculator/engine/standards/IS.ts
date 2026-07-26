@@ -32,8 +32,17 @@ export const IS_FORMULAS: StandardFormulas = {
     return 0;
   },
 
+  // Design bond stress τ_bd (MPa) from IS 456:2000 Table 26.2.1.1
+  // For deformed bars, values are increased by 60% per Cl. 26.2.1.2.
   developmentLength: (diaMm: number, fy: number, fck: number, isTension: boolean) => {
-    const tauBd = 0.87 * fy / (4 * 1.6 * Math.sqrt(fck));
+    // Base bond stress (MPa) for plain bars in tension (Table 26.2.1.1)
+    const baseTauBd =
+      fck >= 35 ? 1.6 :
+      fck >= 30 ? 1.5 :
+      fck >= 25 ? 1.4 :
+      fck >= 20 ? 1.2 : 1.0;
+    // Deformed bars → 60% increase
+    const tauBd = baseTauBd * 1.6;
     if (isTension) {
       return Math.max((0.87 * fy * diaMm) / (4 * tauBd), 300);
     }

@@ -52,7 +52,9 @@ export const addItem = (
   membersCount: number, barsPerMember: number,
   isMetric: boolean,
   /** Optional formula steps for engineering transparency */
-  formulaSteps?: string[]
+  formulaSteps?: string[],
+  /** Design standard for hook length/development length calculations */
+  standard: DesignStandard = 'IS 456',
 ) => {
   const rebar = getRebarData(dia, isMetric);
   const dMm = rebar.diaMm;
@@ -62,13 +64,13 @@ export const addItem = (
   let steps: string[] = [];
 
   if (isMetric) {
-    const result = calculateCuttingLength(shape, [a, b, c, d, e], dMm);
+    const result = calculateCuttingLength(shape, [a, b, c, d, e], dMm, standard);
     const totalLmm = result.length;
     cuttingLenUnit = Math.max(0.1, totalLmm / 1000);
     steps = result.steps;
   } else {
     // Imperial: convert to inches, calculate, convert to feet
-    const result = calculateCuttingLength(shape, [a, b, c, d, e], dMm);
+    const result = calculateCuttingLength(shape, [a, b, c, d, e], dMm, standard);
     const totalLinches = result.length;
     cuttingLenUnit = Math.max(0.3, totalLinches / 12);
     steps = result.steps;
