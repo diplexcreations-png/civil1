@@ -293,7 +293,12 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'SET_USER', user: { id: user.uid, name: user.displayName || 'User', email: user.email || '', avatar: user.photoURL || '' } });
       }
     });
-    const unsub = onAuthChange(user => setFbUser(user));
+    const unsub = onAuthChange(user => {
+      setFbUser(user);
+      if (user) {
+        dispatch({ type: 'SET_USER', user: { id: user.uid, name: user.displayName || 'User', email: user.email || '', avatar: user.photoURL || '' } });
+      }
+    });
     return () => unsub();
   }, [online]);
 
@@ -580,7 +585,7 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
 
   // Handle invite from URL
   useEffect(() => {
-    if (!online) return;
+    if (!online || !fbUser) return;
     const params = new URLSearchParams(window.location.search);
     const inviteId = params.get('invite');
     if (inviteId) {
@@ -588,9 +593,9 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
         if (result) {
           dispatch({ type: 'SET_PROJECT', projectId: result.projectId });
           const newMember: ProjectMember = {
-            id: fbUser?.uid || nextId('mem'), name: fbUser?.displayName || state.currentUser.name,
-            email: fbUser?.email || state.currentUser.email, role: result.role as MemberRole,
-            avatar: fbUser?.photoURL || '', lastActive: new Date().toISOString(),
+            id: fbUser.uid, name: fbUser.displayName || state.currentUser.name,
+            email: fbUser.email || state.currentUser.email, role: result.role as MemberRole,
+            avatar: fbUser.photoURL || '', lastActive: new Date().toISOString(),
             assignedTasks: [], joinedAt: new Date().toISOString(),
           };
           addMemberFB(result.projectId, newMember);
@@ -598,7 +603,7 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
         window.history.replaceState({}, document.title, window.location.pathname);
       });
     }
-  }, [online]);
+  }, [online, fbUser]);
 
   const value = useMemo<CollabContextValue>(() => ({
     state, dispatch, fbUser, isOnline: online, inviteLink, generateInviteLink,
