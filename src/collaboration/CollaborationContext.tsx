@@ -6,7 +6,7 @@ import {
   defaultCollaborationState, defaultCurrentUser,
 } from './types';
 import { isConfigured } from '../firebase/config';
-import { onAuthChange, loginWithGoogle, logout as fbLogout } from '../firebase/auth';
+import { onAuthChange, loginWithGoogle, logout as fbLogout, checkRedirectResult } from '../firebase/auth';
 import {
   onMembersChange, addMemberFB, updateMemberFB, removeMemberFB,
   onTasksChange, addTaskFB, updateTaskFB, removeTaskFB,
@@ -284,9 +284,15 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
   const [fbComments, setFbComments] = useState<Comment[]>([]);
   const [fbRecords, setFbRecords] = useState<ProgressRecord[]>([]);
 
-  // Auth listener
+  // Auth listener + redirect result check
   useEffect(() => {
     if (!online) return;
+    checkRedirectResult().then(user => {
+      if (user) {
+        setFbUser(user);
+        dispatch({ type: 'SET_USER', user: { id: user.uid, name: user.displayName || 'User', email: user.email || '', avatar: user.photoURL || '' } });
+      }
+    });
     const unsub = onAuthChange(user => setFbUser(user));
     return () => unsub();
   }, [online]);
