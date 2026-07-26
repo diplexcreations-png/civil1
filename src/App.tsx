@@ -24,6 +24,7 @@ const BearingCapacityPage = lazy(() => import('./pages/calculators/BearingCapaci
 const RetainingWallPage = lazy(() => import('./pages/calculators/RetainingWallPage'));
 const UnitConverterPage = lazy(() => import('./pages/calculators/UnitConverterPage'));
 const BBSCalculatorPage = lazy(() => import('./pages/BBSCalculatorPage'));
+const BOQBuilderPage = lazy(() => import('./boq/BOQBuilderPage'));
 
 function SuspenseFallback() {
   return (
@@ -113,6 +114,9 @@ export default function App() {
               <Route path="/geotechnical/retaining" element={<Navigate to="/geotechnical/retaining-wall" replace />} />
               <Route path="/surveying/coordinate" element={<Navigate to="/surveying/traverse" replace />} />
               <Route path="/utilities/convert" element={<Navigate to="/utilities/unit-converter" replace />} />
+
+              {/* BOQ Builder */}
+              <Route path="/boq-builder" element={<Suspense fallback={<SuspenseFallback />}><BOQBuilderPage /></Suspense>} />
 
               {/* Dashboard */}
               <Route path="/dashboard" element={<DashboardPage />} />

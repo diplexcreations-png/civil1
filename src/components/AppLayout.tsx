@@ -5,6 +5,7 @@ import {
   HardHat, Home, Sliders, Layout, Sun, Moon, Menu, X, Search,
   ChevronRight, Calculator, Sparkles, Clock, Star, Settings,
   Clipboard, Layers, Grid, Compass, Activity, RefreshCw, PanelRightClose,
+  BarChart3,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
@@ -38,6 +39,7 @@ export default function AppLayout() {
   const isHome = location.pathname === '/';
   const isWorkspace = /^\/(bbs|structural|concrete|geotechnical|surveying|utilities)/.test(location.pathname);
   const isDashboard = location.pathname === '/dashboard';
+  const isBOQ = location.pathname === '/boq-builder';
 
   useEffect(() => {
     if (activeCalcId && activeCalcId !== 'bbs-universal') {
@@ -155,6 +157,7 @@ export default function AppLayout() {
                 <SidebarItem icon={Home} label="Explore" active={isHome} onClick={() => { navigate('/'); setMobileMenuOpen(false); }} />
                 <SidebarItem icon={Sliders} label="Workspace" active={isWorkspace} onClick={() => { navigate('/bbs/footing'); setMobileMenuOpen(false); }} />
                 <SidebarItem icon={Layout} label="Dashboard" active={isDashboard} onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }} />
+                <SidebarItem icon={BarChart3} label="BOQ Builder" active={isBOQ} onClick={() => { navigate('/boq-builder'); setMobileMenuOpen(false); }} />
 
                 <hr className="divider my-3" />
 
