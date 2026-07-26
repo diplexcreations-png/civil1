@@ -255,11 +255,12 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
 
   React.useEffect(() => { persist(state); }, [state]);
 
-  const currentRecords = state.currentProjectId ? state.projects[state.currentProjectId]?.records || [] : [];
-  const currentMembers = state.currentProjectId ? state.members[state.currentProjectId] || [] : [];
-  const currentTasks = state.currentProjectId ? state.tasks[state.currentProjectId] || [] : [];
-  const currentActivities = state.currentProjectId ? state.activities[state.currentProjectId] || [] : [];
-  const currentComments = state.currentProjectId ? state.comments[state.currentProjectId] || [] : [];
+  const pid = state.currentProjectId || 'default';
+  const currentRecords = state.projects[pid]?.records || [];
+  const currentMembers = state.members[pid] || [];
+  const currentTasks = state.tasks[pid] || [];
+  const currentActivities = state.activities[pid] || [];
+  const currentComments = state.comments[pid] || [];
 
   const overallProgress = useMemo(() => {
     if (currentRecords.length === 0) return 0;
