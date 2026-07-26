@@ -4,8 +4,9 @@ import {
   LayoutDashboard, BarChart3, AlertTriangle, FileText, Package,
   DollarSign, ClipboardList, Users, MessageSquare, Star, Settings,
   ListChecks, HardHat, Globe, LogOut, Bell, Menu, X, ChevronRight,
-  ExternalLink,
+  ExternalLink, Calculator,
 } from 'lucide-react';
+import ConstructionTools from './modules/ConstructionTools';
 import { CollaborationProvider, useCollab } from './CollaborationContext';
 import { cls } from './modules/shared';
 import OverviewPanel from './modules/OverviewPanel';
@@ -31,6 +32,7 @@ const MODULES = [
   { id: 'chat', label: 'Chat', icon: MessageSquare, color: '#10B981' },
   { id: 'favorites', label: 'Favorites', icon: Star, color: '#F59E0B' },
   { id: 'settings', label: 'Settings', icon: Settings, color: '#64748B' },
+  { id: 'construction-tools', label: 'Construction Tools', icon: Calculator, color: '#D97706' },
 ] as const;
 
 type ModuleId = typeof MODULES[number]['id'];
@@ -552,6 +554,7 @@ function CollaborationHubContent() {
       case 'chat': return <ChatPanel />;
       case 'favorites': return <FavoritesSection />;
       case 'settings': return <SettingsPanel />;
+      case 'construction-tools': return <ConstructionTools />;
       default: return <OverviewPanel />;
     }
   };
