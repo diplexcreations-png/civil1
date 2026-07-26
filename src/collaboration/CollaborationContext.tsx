@@ -383,37 +383,40 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_USER', user });
   }, []);
 
-  const updateRecord = useCallback((projectId: string, recordId: string, data: Partial<ProgressRecord>) => {
+  const updateRecord = useCallback(async (projectId: string, recordId: string, data: Partial<ProgressRecord>) => {
+    const act: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'updated progress', details: `Updated record ${recordId}`, timestamp: new Date().toISOString() };
     if (online) {
-      updateRecordFB(projectId, recordId, data);
-      const act: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'updated progress', details: `Updated record ${recordId}`, timestamp: new Date().toISOString() };
-      addActivityFB(projectId, act);
+      const ok = await updateRecordFB(projectId, recordId, data);
+      if (!ok) { dispatch({ type: 'UPDATE_PROGRESS', projectId, recordId, data }); dispatch({ type: 'ADD_ACTIVITY', projectId, activity: act }); }
+      else { addActivityFB(projectId, act); }
     } else {
       dispatch({ type: 'UPDATE_PROGRESS', projectId, recordId, data });
-      dispatch({ type: 'ADD_ACTIVITY', projectId, activity: { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'updated progress', details: `Updated record ${recordId}`, timestamp: new Date().toISOString() } });
+      dispatch({ type: 'ADD_ACTIVITY', projectId, activity: act });
     }
   }, [online, state.currentUser]);
 
-  const addProgress = useCallback((projectId: string, record?: Partial<ProgressRecord>) => {
+  const addProgress = useCallback(async (projectId: string, record?: Partial<ProgressRecord>) => {
     const r: ProgressRecord = {
       id: nextId('prg'), projectId, date: new Date().toISOString().slice(0, 10),
       category: 'Other', description: '', plannedQty: 0, completedQty: 0, unit: 'm³',
       status: 'pending', engineerNotes: '', photos: [], createdBy: state.currentUser.id,
       createdAt: new Date().toISOString(), ...record,
     };
+    const act: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'added progress', details: `New ${r.category} record`, timestamp: new Date().toISOString() };
     if (online) {
-      addRecordFB(projectId, r);
-      const act: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'added progress', details: `New ${r.category} record`, timestamp: new Date().toISOString() };
-      addActivityFB(projectId, act);
+      const ok = await addRecordFB(projectId, r);
+      if (!ok) { dispatch({ type: 'ADD_PROGRESS', projectId, record: r }); dispatch({ type: 'ADD_ACTIVITY', projectId, activity: act }); }
+      else { addActivityFB(projectId, act); }
     } else {
       dispatch({ type: 'ADD_PROGRESS', projectId, record: r });
-      dispatch({ type: 'ADD_ACTIVITY', projectId, activity: { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action: 'added progress', details: `New ${r.category} record`, timestamp: new Date().toISOString() } });
+      dispatch({ type: 'ADD_ACTIVITY', projectId, activity: act });
     }
   }, [online, state.currentUser]);
 
-  const removeProgress = useCallback((projectId: string, recordId: string) => {
+  const removeProgress = useCallback(async (projectId: string, recordId: string) => {
     if (online) {
-      removeRecordFB(projectId, recordId);
+      const ok = await removeRecordFB(projectId, recordId);
+      if (!ok) dispatch({ type: 'REMOVE_PROGRESS', projectId, recordId });
     } else {
       dispatch({ type: 'REMOVE_PROGRESS', projectId, recordId });
     }
@@ -432,84 +435,93 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'UPDATE_MILESTONE', projectId, milestoneId, data });
   }, []);
 
-  const addMember = useCallback((projectId: string, member?: Partial<ProjectMember>) => {
+  const addMember = useCallback(async (projectId: string, member?: Partial<ProjectMember>) => {
     const m: ProjectMember = {
       id: nextId('mem'), name: '', email: '', role: 'viewer', avatar: '',
       lastActive: new Date().toISOString(), assignedTasks: [], joinedAt: new Date().toISOString(), ...member,
     };
     if (online) {
-      addMemberFB(projectId, m);
+      const ok = await addMemberFB(projectId, m);
+      if (!ok) dispatch({ type: 'ADD_MEMBER', projectId, member: m });
     } else {
       dispatch({ type: 'ADD_MEMBER', projectId, member: m });
     }
   }, [online]);
 
-  const updateMember = useCallback((projectId: string, memberId: string, data: Partial<ProjectMember>) => {
+  const updateMember = useCallback(async (projectId: string, memberId: string, data: Partial<ProjectMember>) => {
     if (online) {
-      updateMemberFB(projectId, memberId, data);
+      const ok = await updateMemberFB(projectId, memberId, data);
+      if (!ok) dispatch({ type: 'UPDATE_MEMBER', projectId, memberId, data });
     } else {
       dispatch({ type: 'UPDATE_MEMBER', projectId, memberId, data });
     }
   }, [online]);
 
-  const removeMember = useCallback((projectId: string, memberId: string) => {
+  const removeMember = useCallback(async (projectId: string, memberId: string) => {
     if (online) {
-      removeMemberFB(projectId, memberId);
+      const ok = await removeMemberFB(projectId, memberId);
+      if (!ok) dispatch({ type: 'REMOVE_MEMBER', projectId, memberId });
     } else {
       dispatch({ type: 'REMOVE_MEMBER', projectId, memberId });
     }
   }, [online]);
 
-  const addTask = useCallback((projectId: string, task?: Partial<Task>) => {
+  const addTask = useCallback(async (projectId: string, task?: Partial<Task>) => {
     const t: Task = {
       id: nextId('task'), projectId, title: '', description: '', priority: 'medium',
       assignedTo: '', dueDate: '', status: 'todo', category: '', createdBy: state.currentUser.id,
       createdAt: new Date().toISOString(), ...task,
     };
     if (online) {
-      addTaskFB(projectId, t);
+      const ok = await addTaskFB(projectId, t);
+      if (!ok) dispatch({ type: 'ADD_TASK', projectId, task: t });
     } else {
       dispatch({ type: 'ADD_TASK', projectId, task: t });
     }
   }, [online, state.currentUser]);
 
-  const updateTask2 = useCallback((projectId: string, taskId: string, data: Partial<Task>) => {
+  const updateTask2 = useCallback(async (projectId: string, taskId: string, data: Partial<Task>) => {
     if (online) {
-      updateTaskFB(projectId, taskId, data);
+      const ok = await updateTaskFB(projectId, taskId, data);
+      if (!ok) dispatch({ type: 'UPDATE_TASK', projectId, taskId, data });
     } else {
       dispatch({ type: 'UPDATE_TASK', projectId, taskId, data });
     }
   }, [online]);
 
-  const removeTask = useCallback((projectId: string, taskId: string) => {
+  const removeTask = useCallback(async (projectId: string, taskId: string) => {
     if (online) {
-      removeTaskFB(projectId, taskId);
+      const ok = await removeTaskFB(projectId, taskId);
+      if (!ok) dispatch({ type: 'REMOVE_TASK', projectId, taskId });
     } else {
       dispatch({ type: 'REMOVE_TASK', projectId, taskId });
     }
   }, [online]);
 
-  const addActivity = useCallback((projectId: string, action: string, details: string) => {
+  const addActivity = useCallback(async (projectId: string, action: string, details: string) => {
     const a: ActivityLog = { id: nextId('act'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, action, details, timestamp: new Date().toISOString() };
     if (online) {
-      addActivityFB(projectId, a);
+      const ok = await addActivityFB(projectId, a);
+      if (!ok) dispatch({ type: 'ADD_ACTIVITY', projectId, activity: a });
     } else {
       dispatch({ type: 'ADD_ACTIVITY', projectId, activity: a });
     }
   }, [online, state.currentUser]);
 
-  const addComment = useCallback((projectId: string, text: string, parentId?: string) => {
+  const addComment = useCallback(async (projectId: string, text: string, parentId?: string) => {
     const c: Comment = { id: nextId('cmt'), projectId, userId: state.currentUser.id, userName: state.currentUser.name, text, mentions: [], attachments: [], parentId: parentId || null, createdAt: new Date().toISOString() };
     if (online) {
-      addCommentFB(projectId, c);
+      const ok = await addCommentFB(projectId, c);
+      if (!ok) dispatch({ type: 'ADD_COMMENT', projectId, comment: c });
     } else {
       dispatch({ type: 'ADD_COMMENT', projectId, comment: c });
     }
   }, [online, state.currentUser]);
 
-  const removeComment = useCallback((projectId: string, commentId: string) => {
+  const removeComment = useCallback(async (projectId: string, commentId: string) => {
     if (online) {
-      removeCommentFB(projectId, commentId);
+      const ok = await removeCommentFB(projectId, commentId);
+      if (!ok) dispatch({ type: 'REMOVE_COMMENT', projectId, commentId });
     } else {
       dispatch({ type: 'REMOVE_COMMENT', projectId, commentId });
     }
@@ -562,7 +574,7 @@ export function CollaborationProvider({ children }: { children: ReactNode }) {
       const existing = await getProject(currentPid);
       if (!existing && currentPid === 'default') {
         const newId = await createProject('My Project', user.uid);
-        dispatch({ type: 'SET_PROJECT', projectId: newId });
+        if (newId) dispatch({ type: 'SET_PROJECT', projectId: newId });
       }
     }
   }, [online, state.currentProjectId]);
