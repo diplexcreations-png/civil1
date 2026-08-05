@@ -8,6 +8,7 @@ import { jsPDF } from 'jspdf';
 import XLSX from 'xlsx-js-style';
 import { UnitSystem, SavedCalculation } from '../types';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
+import { NumericInput } from './NumericInput';
 
 // ASTM Rebar Standards (US Customary)
 const IMPERIAL_REBAR_DATA: Record<number, { name: string, diaMm: number, weightLbFt: number }> = {
@@ -1934,15 +1935,13 @@ export default function BBSCalculator({
                               )}
                             </label>
                             <div className="relative flex items-center">
-                              <input
-                                type="number"
+                              <NumericInput
                                 step="any"
                                 value={footing[field] ?? ''}
-                                onChange={(e) => updateFootingSection(index, field, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                                onChange={(raw, num) => updateFootingSection(index, field, raw === '' ? '' : num)}
+                                variant="none" className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
                                 title={ft}
-                              />
-                              <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold">{unit}</span>
+                               suffix={unit}/>
                             </div>
                           </div>
                           );
@@ -1975,14 +1974,12 @@ export default function BBSCalculator({
                               <div key={field}>
                                 <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
                                 <div className="relative flex items-center">
-                                  <input
-                                    type="number"
+                                  <NumericInput
                                     step="any"
                                     value={footing[field] ?? ''}
-                                    onChange={(e) => updateFootingSection(index, field, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
-                                  />
-                                  <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold">{isMetric ? 'mm' : 'in'}</span>
+                                    onChange={(raw, num) => updateFootingSection(index, field, raw === '' ? '' : num)}
+                                    variant="none" className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                                   suffix={isMetric ? 'mm' : 'in'}/>
                                 </div>
                               </div>
                             ))}
@@ -2021,14 +2018,12 @@ export default function BBSCalculator({
                               <div key={field}>
                                 <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold font-sans">{label}</label>
                                 <div className="relative flex items-center">
-                                  <input
-                                    type="number"
+                                  <NumericInput
                                     step="any"
                                     value={footing[field] ?? ''}
-                                    onChange={(e) => updateFootingSection(index, field, e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
-                                  />
-                                  <span className="absolute right-3 text-[10px] uppercase text-slate-400 font-bold">{isMetric ? 'mm' : 'in'}</span>
+                                    onChange={(raw, num) => updateFootingSection(index, field, raw === '' ? '' : num)}
+                                    variant="none" className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold"
+                                   suffix={isMetric ? 'mm' : 'in'}/>
                                 </div>
                               </div>
                             ))}
@@ -2168,12 +2163,11 @@ export default function BBSCalculator({
                       )}
                     </div>
                     <div className="relative flex items-center">
-                      <input 
-                        type="number"
+                      <NumericInput
                         step="any"
                         value={getDisplayValue(key, inputs[key])}
-                        onChange={(e) => handleDisplayInputChange(key, e.target.value)}
-                        className={`w-full bg-white dark:bg-slate-950 border ${warning ? 'border-amber-400 dark:border-amber-500' : 'border-slate-200 dark:border-slate-800'} rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold transition-colors`}
+                        onChange={(raw, num) => handleDisplayInputChange(key, raw)}
+                        variant="none" className={`w-full bg-white dark:bg-slate-950 border ${warning ? 'border-amber-400 dark:border-amber-500' : 'border-slate-200 dark:border-slate-800'} rounded-xl pl-3 pr-10 py-2 text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 font-bold transition-colors`}
                         title={tooltip}
                       />
                       {suffix && (
@@ -2278,11 +2272,10 @@ export default function BBSCalculator({
                 </div>
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-[10px] text-slate-500 font-bold">{currency}</span>
-                  <input 
-                    type="number" 
+                  <NumericInput 
                     value={steelPrice || ''} 
-                    onChange={(e) => setSteelPrice(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-3 py-1.5 text-white outline-none focus:border-blue-500 font-mono font-bold text-xs h-9"
+                    onChange={(raw, num) => setSteelPrice(num)}
+                    variant="none" className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-3 py-1.5 text-white outline-none focus:border-blue-500 font-mono font-bold text-xs h-9"
                     placeholder="Enter steel price"
                   />
                 </div>
@@ -2294,11 +2287,10 @@ export default function BBSCalculator({
                 </label>
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-[10px] text-slate-500 font-bold">{currency}</span>
-                  <input 
-                    type="number" 
+                  <NumericInput 
                     value={concretePrice || ''} 
-                    onChange={(e) => setConcretePrice(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-3 py-1.5 text-white outline-none focus:border-emerald-500 font-mono font-bold text-xs h-9"
+                    onChange={(raw, num) => setConcretePrice(num)}
+                    variant="none" className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-3 py-1.5 text-white outline-none focus:border-emerald-500 font-mono font-bold text-xs h-9"
                     placeholder="Enter concrete price"
                   />
                 </div>

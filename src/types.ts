@@ -39,7 +39,7 @@ export const CURRENCY_MAPPING: Record<string, { symbol: string, label: string }>
   LKR: { symbol: 'Rs', label: 'LKR (Rs) - Sri Lankan Rupee' }
 };
 
-export type CalculatorCategory = 'structural' | 'concrete' | 'survey' | 'utility' | 'bbs' | 'geotech';
+export type CalculatorCategory = 'structural' | 'concrete' | 'survey' | 'utility' | 'bbs' | 'geotech' | 'construction';
 
 export interface CalculatorDef {
   id: string;

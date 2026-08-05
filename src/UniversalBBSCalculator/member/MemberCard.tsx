@@ -6,6 +6,7 @@ import { IProjectMember, MEMBER_CATEGORIES } from './memberTypes';
 import { StructureType } from '../types';
 import { METRIC_REBAR_OPTIONS, IMPERIAL_REBAR_OPTIONS } from '../modules/shared';
 import { DesignStandard } from '../engine';
+import { NumericInput } from '../../components/NumericInput';
 
 interface MemberCardProps {
   member: IProjectMember;
@@ -90,9 +91,9 @@ export default function MemberCard({
 
         <div className="flex items-center gap-1 ml-auto">
           <span className="text-[8px] font-mono text-slate-400">Qty:</span>
-          <input type="number" min={1} value={member.quantity}
-            onChange={e => onUpdate(member.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
-            className="w-10 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded px-1 py-0.5 text-[10px] font-bold text-center outline-none" />
+          <NumericInput min={1} value={member.quantity}
+            onChange={(raw, num) => onUpdate(member.id, { quantity: Math.max(1, parseInt(raw) || 1) })}
+            variant="mini" />
 
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
 
@@ -172,9 +173,9 @@ export default function MemberCard({
           <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
             <div>
               <label className="text-[8px] font-mono text-slate-400 uppercase tracking-wider font-bold">Cover ({isMetric ? 'mm' : 'in'})</label>
-              <input type="number" value={member.cover}
-                onChange={e => onUpdate(member.id, { cover: parseFloat(e.target.value) || 0 })}
-                className="w-full mt-0.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-[10px] outline-none" />
+              <NumericInput value={member.cover}
+                onChange={(raw, num) => onUpdate(member.id, { cover: num })}
+                variant="field" />
             </div>
             <div>
               <label className="text-[8px] font-mono text-slate-400 uppercase tracking-wider font-bold">Concrete Grade</label>

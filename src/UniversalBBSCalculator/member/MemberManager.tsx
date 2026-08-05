@@ -9,6 +9,7 @@ import { METRIC_REBAR_OPTIONS, IMPERIAL_REBAR_OPTIONS } from '../modules';
 import { getDefaultInputs } from './defaultInputs';
 import MemberCard from './MemberCard';
 import ProjectSummary from './ProjectSummary';
+import { NumericInput } from '../../components/NumericInput';
 
 interface MemberManagerFullProps {
   unitSystem: 'metric' | 'imperial';
@@ -58,9 +59,9 @@ function rebarOpts(isMetric: boolean) {
 const renderNumField = (key: string, label: string, value: number | undefined, onChange: (v: number) => void, suffix: string) => (
   <div>
     <label className="text-[8px] font-mono text-slate-400 uppercase tracking-wider font-bold">{label}</label>
-    <input type="number" value={value ?? ''}
-      onChange={e => onChange(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
-      className="w-full mt-0.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-[10px] outline-none focus:border-[#0A84FF]" />
+    <NumericInput value={value ?? ''}
+      onChange={(raw, num) => onChange(raw === '' ? 0 : num)}
+      variant="fieldF" />
   </div>
 );
 

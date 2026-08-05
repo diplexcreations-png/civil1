@@ -175,6 +175,12 @@ export const CATEGORY_META: Record<CalculatorCategory, { name: string; descripti
     heroTitle: 'Engineering Utilities & Converters',
     heroSubtitle: 'Convert engineering units, estimate steel section weights, and access quick-reference tools for daily civil engineering work.',
   },
+  construction: {
+    name: 'Construction',
+    description: 'Free construction site calculators for earthwork cut-fill, formwork contact area, asphalt quantity, labor output, equipment rates, scaffolding, tile, lap splice, concrete mix design, rebar weight, painting, masonry, piping, roofing, compaction, waterproofing, plastering, sloped excavation, staircase, water tank, fencing, and screed estimation.',
+    heroTitle: 'Construction & Site Calculators',
+    heroSubtitle: '24 field-ready estimators for earthwork, formwork, mixes, quantities, and site costs.',
+  },
 };
 
 export const CATEGORY_PATH_MAP: Record<CalculatorCategory, string> = {
@@ -184,6 +190,7 @@ export const CATEGORY_PATH_MAP: Record<CalculatorCategory, string> = {
   geotech: 'geotechnical',
   survey: 'surveying',
   utility: 'utilities',
+  construction: 'construction',
 };
 
 export function calcIdToPath(id: string): string {

@@ -27,6 +27,7 @@ import { DesignStandard, STANDARD_OPTIONS, getStandard, validateReinforcement, g
 import MemberManager from './member/MemberManager';
 import { IProjectMember } from './member/memberTypes';
 import { getDefaultInputs } from './member/defaultInputs';
+import { NumericInput } from '../components/NumericInput';
 
 interface UniversalBBSCalculatorProps {
   calculatorId: string;
@@ -249,9 +250,9 @@ export default function UniversalBBSCalculator({
     <div>
       <label className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">{label}</label>
       <div className="relative mt-0.5">
-        <input type="number" step={step} value={value ?? ''}
-          onChange={e => onChange(e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
-          className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-2.5 pr-10 py-1.5 text-xs text-slate-800 dark:text-slate-200 outline-none focus:border-[#0A84FF] font-bold" />
+        <NumericInput step={step} value={value ?? ''}
+          onChange={(raw, num) => onChange(raw === '' ? 0 : num)}
+          variant="ubbs" />
         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] uppercase text-slate-400 font-bold">{suffix}</span>
       </div>
     </div>
@@ -819,12 +820,12 @@ export default function UniversalBBSCalculator({
                     <option value="kg">{isMetric ? '/kg' : '/lb'}</option>
                   </select>
                 </div>
-                <div className="relative"><span className="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] text-slate-500">{currency}</span><input type="number" value={steelPrice} onChange={e => setSteelPrice(parseFloat(e.target.value) || 0)} className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-2 py-1 text-white text-xs outline-none focus:border-blue-500 h-7" /></div>
+                <div className="relative"><NumericInput value={steelPrice} onChange={(raw, num) => setSteelPrice(num)} variant="ubbsDark"  prefix={currency}/></div>
                 <div className="text-slate-500 text-[8px]">{currency} {(totalSteelCost).toFixed(2)} total</div>
               </div>
               <div className="space-y-1">
                 <span className="text-slate-400 text-[9px]">Concrete Price ({isMetric ? '/m³' : '/yd³'})</span>
-                <div className="relative"><span className="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] text-slate-500">{currency}</span><input type="number" value={concretePrice} onChange={e => setConcretePrice(parseFloat(e.target.value) || 0)} className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-2 py-1 text-white text-xs outline-none focus:border-emerald-500 h-7" /></div>
+                <div className="relative"><NumericInput value={concretePrice} onChange={(raw, num) => setConcretePrice(num)} variant="none" className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-2 py-1 text-white text-xs outline-none focus:border-emerald-500 h-7"  prefix={currency}/></div>
                 <div className="text-slate-500 text-[8px]">{currency} {(totalConcreteCost).toFixed(2)} total</div>
               </div>
               <div className="flex flex-col justify-center items-start bg-slate-950 rounded-xl p-2 border border-slate-800">

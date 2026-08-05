@@ -5,7 +5,7 @@ import {
   HardHat, Home, Sliders, Layout, Sun, Moon, Menu, X, Search,
   ChevronRight, Calculator, Sparkles, Clock, Star, Settings,
   Clipboard, Layers, Grid, Compass, Activity, RefreshCw, PanelRightClose,
-  BarChart3, Users,
+  BarChart3,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
@@ -19,6 +19,7 @@ const categoryConfig = [
   { id: 'geotech' as const, label: 'Geotech', icon: Activity },
   { id: 'survey' as const, label: 'Survey', icon: Compass },
   { id: 'utility' as const, label: 'Utility', icon: RefreshCw },
+  { id: 'construction' as const, label: 'Construction', icon: HardHat },
 ];
 
 const RECENT_CALCULATORS_KEY = 'civilmath_recent';
@@ -40,7 +41,6 @@ export default function AppLayout() {
   const isWorkspace = /^\/(bbs|structural|concrete|geotechnical|surveying|utilities)/.test(location.pathname);
   const isDashboard = location.pathname === '/dashboard';
   const isBOQ = location.pathname === '/boq-builder';
-  const isProjectManagement = location.pathname === '/project-management';
 
   useEffect(() => {
     if (activeCalcId && activeCalcId !== 'bbs-universal') {
@@ -159,7 +159,6 @@ export default function AppLayout() {
                 <SidebarItem icon={Sliders} label="Workspace" active={isWorkspace} onClick={() => { navigate('/bbs/footing'); setMobileMenuOpen(false); }} />
                 <SidebarItem icon={Layout} label="Dashboard" active={isDashboard} onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }} />
                 <SidebarItem icon={BarChart3} label="BOQ Builder" active={isBOQ} onClick={() => { navigate('/boq-builder'); setMobileMenuOpen(false); }} />
-                <SidebarItem icon={Users} label="Project Mgmt" active={isProjectManagement} onClick={() => { navigate('/project-management'); setMobileMenuOpen(false); }} />
 
                 <hr className="divider my-3" />
 

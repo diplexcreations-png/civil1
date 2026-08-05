@@ -32,6 +32,7 @@ import {
   METRIC_MATERIALS,
   IMPERIAL_MATERIALS
 } from '../utils/calcEngine';
+import { NumericInput } from './NumericInput';
 
 interface ConcreteStepByStepProps {
   inputs: Record<string, any>;
@@ -3290,13 +3291,12 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-length`}
-                      id="length-input"
-                      type="number" 
+                      id="length-input" 
                       value={inputs.length ?? ''} 
-                      onChange={e => handleInputChange('length', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('length', num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.length || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3320,13 +3320,12 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-width`}
-                      id="width-input"
-                      type="number" 
+                      id="width-input" 
                       value={inputs.width ?? ''} 
-                      onChange={e => handleInputChange('width', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('width', num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.width || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3350,13 +3349,12 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-thickness`}
-                      id="thickness-input"
-                      type="number" 
+                      id="thickness-input" 
                       value={inputs.thickness ?? ''} 
-                      onChange={e => handleInputChange('thickness', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('thickness', num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.thickness || (unitSystem === 'metric' ? 'mm' : 'in')}
@@ -3387,38 +3385,35 @@ export default function CalculatorWorkspace({
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <div>
                         <label htmlFor="custom-cement-input" className="text-slate-600 block mb-1 text-[10px] font-semibold">Cement ratio</label>
-                        <input
+                        <NumericInput
                           id="custom-cement-input"
-                          type="number"
                           step="0.1"
                           min="0.1"
                           value={inputs.cementRatio ?? 1}
-                          onChange={e => handleInputChange('cementRatio', parseFloat(e.target.value) || 0)}
-                          className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-center text-slate-800 outline-none focus:border-[#0A84FF] font-sans text-xs"
+                          onChange={(raw, num) => handleInputChange('cementRatio', num)}
+                          variant="calcCenter"
                         />
                       </div>
                       <div>
                         <label htmlFor="custom-sand-input" className="text-slate-600 block mb-1 text-[10px] font-semibold">Sand ratio</label>
-                        <input
+                        <NumericInput
                           id="custom-sand-input"
-                          type="number"
                           step="0.1"
                           min="0"
                           value={inputs.sandRatio ?? 1.5}
-                          onChange={e => handleInputChange('sandRatio', parseFloat(e.target.value) || 0)}
-                          className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-center text-slate-800 outline-none focus:border-[#0A84FF] font-sans text-xs"
+                          onChange={(raw, num) => handleInputChange('sandRatio', num)}
+                          variant="calcCenter"
                         />
                       </div>
                       <div>
                         <label htmlFor="custom-aggregate-input" className="text-slate-600 block mb-1 text-[10px] font-semibold">Agg. ratio</label>
-                        <input
+                        <NumericInput
                           id="custom-aggregate-input"
-                          type="number"
                           step="0.1"
                           min="0"
                           value={inputs.aggregateRatio ?? 3}
-                          onChange={e => handleInputChange('aggregateRatio', parseFloat(e.target.value) || 0)}
-                          className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-center text-slate-800 outline-none focus:border-[#0A84FF] font-sans text-xs"
+                          onChange={(raw, num) => handleInputChange('aggregateRatio', num)}
+                          variant="calcCenter"
                         />
                       </div>
                     </div>
@@ -3440,17 +3435,16 @@ export default function CalculatorWorkspace({
                     { (inputs.shrinkageInputType || 'percentage') === 'multiplier' ? (
                       <>
                         <div className="relative">
-                          <input 
+                          <NumericInput 
                             key={`${calculatorId}-shrinkageMultiplier`}
-                            id="shrinkage-input"
-                            type="number" 
+                            id="shrinkage-input" 
                             step="0.01"
                             value={inputs.shrinkageMultiplier ?? ''} 
-                            onChange={e => {
-                              const val = parseFloat(e.target.value);
+                            onChange={(raw, num) => {
+                              const val = num;
                               handleInputChange('shrinkageMultiplier', isNaN(val) ? 0 : val);
                             }}
-                            className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-[13px] text-slate-800 outline-hidden focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-xs"
+                            variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-[13px] text-slate-800 outline-hidden focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-xs"
                             title="Dry Volume multiplier factor of concrete when converting wet volume to dry mix (usually 1.54)."
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold font-mono">x</span>
@@ -3460,16 +3454,15 @@ export default function CalculatorWorkspace({
                     ) : (
                       <>
                         <div className="relative">
-                          <input 
+                          <NumericInput 
                             key={`${calculatorId}-shrinkagePercent`}
-                            id="shrinkage-input"
-                            type="number" 
+                            id="shrinkage-input" 
                             value={inputs.shrinkagePercent ?? ''} 
-                            onChange={e => {
-                              const val = parseFloat(e.target.value);
+                            onChange={(raw, num) => {
+                              const val = num;
                               handleInputChange('shrinkagePercent', isNaN(val) ? 0 : val);
                             }}
-                            className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-[13px] text-slate-800 outline-hidden focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-xs"
+                            variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-[13px] text-slate-800 outline-hidden focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-xs"
                             title="Shrinkage factor of concrete when converting wet volume to dry mix (usually 54%)."
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold font-mono">%</span>
@@ -3483,13 +3476,12 @@ export default function CalculatorWorkspace({
                       <label htmlFor="wastepercent-input" className="truncate font-semibold">Wastage Ratio</label>
                       <span className="text-slate-500">%</span>
                     </div>
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-wastePercent`}
-                      id="wastepercent-input"
-                      type="number" 
+                      id="wastepercent-input" 
                       value={inputs.wastePercent ?? ''} 
-                      onChange={e => handleInputChange('wastePercent', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('wastePercent', num)}
+                      variant="calc"
                       title="Wastage during casting on-site (Std 10%)."
                     />
                     <p className="text-[9px] text-slate-400 mt-1">Site waste (Std 10%)</p>
@@ -3500,13 +3492,12 @@ export default function CalculatorWorkspace({
                     <label htmlFor="unitcost-input">Unit Cost</label>
                     <span className="text-slate-500">{currencySymbol} / {unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
                   </div>
-                  <input 
+                  <NumericInput 
                     key={`${calculatorId}-unitCost`}
-                    id="unitcost-input"
-                    type="number" 
+                    id="unitcost-input" 
                     value={inputs.unitCost ?? ''} 
-                    onChange={e => handleInputChange('unitCost', parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-emerald-600 font-bold outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => handleInputChange('unitCost', num)}
+                    variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-emerald-600 font-bold outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                   />
                 </div>
               </>
@@ -3531,13 +3522,12 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-span`}
-                      id="span-input"
-                      type="number" 
+                      id="span-input" 
                       value={inputs.span ?? ''} 
-                      onChange={e => handleInputChange('span', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('span', num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.span || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3549,13 +3539,12 @@ export default function CalculatorWorkspace({
                     <label htmlFor="load-input">Applied Load</label>
                     <span className="text-slate-500">{inputs.loadType === 'udl' ? (unitSystem === 'metric' ? 'kN/m' : 'klf') : (unitSystem === 'metric' ? 'kN' : 'kips')}</span>
                   </div>
-                  <input 
+                  <NumericInput 
                     key={`${calculatorId}-load`}
-                    id="load-input"
-                    type="number" 
+                    id="load-input" 
                     value={inputs.load ?? ''} 
-                    onChange={e => handleInputChange('load', parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => handleInputChange('load', num)}
+                    variant="calc"
                   />
                 </div>
                 <div>
@@ -3595,12 +3584,11 @@ export default function CalculatorWorkspace({
                     <label htmlFor="inertia-input">Moment of Inertia (I)</label>
                     <span className="text-slate-500">{unitSystem === 'metric' ? 'cm⁴' : 'in⁴'}</span>
                   </div>
-                  <input 
-                    key={`${calculatorId}-inertia`}
-                    type="number" 
+                  <NumericInput 
+                    key={`${calculatorId}-inertia`} 
                     value={inputs.inertia ?? ''} 
-                    onChange={e => handleInputChange('inertia', parseFloat(e.target.value) || 1)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => handleInputChange('inertia', num || 1)}
+                    variant="calc"
                   />
                 </div>
               </>
@@ -3626,13 +3614,12 @@ export default function CalculatorWorkspace({
                       </select>
                     </div>
                     <div className="relative flex items-center">
-                      <input 
+                      <NumericInput 
                         key={`${calculatorId}-width`}
-                        id="width-input-col"
-                        type="number" 
+                        id="width-input-col" 
                         value={inputs.width ?? ''} 
-                        onChange={e => handleInputChange('width', parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                        onChange={(raw, num) => handleInputChange('width', num)}
+                        variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                       />
                       <span className="absolute right-2 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                         {paramUnits.width || (unitSystem === 'metric' ? 'mm' : 'in')}
@@ -3656,13 +3643,12 @@ export default function CalculatorWorkspace({
                       </select>
                     </div>
                     <div className="relative flex items-center">
-                      <input 
+                      <NumericInput 
                         key={`${calculatorId}-depth`}
-                        id="depth-input-col"
-                        type="number" 
+                        id="depth-input-col" 
                         value={inputs.depth ?? ''} 
-                        onChange={e => handleInputChange('depth', parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                        onChange={(raw, num) => handleInputChange('depth', num)}
+                        variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                       />
                       <span className="absolute right-2 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                         {paramUnits.depth || (unitSystem === 'metric' ? 'mm' : 'in')}
@@ -3673,24 +3659,22 @@ export default function CalculatorWorkspace({
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label htmlFor="fc-input" className="text-slate-600 mb-1 block">Concrete f'c ({unitSystem === 'metric' ? 'MPa' : 'psi'})</label>
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-fc`}
-                      id="fc-input"
-                      type="number" 
+                      id="fc-input" 
                       value={inputs.fc ?? ''} 
-                      onChange={e => handleInputChange('fc', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('fc', num)}
+                      variant="calc"
                     />
                   </div>
                   <div>
                     <label htmlFor="fy-input" className="text-slate-600 mb-1 block">Rebar Yield fy ({unitSystem === 'metric' ? 'MPa' : 'psi'})</label>
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-fy`}
-                      id="fy-input"
-                      type="number" 
+                      id="fy-input" 
                       value={inputs.fy ?? ''} 
-                      onChange={e => handleInputChange('fy', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('fy', num)}
+                      variant="calc"
                     />
                   </div>
                 </div>
@@ -3725,14 +3709,13 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-barDiameter`}
-                      id="bardiameter-input"
-                      type="number" 
+                      id="bardiameter-input" 
                       step="any"
                       value={inputs.barDiameter ?? ''} 
-                      onChange={e => handleInputChange('barDiameter', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('barDiameter', num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.barDiameter || (unitSystem === 'metric' ? 'mm' : 'in')}
@@ -3761,13 +3744,12 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-span`}
-                      id="span-input-slab"
-                      type="number" 
+                      id="span-input-slab" 
                       value={inputs.span ?? ''} 
-                      onChange={e => handleInputChange('span', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('span', num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.span || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3793,13 +3775,12 @@ export default function CalculatorWorkspace({
                   <div className="flex justify-between text-slate-600 mb-1">
                     <label htmlFor="fy-slab-input" className="font-semibold">Steel yield fy ({unitSystem === 'metric' ? 'MPa' : 'psi'})</label>
                   </div>
-                  <input 
+                  <NumericInput 
                     key={`${calculatorId}-fy`}
-                    id="fy-slab-input"
-                    type="number" 
+                    id="fy-slab-input" 
                     value={inputs.fy ?? ''} 
-                    onChange={e => handleInputChange('fy', parseFloat(e.target.value) || 420)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => handleInputChange('fy', num || 420)}
+                    variant="calc"
                   />
                 </div>
               </>
@@ -3825,13 +3806,12 @@ export default function CalculatorWorkspace({
                       </select>
                     </div>
                     <div className="relative flex items-center">
-                      <input 
+                      <NumericInput 
                         key={`${calculatorId}-bg`}
-                        id="bg-input"
-                        type="number" 
+                        id="bg-input" 
                         value={inputs.bg ?? ''} 
-                        onChange={e => handleInputChange('bg', parseFloat(e.target.value) || 1.0)}
-                        className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                        onChange={(raw, num) => handleInputChange('bg', num || 1.0)}
+                        variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                       />
                       <span className="absolute right-2 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                         {paramUnits.bg || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3855,13 +3835,12 @@ export default function CalculatorWorkspace({
                       </select>
                     </div>
                     <div className="relative flex items-center">
-                      <input 
+                      <NumericInput 
                         key={`${calculatorId}-lg`}
-                        id="lg-input"
-                        type="number" 
+                        id="lg-input" 
                         value={inputs.lg ?? ''} 
-                        onChange={e => handleInputChange('lg', parseFloat(e.target.value) || 1.0)}
-                        className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                        onChange={(raw, num) => handleInputChange('lg', num || 1.0)}
+                        variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                       />
                       <span className="absolute right-2 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                         {paramUnits.lg || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3886,13 +3865,12 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-df`}
-                      id="df-input"
-                      type="number" 
+                      id="df-input" 
                       value={inputs.df ?? ''} 
-                      onChange={e => handleInputChange('df', parseFloat(e.target.value) || 0.0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('df', num || 0.0)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.df || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3902,50 +3880,46 @@ export default function CalculatorWorkspace({
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label htmlFor="cohesion-input" className="text-slate-600 mb-1 block">Cohesion c ({unitSystem === 'metric' ? 'kPa' : 'psf'})</label>
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-cohesion`}
-                      id="cohesion-input"
-                      type="number" 
+                      id="cohesion-input" 
                       value={inputs.cohesion ?? ''} 
-                      onChange={e => handleInputChange('cohesion', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('cohesion', num)}
+                      variant="calc"
                     />
                   </div>
                   <div>
                     <label htmlFor="phi-input" className="text-slate-600 mb-1 block">Friction Angle (deg)</label>
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-phi`}
-                      id="phi-input"
-                      type="number" 
+                      id="phi-input" 
                       value={inputs.phi ?? ''} 
                       max="48"
-                      onChange={e => handleInputChange('phi', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('phi', num)}
+                      variant="calc"
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label htmlFor="unitweight-input" className="text-slate-600 mb-1 block">Soil Gamma ({unitSystem === 'metric' ? 'kN/m³' : 'pcf'})</label>
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-unitWeight`}
-                      id="unitweight-input"
-                      type="number" 
+                      id="unitweight-input" 
                       value={inputs.unitWeight ?? ''} 
-                      onChange={e => handleInputChange('unitWeight', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('unitWeight', num)}
+                      variant="calc"
                     />
                   </div>
                   <div>
                     <label htmlFor="safetyfactor-input" className="text-slate-600 mb-1 block">Safety Factor FS</label>
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-safetyFactor`}
-                      id="safetyfactor-input"
-                      type="number" 
+                      id="safetyfactor-input" 
                       step="0.1"
                       value={inputs.safetyFactor ?? 3.0} 
-                      onChange={e => handleInputChange('safetyFactor', parseFloat(e.target.value) || 3.0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('safetyFactor', num || 3.0)}
+                      variant="calc"
                     />
                   </div>
                 </div>
@@ -3971,13 +3945,12 @@ export default function CalculatorWorkspace({
                     </select>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
+                    <NumericInput 
                       key={`${calculatorId}-height`}
-                      id="height-wall-input"
-                      type="number" 
+                      id="height-wall-input" 
                       value={inputs.height ?? ''} 
-                      onChange={e => handleInputChange('height', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                      onChange={(raw, num) => handleInputChange('height', num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {paramUnits.height || (unitSystem === 'metric' ? 'm' : 'ft')}
@@ -3989,13 +3962,12 @@ export default function CalculatorWorkspace({
                     <label htmlFor="frictionangle-wall-input">Soil Friction (phi)</label>
                     <span className="text-slate-500 font-sans">Degrees</span>
                   </div>
-                  <input 
+                  <NumericInput 
                     key={`${calculatorId}-frictionAngle`}
-                    id="frictionangle-wall-input"
-                    type="number" 
+                    id="frictionangle-wall-input" 
                     value={inputs.frictionAngle ?? ''} 
-                    onChange={e => handleInputChange('frictionAngle', parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => handleInputChange('frictionAngle', num)}
+                    variant="calc"
                   />
                 </div>
                 <div>
@@ -4003,13 +3975,12 @@ export default function CalculatorWorkspace({
                     <label htmlFor="unitweight-wall-input">Soil Unit Weight Gamma</label>
                     <span className="text-slate-500">{unitSystem === 'metric' ? 'kN/m³' : 'lb/ft³'}</span>
                   </div>
-                  <input 
+                  <NumericInput 
                     key={`${calculatorId}-unitWeight`}
-                    id="unitweight-wall-input"
-                    type="number" 
+                    id="unitweight-wall-input" 
                     value={inputs.unitWeight ?? ''} 
-                    onChange={e => handleInputChange('unitWeight', parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => handleInputChange('unitWeight', num)}
+                    variant="calc"
                   />
                 </div>
                 <div>
@@ -4017,13 +3988,12 @@ export default function CalculatorWorkspace({
                     <label htmlFor="backfillslope-input">Backfill Slope angle</label>
                     <span className="text-slate-500 font-sans">Degrees (Normally 0)</span>
                   </div>
-                  <input 
+                  <NumericInput 
                     key={`${calculatorId}-backfillSlope`}
-                    id="backfillslope-input"
-                    type="number" 
+                    id="backfillslope-input" 
                     value={inputs.backfillSlope ?? 0} 
-                    onChange={e => handleInputChange('backfillSlope', parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => handleInputChange('backfillSlope', num)}
+                    variant="calc"
                   />
                 </div>
               </>
@@ -4039,13 +4009,12 @@ export default function CalculatorWorkspace({
                     </span>
                   </div>
                   <div className="relative flex items-center">
-                    <input 
-                      id="starting-rl-input"
-                      type="number" 
+                    <NumericInput 
+                      id="starting-rl-input" 
                       step="0.001"
                       value={startingRL} 
-                      onChange={e => setStartingRL(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2.5 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] font-mono text-sm font-semibold"
+                      onChange={(raw, num) => setStartingRL(num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-10 py-2.5 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] font-mono text-sm font-semibold"
                     />
                     <span className="absolute right-3 text-[10px] uppercase text-slate-400 pointer-events-none font-bold">
                       {unitSystem === 'metric' ? 'm' : 'ft'}
@@ -4145,21 +4114,19 @@ export default function CalculatorWorkspace({
                                   />
                                 </td>
                                 <td className="p-1 px-1.5">
-                                  <input 
-                                    type="number"
+                                  <NumericInput
                                     value={row.distance}
-                                    onChange={e => handleUpdateSurveyRow(idx, 'distance', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                    className="w-full bg-transparent p-1 py-1.5 focus:bg-slate-100 rounded text-center text-slate-700 outline-none text-xs font-mono border border-transparent focus:border-slate-300"
+                                    onChange={(raw, num) => handleUpdateSurveyRow(idx, 'distance', raw === '' ? '' : num)}
+                                    variant="none" className="w-full bg-transparent p-1 py-1.5 focus:bg-slate-100 rounded text-center text-slate-700 outline-none text-xs font-mono border border-transparent focus:border-slate-300"
                                   />
                                 </td>
                                 <td className="p-1 px-1.5 bg-blue-50/10 border-l border-slate-100 border-r">
-                                  <input 
-                                    type="number"
+                                  <NumericInput
                                     step="0.001"
                                     value={row.bs === null ? '' : row.bs}
-                                    onChange={e => handleUpdateSurveyRow(idx, 'bs', e.target.value !== '' ? parseFloat(e.target.value) : null)}
+                                    onChange={(raw, num) => handleUpdateSurveyRow(idx, 'bs', raw !== '' ? num : null)}
                                     placeholder="-"
-                                    className="w-full bg-transparent p-1 py-1.5 focus:bg-blue-50 rounded text-center text-blue-700 font-bold outline-none text-xs font-mono border border-transparent focus:border-slate-300"
+                                    variant="none" className="w-full bg-transparent p-1 py-1.5 focus:bg-blue-50 rounded text-center text-blue-700 font-bold outline-none text-xs font-mono border border-transparent focus:border-slate-300"
                                   />
                                 </td>
                                 {/* HI column (Calculated) */}
@@ -4167,23 +4134,21 @@ export default function CalculatorWorkspace({
                                   {calculatedRow?.hi !== undefined && calculatedRow.hi !== null ? calculatedRow.hi.toFixed(3) : '-'}
                                 </td>
                                 <td className="p-1 px-1.5 border-r">
-                                  <input 
-                                    type="number"
+                                  <NumericInput
                                     step="0.001"
                                     value={row.is === null ? '' : row.is}
-                                    onChange={e => handleUpdateSurveyRow(idx, 'is', e.target.value !== '' ? parseFloat(e.target.value) : null)}
+                                    onChange={(raw, num) => handleUpdateSurveyRow(idx, 'is', raw !== '' ? num : null)}
                                     placeholder="-"
-                                    className="w-full bg-transparent p-1 py-1.5 focus:bg-slate-100 rounded text-center text-slate-700 outline-none text-xs font-mono border border-transparent focus:border-slate-300"
+                                    variant="none" className="w-full bg-transparent p-1 py-1.5 focus:bg-slate-100 rounded text-center text-slate-700 outline-none text-xs font-mono border border-transparent focus:border-slate-300"
                                   />
                                 </td>
                                 <td className="p-1 px-1.5 border-r bg-red-50/10">
-                                  <input 
-                                    type="number"
+                                  <NumericInput
                                     step="0.001"
                                     value={row.fs === null ? '' : row.fs}
-                                    onChange={e => handleUpdateSurveyRow(idx, 'fs', e.target.value !== '' ? parseFloat(e.target.value) : null)}
+                                    onChange={(raw, num) => handleUpdateSurveyRow(idx, 'fs', raw !== '' ? num : null)}
                                     placeholder="-"
-                                    className="w-full bg-transparent p-1 py-1.5 focus:bg-red-50 rounded text-center text-red-650 font-bold outline-none text-xs font-mono border border-transparent focus:border-slate-300"
+                                    variant="none" className="w-full bg-transparent p-1 py-1.5 focus:bg-red-50 rounded text-center text-red-650 font-bold outline-none text-xs font-mono border border-transparent focus:border-slate-300"
                                   />
                                 </td>
                                 {/* RL column (Calculated) */}
@@ -4257,11 +4222,10 @@ export default function CalculatorWorkspace({
                           <div className="grid grid-cols-2 gap-3 text-xs">
                             <div>
                               <span className="text-[9.5px] uppercase font-bold text-slate-450 block mb-1 font-sans">Distance ({unitSystem === 'metric' ? 'm' : 'ft'})</span>
-                              <input 
-                                type="number"
+                              <NumericInput
                                 value={row.distance}
-                                onChange={e => handleUpdateSurveyRow(idx, 'distance', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                className="w-full bg-slate-50 border border-slate-205 rounded-lg p-1.5 px-2.5 outline-none font-semibold text-slate-700 font-mono text-xs focus:border-[#0A84FF] focus:bg-white"
+                                onChange={(raw, num) => handleUpdateSurveyRow(idx, 'distance', raw === '' ? '' : num)}
+                                variant="none" className="w-full bg-slate-50 border border-slate-205 rounded-lg p-1.5 px-2.5 outline-none font-semibold text-slate-700 font-mono text-xs focus:border-[#0A84FF] focus:bg-white"
                               />
                             </div>
                             <div>
@@ -4280,35 +4244,32 @@ export default function CalculatorWorkspace({
                           <div className="bg-slate-50 border border-slate-150 rounded-xl p-2.5 grid grid-cols-3 gap-2 text-center">
                             <div>
                               <span className="text-[9px] uppercase font-extrabold text-blue-700 block mb-1 font-mono">BS (+)</span>
-                              <input 
-                                type="number"
+                              <NumericInput
                                 step="0.001"
                                 value={row.bs === null ? '' : row.bs}
-                                onChange={e => handleUpdateSurveyRow(idx, 'bs', e.target.value !== '' ? parseFloat(e.target.value) : null)}
+                                onChange={(raw, num) => handleUpdateSurveyRow(idx, 'bs', raw !== '' ? num : null)}
                                 placeholder="-"
-                                className="w-full bg-white border border-slate-200 rounded-lg py-1 px-1 text-center font-bold text-blue-800 font-mono text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                                variant="none" className="w-full bg-white border border-slate-200 rounded-lg py-1 px-1 text-center font-bold text-blue-800 font-mono text-xs outline-none focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
                             <div>
                               <span className="text-[9px] uppercase font-extrabold text-slate-500 block mb-1 font-mono">IS</span>
-                              <input 
-                                type="number"
+                              <NumericInput
                                 step="0.001"
                                 value={row.is === null ? '' : row.is}
-                                onChange={e => handleUpdateSurveyRow(idx, 'is', e.target.value !== '' ? parseFloat(e.target.value) : null)}
+                                onChange={(raw, num) => handleUpdateSurveyRow(idx, 'is', raw !== '' ? num : null)}
                                 placeholder="-"
-                                className="w-full bg-white border border-slate-200 rounded-lg py-1 px-1 text-center font-bold text-slate-700 font-mono text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                                variant="none" className="w-full bg-white border border-slate-200 rounded-lg py-1 px-1 text-center font-bold text-slate-700 font-mono text-xs outline-none focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
                             <div>
                               <span className="text-[9px] uppercase font-extrabold text-red-700 block mb-1 font-mono">FS (-)</span>
-                              <input 
-                                type="number"
+                              <NumericInput
                                 step="0.001"
                                 value={row.fs === null ? '' : row.fs}
-                                onChange={e => handleUpdateSurveyRow(idx, 'fs', e.target.value !== '' ? parseFloat(e.target.value) : null)}
+                                onChange={(raw, num) => handleUpdateSurveyRow(idx, 'fs', raw !== '' ? num : null)}
                                 placeholder="-"
-                                className="w-full bg-white border border-slate-200 rounded-lg py-1 px-1 text-center font-bold text-red-650 font-mono text-xs outline-none focus:ring-1 focus:ring-blue-500"
+                                variant="none" className="w-full bg-white border border-slate-200 rounded-lg py-1 px-1 text-center font-bold text-red-650 font-mono text-xs outline-none focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
                           </div>
@@ -4376,13 +4337,12 @@ export default function CalculatorWorkspace({
                   <div className="flex justify-between text-slate-600 mb-1">
                     <label htmlFor="convvalue-input">Input Value</label>
                   </div>
-                  <input 
+                  <NumericInput 
                     key={`${calculatorId}-convValue`}
-                    id="convvalue-input"
-                    type="number" 
+                    id="convvalue-input" 
                     value={convValue ?? ''} 
-                    onChange={e => setConvValue(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
+                    onChange={(raw, num) => setConvValue(num)}
+                    variant="calc"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -4426,12 +4386,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="nc-start-n">Start Northing (N₀)</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                     </div>
-                    <input 
-                      id="nc-start-n"
-                      type="number" 
+                    <NumericInput 
+                      id="nc-start-n" 
                       value={inputs.startNorthing ?? ''} 
-                      onChange={e => handleInputChange('startNorthing', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
+                      onChange={(raw, num) => handleInputChange('startNorthing', raw === '' ? '' : num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
                     />
                   </div>
                   <div>
@@ -4439,12 +4398,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="nc-start-e">Start Easting (E₀)</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                     </div>
-                    <input 
-                      id="nc-start-e"
-                      type="number" 
+                    <NumericInput 
+                      id="nc-start-e" 
                       value={inputs.startEasting ?? ''} 
-                      onChange={e => handleInputChange('startEasting', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
+                      onChange={(raw, num) => handleInputChange('startEasting', raw === '' ? '' : num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
                     />
                   </div>
                 </div>
@@ -4454,12 +4412,11 @@ export default function CalculatorWorkspace({
                     <label htmlFor="nc-start-z">Start Elevation (Z₀)</label>
                     <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                   </div>
-                  <input 
-                    id="nc-start-z"
-                    type="number" 
+                  <NumericInput 
+                    id="nc-start-z" 
                     value={inputs.startElevation ?? ''} 
-                    onChange={e => handleInputChange('startElevation', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
+                    onChange={(raw, num) => handleInputChange('startElevation', raw === '' ? '' : num)}
+                    variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
                   />
                 </div>
 
@@ -4468,12 +4425,11 @@ export default function CalculatorWorkspace({
                     <label htmlFor="nc-dist">Measured Distance (S)</label>
                     <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                   </div>
-                  <input 
-                    id="nc-dist"
-                    type="number" 
+                  <NumericInput 
+                    id="nc-dist" 
                     value={inputs.distance ?? ''} 
-                    onChange={e => handleInputChange('distance', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
+                    onChange={(raw, num) => handleInputChange('distance', raw === '' ? '' : num)}
+                    variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
                   />
                 </div>
 
@@ -4483,14 +4439,13 @@ export default function CalculatorWorkspace({
                       <label htmlFor="nc-bearing">Azimuth Bearing (θ)</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">deg</span>
                     </div>
-                    <input 
-                      id="nc-bearing"
-                      type="number" 
+                    <NumericInput 
+                      id="nc-bearing" 
                       min="0"
                       max="360"
                       value={inputs.bearingDeg ?? ''} 
-                      onChange={e => handleInputChange('bearingDeg', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
+                      onChange={(raw, num) => handleInputChange('bearingDeg', raw === '' ? '' : num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
                     />
                   </div>
                   <div>
@@ -4498,15 +4453,14 @@ export default function CalculatorWorkspace({
                       <label htmlFor="nc-vert-ang">Vertical Slope (α)</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">deg</span>
                     </div>
-                    <input 
-                      id="nc-vert-ang"
-                      type="number" 
+                    <NumericInput 
+                      id="nc-vert-ang" 
                       min="-90"
                       max="90"
                       step="0.01"
                       value={inputs.verticalAngle ?? ''} 
-                      onChange={e => handleInputChange('verticalAngle', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
+                      onChange={(raw, num) => handleInputChange('verticalAngle', raw === '' ? '' : num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF]"
                     />
                   </div>
                 </div>
@@ -4536,12 +4490,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="sc-len">Segment Length</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                     </div>
-                    <input 
-                      id="sc-len"
-                      type="number" 
+                    <NumericInput 
+                      id="sc-len" 
                       value={inputs.length ?? ''} 
-                      onChange={e => handleInputChange('length', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs font-mono font-bold"
+                      onChange={(raw, num) => handleInputChange('length', raw === '' ? '' : num)}
+                      variant="calcMono"
                     />
                   </div>
                   <div>
@@ -4553,12 +4506,11 @@ export default function CalculatorWorkspace({
                         {inputs.steelShape === 'plate' ? (unitSystem === 'metric' ? 'm' : 'ft') : (unitSystem === 'metric' ? 'mm' : 'in')}
                       </span>
                     </div>
-                    <input 
-                      id="sc-wid"
-                      type="number" 
+                    <NumericInput 
+                      id="sc-wid" 
                       value={inputs.width ?? ''} 
-                      onChange={e => handleInputChange('width', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs font-mono font-bold"
+                      onChange={(raw, num) => handleInputChange('width', raw === '' ? '' : num)}
+                      variant="calcMono"
                     />
                   </div>
                 </div>
@@ -4571,12 +4523,11 @@ export default function CalculatorWorkspace({
                       </label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                     </div>
-                    <input 
-                      id="sc-thick"
-                      type="number" 
+                    <NumericInput 
+                      id="sc-thick" 
                       value={inputs.thickness ?? ''} 
-                      onChange={e => handleInputChange('thickness', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs font-mono font-bold"
+                      onChange={(raw, num) => handleInputChange('thickness', raw === '' ? '' : num)}
+                      variant="calcMono"
                     />
                   </div>
                 )}
@@ -4587,12 +4538,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="sc-depth">Total Web Depth (d)</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                     </div>
-                    <input 
-                      id="sc-depth"
-                      type="number" 
+                    <NumericInput 
+                      id="sc-depth" 
                       value={inputs.depth ?? ''} 
-                      onChange={e => handleInputChange('depth', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs font-mono font-bold"
+                      onChange={(raw, num) => handleInputChange('depth', raw === '' ? '' : num)}
+                      variant="calcMono"
                     />
                   </div>
                 )}
@@ -4602,12 +4552,11 @@ export default function CalculatorWorkspace({
                     <label htmlFor="sc-qty">Batch Quantity</label>
                     <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">pcs</span>
                   </div>
-                  <input 
-                    id="sc-qty"
-                    type="number" 
+                  <NumericInput 
+                    id="sc-qty" 
                     value={inputs.quantity ?? ''} 
-                    onChange={e => handleInputChange('quantity', e.target.value === '' ? '' : parseInt(e.target.value))}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                    onChange={(raw, num) => handleInputChange('quantity', raw === '' ? '' : parseInt(raw))}
+                    variant="calcPlain"
                   />
                 </div>
               </>
@@ -4621,12 +4570,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="rc-len">Concrete Length</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                     </div>
-                    <input 
-                      id="rc-len"
-                      type="number" 
+                    <NumericInput 
+                      id="rc-len" 
                       value={inputs.elementLength ?? ''} 
-                      onChange={e => handleInputChange('elementLength', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                      onChange={(raw, num) => handleInputChange('elementLength', raw === '' ? '' : num)}
+                      variant="calcPlain"
                     />
                   </div>
                   <div>
@@ -4634,12 +4582,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="rc-wid">Concrete Width</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                     </div>
-                    <input 
-                      id="rc-wid"
-                      type="number" 
+                    <NumericInput 
+                      id="rc-wid" 
                       value={inputs.elementWidth ?? ''} 
-                      onChange={e => handleInputChange('elementWidth', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                      onChange={(raw, num) => handleInputChange('elementWidth', raw === '' ? '' : num)}
+                      variant="calcPlain"
                     />
                   </div>
                 </div>
@@ -4682,12 +4629,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="rc-spacing">Grid Spacing</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                     </div>
-                    <input 
-                      id="rc-spacing"
-                      type="number" 
+                    <NumericInput 
+                      id="rc-spacing" 
                       value={inputs.spacing ?? ''} 
-                      onChange={e => handleInputChange('spacing', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                      onChange={(raw, num) => handleInputChange('spacing', raw === '' ? '' : num)}
+                      variant="calcPlain"
                     />
                   </div>
                 </div>
@@ -4698,12 +4644,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="rc-lap">Lap Splice</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">dia</span>
                     </div>
-                    <input 
-                      id="rc-lap"
-                      type="number" 
+                    <NumericInput 
+                      id="rc-lap" 
                       value={inputs.lapSplice ?? 40} 
-                      onChange={e => handleInputChange('lapSplice', e.target.value === '' ? '' : parseInt(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                      onChange={(raw, num) => handleInputChange('lapSplice', raw === '' ? '' : parseInt(raw))}
+                      variant="calcPlain"
                     />
                   </div>
                   <div>
@@ -4711,12 +4656,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="rc-cover">Clear Cover</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                     </div>
-                    <input 
-                      id="rc-cover"
-                      type="number" 
+                    <NumericInput 
+                      id="rc-cover" 
                       value={inputs.concreteCover ?? ''} 
-                      onChange={e => handleInputChange('concreteCover', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                      onChange={(raw, num) => handleInputChange('concreteCover', raw === '' ? '' : num)}
+                      variant="calcPlain"
                     />
                   </div>
                 </div>
@@ -4731,12 +4675,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="bc-wall-len">Wall Length</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                     </div>
-                    <input 
-                      id="bc-wall-len"
-                      type="number" 
+                    <NumericInput 
+                      id="bc-wall-len" 
                       value={inputs.wallLength ?? ''} 
-                      onChange={e => handleInputChange('wallLength', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs"
+                      onChange={(raw, num) => handleInputChange('wallLength', raw === '' ? '' : num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs"
                     />
                   </div>
                   <div>
@@ -4744,12 +4687,11 @@ export default function CalculatorWorkspace({
                       <label htmlFor="bc-wall-hei">Wall Height</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'm' : 'ft'}</span>
                     </div>
-                    <input 
-                      id="bc-wall-hei"
-                      type="number" 
+                    <NumericInput 
+                      id="bc-wall-hei" 
                       value={inputs.wallHeight ?? ''} 
-                      onChange={e => handleInputChange('wallHeight', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs"
+                      onChange={(raw, num) => handleInputChange('wallHeight', raw === '' ? '' : num)}
+                      variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none text-xs"
                     />
                   </div>
                 </div>
@@ -4759,12 +4701,11 @@ export default function CalculatorWorkspace({
                     <label htmlFor="bc-wall-thick">Wall Thickness</label>
                     <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                   </div>
-                  <input 
-                    id="bc-wall-thick"
-                    type="number" 
+                  <NumericInput 
+                    id="bc-wall-thick" 
                     value={inputs.wallThickness ?? ''} 
-                    onChange={e => handleInputChange('wallThickness', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-850 outline-none text-xs font-mono font-bold"
+                    onChange={(raw, num) => handleInputChange('wallThickness', raw === '' ? '' : num)}
+                    variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-850 outline-none text-xs font-mono font-bold"
                   />
                 </div>
 
@@ -4776,12 +4717,11 @@ export default function CalculatorWorkspace({
                         <label htmlFor="bc-length" className="text-[9.5px]">Length</label>
                         <span className="text-[8px] font-mono leading-tight">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                       </div>
-                      <input 
-                        id="bc-length"
-                        type="number" 
+                      <NumericInput 
+                        id="bc-length" 
                         value={inputs.brickLength ?? ''} 
-                        onChange={e => handleInputChange('brickLength', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                        className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-center text-slate-700 outline-none text-[11px] font-mono"
+                        onChange={(raw, num) => handleInputChange('brickLength', raw === '' ? '' : num)}
+                        variant="calcXs"
                       />
                     </div>
                     <div>
@@ -4789,12 +4729,11 @@ export default function CalculatorWorkspace({
                         <label htmlFor="bc-width" className="text-[9.5px]">Width</label>
                         <span className="text-[8px] font-mono leading-tight">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                       </div>
-                      <input 
-                        id="bc-width"
-                        type="number" 
+                      <NumericInput 
+                        id="bc-width" 
                         value={inputs.brickWidth ?? ''} 
-                        onChange={e => handleInputChange('brickWidth', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                        className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-center text-slate-700 outline-none text-[11px] font-mono"
+                        onChange={(raw, num) => handleInputChange('brickWidth', raw === '' ? '' : num)}
+                        variant="calcXs"
                       />
                     </div>
                     <div>
@@ -4802,12 +4741,11 @@ export default function CalculatorWorkspace({
                         <label htmlFor="bc-height" className="text-[9.5px]">Height</label>
                         <span className="text-[8px] font-mono leading-tight">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                       </div>
-                      <input 
-                        id="bc-height"
-                        type="number" 
+                      <NumericInput 
+                        id="bc-height" 
                         value={inputs.brickHeight ?? ''} 
-                        onChange={e => handleInputChange('brickHeight', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                        className="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-center text-slate-705 outline-none text-[11px] font-mono"
+                        onChange={(raw, num) => handleInputChange('brickHeight', raw === '' ? '' : num)}
+                        variant="calcXs"
                       />
                     </div>
                   </div>
@@ -4819,13 +4757,12 @@ export default function CalculatorWorkspace({
                       <label htmlFor="bc-joint">Mortar Joint</label>
                       <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">{unitSystem === 'metric' ? 'mm' : 'in'}</span>
                     </div>
-                    <input 
-                      id="bc-joint"
-                      type="number" 
+                    <NumericInput 
+                      id="bc-joint" 
                       step="0.1"
                       value={inputs.mortarJoint ?? ''} 
-                      onChange={e => handleInputChange('mortarJoint', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                      onChange={(raw, num) => handleInputChange('mortarJoint', raw === '' ? '' : num)}
+                      variant="calcPlain"
                     />
                   </div>
                   <div>
@@ -4849,12 +4786,11 @@ export default function CalculatorWorkspace({
                     <label htmlFor="bc-waste">Brick/Mortar Waste</label>
                     <span className="text-[10px] text-slate-400 font-mono font-bold uppercase">%</span>
                   </div>
-                  <input 
-                    id="bc-waste"
-                    type="number" 
+                  <NumericInput 
+                    id="bc-waste" 
                     value={inputs.wastePercent ?? 10} 
-                    onChange={e => handleInputChange('wastePercent', e.target.value === '' ? '' : parseInt(e.target.value))}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none"
+                    onChange={(raw, num) => handleInputChange('wastePercent', raw === '' ? '' : parseInt(raw))}
+                    variant="calcPlain"
                   />
                 </div>
               </>
