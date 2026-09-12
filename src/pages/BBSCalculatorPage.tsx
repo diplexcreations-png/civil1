@@ -57,7 +57,7 @@ export default function BBSCalculatorPage() {
   const description = STRUCTURE_DESCRIPTIONS[validType] || `Professional bar bending schedule calculator for ${name.toLowerCase()} reinforcement. Generates cutting lengths, bar marks, weight schedules, and shape codes.`;
   const faqs = [
     { question: `What reinforcement details are calculated for ${name}?`, answer: `The ${name} BBS calculator generates complete reinforcement schedules including bar marks, diameters, cutting lengths, total lengths, weights per bar and total, shape codes with bending dimensions, and bar counts.` },
-    { question: 'Which design codes can I use?', answer: 'You can switch between ACI 318, BS 8110, Eurocode 2, and IS 456 standards. The calculator adjusts development lengths, hook lengths, and lap lengths according to the selected code.' },
+    { question: 'How should I use the standard selector?', answer: 'Use the selector as an educational reference setting. Verify every development length, hook, lap and detailing requirement against the applicable code edition, project specification and qualified professional review.' },
     { question: 'Can I manage multiple members?', answer: 'Yes. Toggle Multi-Member mode to add, duplicate, and manage multiple independent members. Each member has its own inputs, cover, grade, and quantity, with a project-wide material summary.' },
   ];
 

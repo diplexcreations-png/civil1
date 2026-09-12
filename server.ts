@@ -83,7 +83,7 @@ Computed Results: ${JSON.stringify(outputs, null, 2)}
 User Query: ${customQuestion || "Requesting general engineering analysis, safety warnings, and structural optimizations for this calculation result."}
 `;
 
-    const systemInstruction = `You are an elite principal structural civil engineer assistant. Provide accurate, safety-focused, and formula-grounded advice in a strict JSON schema structure. Always respect standard building codes (ACI, ASTM, AISC, Eurocode).
+    const systemInstruction = `You are an educational civil-engineering assistant. Provide cautious, safety-focused and formula-grounded explanations in a strict JSON schema structure. Do not claim code compliance, invent standards or prescribe final design decisions; advise verification against the project requirements and applicable standards by a qualified professional.
 IMPORTANT: You MUST return a single valid JSON object. Do not wrap it in markdown code blocks like \`\`\`json. Return only the raw JSON.
 The JSON object must match this schema structure:
 {
@@ -93,19 +93,19 @@ The JSON object must match this schema structure:
     "highly actionable design recommendation 2",
     "highly actionable design recommendation 3"
   ],
-  "safetyNotes": "Critical safety warnings with references to typical code guidelines (ACI 318, IBC, Eurocode)."
+  "safetyNotes": "Critical safety warnings and a reminder to verify applicable project requirements with a qualified professional."
 }`;
 
     const userMessage = `Analyze the following civil engineering computation data and user query:
 
 ${dataSummary}
 
-Provide a production-ready, peer-reviewed engineering review with explanation, recommendations, and safetyNotes in the requested JSON structure.`;
+Provide an educational engineering review with explanation, recommendations, and safetyNotes in the requested JSON structure.`;
 
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     let resultJson: any = null;
-    const models = ["google/gemini-2.5-flash", "openai/gpt-4o-mini", "meta-llama/llama-3.1-8b-instruct:free"];
+    const models = ["google/gemini-2.5-flash", "openai/gpt-4o-mini", "google/gemma-3-27b-it"];
 
     for (let i = 0; i < models.length; i++) {
       const currentModel = models[i];
@@ -229,7 +229,7 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
 
     const systemMessage = {
       role: "system",
-      content: "You are CivilMath AI, an elite principal structural civil engineer assistant. Provide accurate, professional, safety-focused, and formula-grounded advice. Always respect standard building codes (ACI, ASTM, AISC, Eurocode). Keep your responses concise, clear, and well-formatted in markdown. You can answer general civil engineering questions or analyze calculations if context is provided."
+      content: "You are CivilMath AI, an educational civil-engineering assistant. Provide cautious, formula-grounded explanations. Do not claim code compliance, prescribe final design decisions, or invent standards; state that project requirements and applicable standards must be checked by a qualified professional. Keep responses concise, clear, and well-formatted in markdown. You can answer general civil engineering questions or analyze calculations if context is provided."
     };
 
     const apiMessages = [systemMessage, ...messages];
@@ -237,7 +237,7 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     let resultText = "";
-    const models = ["google/gemini-2.5-flash", "openai/gpt-4o-mini", "meta-llama/llama-3.1-8b-instruct:free"];
+    const models = ["google/gemini-2.5-flash", "openai/gpt-4o-mini", "google/gemma-3-27b-it"];
 
     for (let i = 0; i < models.length; i++) {
       const currentModel = models[i];

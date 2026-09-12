@@ -173,9 +173,9 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
       const height = h / dpr;
 
       // Draw grid pattern (Engineering workspace grid)
-      ctx.strokeStyle = '#111827'; 
+      ctx.strokeStyle = 'rgba(101, 117, 101, 0.08)'; 
       ctx.lineWidth = 0.5;
-      const gridSize = 25;
+      const gridSize = 24;
       for (let x = 0; x < width; x += gridSize) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -189,15 +189,15 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
         ctx.stroke();
       }
 
-      // Watermark Text / Active State Indicators
-      ctx.fillStyle = '#475569';
-      ctx.font = '9px monospace';
-      ctx.fillText(`CIVILMATH ANALYTICAL ENGINE // V3D`, 16, 22);
+      // Technical Telemetry & Model Indicators (No brand name)
+      ctx.fillStyle = '#7B8978';
+      ctx.font = '600 9px monospace';
+      ctx.fillText(`ENGINEERING CAD MODEL // SCALE 1:100`, 16, 22);
 
       // Camera State Telemetry
       const angleYawDeg = Math.round((yaw * 180) / Math.PI);
       const anglePitchDeg = Math.round((pitch * 180) / Math.PI);
-      ctx.fillText(`ROTATION // YAW: ${angleYawDeg}° PITCH: ${anglePitchDeg}° ZOOM: ${zoom.toFixed(2)}x`, 16, 35);
+      ctx.fillText(`ROTATION: YAW ${angleYawDeg}° · PITCH ${anglePitchDeg}° · ZOOM ${zoom.toFixed(2)}x`, 16, 35);
 
       // Delegate rendering to corresponding shape drawer
       switch (calculatorId) {
@@ -298,14 +298,14 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
       const v6 = project(L, W, T, cx, cy, 1, L, W, T);
       const v7 = project(0, W, T, cx, cy, 1, L, W, T);
 
-      // Define faces with center depths to do painter's algorithm sorting so they don't look weird when rotating
+      // Define faces with center depths to do painter's algorithm sorting
       const faces = [
-        { name: 'bottom', indices: [0, 1, 2, 3], color: 'rgba(30, 41, 59, 0.45)', stroke: 'rgba(71, 85, 105, 0.4)' },
-        { name: 'top', indices: [4, 5, 6, 7], color: isSlabStressMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(30, 41, 59, 0.75)', stroke: '#0A84FF' },
-        { name: 'front_left', indices: [0, 1, 5, 4], color: 'rgba(10, 132, 255, 0.12)', stroke: '#0A84FF' },
-        { name: 'front_right', indices: [1, 2, 6, 5], color: 'rgba(10, 132, 255, 0.18)', stroke: '#0A84FF' },
-        { name: 'back_right', indices: [2, 3, 7, 6], color: 'rgba(10, 132, 255, 0.08)', stroke: 'rgba(10, 132, 255, 0.5)' },
-        { name: 'back_left', indices: [3, 0, 4, 7], color: 'rgba(10, 132, 255, 0.08)', stroke: 'rgba(10, 132, 255, 0.5)' }
+        { name: 'bottom', indices: [0, 1, 2, 3], color: 'rgba(175, 168, 156, 0.6)', stroke: '#70675B' },
+        { name: 'top', indices: [4, 5, 6, 7], color: isSlabStressMode ? 'rgba(101, 117, 101, 0.25)' : '#D6D0C5', stroke: '#4A443B' },
+        { name: 'front_left', indices: [0, 1, 5, 4], color: '#B5ADA0', stroke: '#4A443B' },
+        { name: 'front_right', indices: [1, 2, 6, 5], color: '#C2BBAE', stroke: '#4A443B' },
+        { name: 'back_right', indices: [2, 3, 7, 6], color: '#A69E91', stroke: '#5C5448' },
+        { name: 'back_left', indices: [3, 0, 4, 7], color: '#A69E91', stroke: '#5C5448' }
       ];
 
       const pArr = [v0, v1, v2, v3, v4, v5, v6, v7];
@@ -321,7 +321,6 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
 
       // Draw faces & edges
       faces.forEach(face => {
-        // Skip some faces if wireframe mode is checked
         if (showWireframeOnly && face.name !== 'top' && face.name !== 'bottom') return;
 
         ctx.beginPath();
@@ -335,11 +334,10 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
 
         if (!showWireframeOnly) {
           if (isSlabStressMode && face.name === 'top') {
-            // Draw a beautiful structural analytical stress heat map on slab top face
             const grad = ctx.createRadialGradient((v4.x+v6.x)/2, (v4.y+v6.y)/2, 5, (v4.x+v6.x)/2, (v4.y+v6.y)/2, L * 0.7);
-            grad.addColorStop(0, 'rgba(239, 68, 68, 0.75)'); // Red deflection center
-            grad.addColorStop(0.5, 'rgba(245, 158, 11, 0.45)'); // Amber transition
-            grad.addColorStop(1, 'rgba(16, 185, 129, 0.15)'); // Green edges
+            grad.addColorStop(0, 'rgba(181, 111, 80, 0.6)');
+            grad.addColorStop(0.5, 'rgba(217, 185, 110, 0.4)');
+            grad.addColorStop(1, 'rgba(101, 117, 101, 0.2)');
             ctx.fillStyle = grad;
           } else {
             ctx.fillStyle = face.color;
@@ -348,61 +346,49 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
         }
 
         ctx.strokeStyle = face.stroke;
-        ctx.lineWidth = face.name === 'top' ? 2 : 1;
+        ctx.lineWidth = face.name === 'top' ? 1.8 : 1.2;
         ctx.stroke();
       });
 
       // ----------------------------------------------------
-      // DRAW DETAILED COARSE AGGREGATES & PEBBLES INSIDE 3D SLAB (ADVANCED MATH!)
+      // DRAW REALISTIC CONCRETE TEXTURE & SUBTLE AGGREGATE GRAINS
       // ----------------------------------------------------
       if (!showWireframeOnly && !isSlabStressMode) {
         ctx.save();
-        ctx.lineWidth = 1;
-        
-        // Define clean pseudo-random pebbles distributed throughout the slab volume
-        // We use modular arithmetic to make them stay structurally fixed when rotating!
-        const pebbleSeedCount = 45;
+        const pebbleSeedCount = 40;
         for (let i = 1; i <= pebbleSeedCount; i++) {
-          const rx = (i * 17) % L;
+          const rx = (i * 19) % L;
           const ry = (i * 31) % W;
-          const rz = (i * 47) % T;
+          const rz = (i * 43) % T;
           
-          // Project the 3D pebble coordinate
           const pt = project(rx, ry, rz, cx, cy, 1, L, W, T);
-          
-          // Only draw if within reasonable bounds
           const pType = i % 3;
           if (pType === 0) {
-            // Coarse gravel pebble (gray poly)
-            ctx.fillStyle = 'rgba(148, 163, 184, 0.45)';
-            ctx.strokeStyle = 'rgba(203, 213, 225, 0.5)';
+            ctx.fillStyle = 'rgba(92, 85, 75, 0.35)';
             ctx.beginPath();
-            ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+            ctx.arc(pt.x, pt.y, 1.8, 0, Math.PI * 2);
             ctx.fill();
-            ctx.stroke();
           } else if (pType === 1) {
-            // Fine aggregate pebble (orange/yellow silica)
-            ctx.fillStyle = 'rgba(245, 158, 11, 0.4)';
+            ctx.fillStyle = 'rgba(163, 155, 142, 0.45)';
             ctx.beginPath();
             ctx.arc(pt.x, pt.y, 1.2, 0, Math.PI * 2);
             ctx.fill();
           } else {
-            // Reinforcement rebar speckle or carbon node
-            ctx.fillStyle = 'rgba(10, 132, 255, 0.35)';
-            ctx.fillRect(pt.x - 1, pt.y - 1, 2, 2);
+            ctx.fillStyle = 'rgba(74, 68, 59, 0.25)';
+            ctx.fillRect(pt.x - 0.7, pt.y - 0.7, 1.4, 1.4);
           }
         }
         ctx.restore();
       }
 
       // ----------------------------------------------------
-      // DYNAMIC 3D ROTATING DIMENSION GUIDELINES
+      // TECHNICAL CAD DIMENSION LEADER LINES (WARM CHARCOAL)
       // ----------------------------------------------------
       ctx.save();
-      ctx.strokeStyle = '#22C55E';
-      ctx.fillStyle = '#22C55E';
-      ctx.lineWidth = 1;
-      ctx.font = '9px monospace';
+      ctx.strokeStyle = '#20231F';
+      ctx.fillStyle = '#20231F';
+      ctx.lineWidth = 1.2;
+      ctx.font = '600 11px Inter, system-ui, sans-serif';
 
       // 1. Length guideline (offset along Y axis)
       const dy = -W * 0.18;
@@ -414,14 +400,14 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
       ctx.lineTo(l_end.x, l_end.y);
       ctx.stroke();
       
-      // Guide tick marks
+      // Extension lines & 45-deg CAD ticks
       ctx.beginPath();
-      ctx.moveTo(l_start.x, l_start.y - 4); ctx.lineTo(l_start.x, l_start.y + 4);
-      ctx.moveTo(l_end.x, l_end.y - 4); ctx.lineTo(l_end.x, l_end.y + 4);
+      ctx.moveTo(l_start.x - 4, l_start.y - 4); ctx.lineTo(l_start.x + 4, l_start.y + 4);
+      ctx.moveTo(l_end.x - 4, l_end.y - 4); ctx.lineTo(l_end.x + 4, l_end.y + 4);
       ctx.stroke();
 
-      const labelLengthText = `L = ${length} ${isM ? 'm' : 'ft'}`;
-      ctx.fillText(labelLengthText, (l_start.x + l_end.x) / 2 - 25, (l_start.y + l_end.y) / 2 - 6);
+      const labelLengthText = `${Number(length).toFixed(2)} ${isM ? 'm' : 'ft'}`;
+      ctx.fillText(labelLengthText, (l_start.x + l_end.x) / 2 - 18, (l_start.y + l_end.y) / 2 - 8);
 
       // 2. Width guideline (offset along X axis)
       const dx = -L * 0.18;
@@ -434,29 +420,31 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
       ctx.stroke();
       
       ctx.beginPath();
-      ctx.moveTo(w_start.x - 3, w_start.y - 3); ctx.lineTo(w_start.x + 3, w_start.y + 3);
-      ctx.moveTo(w_end.x - 3, w_end.y - 3); ctx.lineTo(w_end.x + 3, w_end.y + 3);
+      ctx.moveTo(w_start.x - 4, w_start.y - 4); ctx.lineTo(w_start.x + 4, w_start.y + 4);
+      ctx.moveTo(w_end.x - 4, w_end.y - 4); ctx.lineTo(w_end.x + 4, w_end.y + 4);
       ctx.stroke();
 
-      const labelWidthText = `W = ${slabWidth} ${isM ? 'm' : 'ft'}`;
-      ctx.fillText(labelWidthText, (w_start.x + w_end.x) / 2 - 35, (w_start.y + w_end.y) / 2 - 6);
+      const labelWidthText = `${Number(slabWidth).toFixed(2)} ${isM ? 'm' : 'ft'}`;
+      ctx.fillText(labelWidthText, (w_start.x + w_end.x) / 2 - 20, (w_start.y + w_end.y) / 2 - 8);
 
-      // 3. Thickness guideline (vertical projection)
+      // 3. Depth/Thickness guideline (vertical projection)
       const t_start = project(L, W, 0, cx, cy, 1, L, W, T);
       const t_end = project(L, W, T, cx, cy, 1, L, W, T);
 
       ctx.beginPath();
-      ctx.moveTo(t_start.x + 10, t_start.y);
-      ctx.lineTo(t_end.x + 10, t_end.y);
+      ctx.moveTo(t_start.x + 12, t_start.y);
+      ctx.lineTo(t_end.x + 12, t_end.y);
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(t_start.x + 7, t_start.y); ctx.lineTo(t_start.x + 13, t_start.y);
-      ctx.moveTo(t_end.x + 7, t_end.y); ctx.lineTo(t_end.x + 13, t_end.y);
+      ctx.moveTo(t_start.x + 8, t_start.y); ctx.lineTo(t_start.x + 16, t_start.y);
+      ctx.moveTo(t_end.x + 8, t_end.y); ctx.lineTo(t_end.x + 16, t_end.y);
       ctx.stroke();
 
-      const labelThickText = `T = ${thickness} ${isM ? 'mm' : 'in'}`;
-      ctx.fillText(labelThickText, t_end.x + 15, (t_start.y + t_end.y) / 2 + 3);
+      // Show depth in meters if metric e.g. 0.15 m
+      const depthDisplayVal = isM && thickness > 1 ? (thickness / 1000).toFixed(2) : Number(thickness).toFixed(2);
+      const labelThickText = `${depthDisplayVal} ${isM ? 'm' : 'in'}`;
+      ctx.fillText(labelThickText, t_end.x + 20, (t_start.y + t_end.y) / 2 + 4);
 
       ctx.restore();
 
@@ -2442,24 +2430,24 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[320px] md:h-full min-h-[260px] bg-[#070B12] border border-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col justify-between"
+      className="relative w-full h-[320px] md:h-full min-h-[260px] bg-[#FAF8F5] dark:bg-[#1E221E] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl overflow-hidden shadow-xs flex flex-col justify-between"
     >
       {/* VISUAL ENGINE STATE HUB */}
-      <div className="absolute top-3 right-4 flex items-center space-x-1.5 bg-slate-950/85 px-2.5 py-1.5 rounded-lg border border-slate-800/80 backdrop-blur-md z-10">
-        <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse mr-0.5"></span>
-        <span className="text-[9px] font-mono font-black text-slate-400 uppercase tracking-widest">
-          {has3DSupport ? 'ROTATING 3D ACTIVE' : 'VISUAL ANALYTICS ACTIVE'}
+      <div className="absolute top-3 right-4 flex items-center space-x-1.5 bg-white/90 dark:bg-[#242924]/90 px-2.5 py-1.5 rounded-lg border border-[#D8D0C2] dark:border-[#384238] backdrop-blur-md z-10 shadow-xs">
+        <span className="w-1.5 h-1.5 bg-[#657565] rounded-full mr-0.5"></span>
+        <span className="text-[9px] font-mono font-bold text-[#657565] dark:text-[#A4B2A4] uppercase tracking-wider">
+          {has3DSupport ? '3D MODEL READY' : 'CAD VIEW READY'}
         </span>
       </div>
 
       {/* OVERLAY ACTIONS BAR (HUD CAMERA PLATFORM) */}
       {has3DSupport && (
-        <div className="absolute bottom-3 right-4 flex items-center space-x-1 bg-slate-950/90 p-1 rounded-lg border border-slate-800/80 backdrop-blur-md z-10">
+        <div className="absolute bottom-3 right-4 flex items-center space-x-1 bg-white/95 dark:bg-[#242924]/95 p-1 rounded-xl border border-[#D8D0C2] dark:border-[#384238] backdrop-blur-md z-10 shadow-xs">
           <button
             type="button"
             onClick={() => setAutoRotate(!autoRotate)}
             title={autoRotate ? 'Stop Automated Orbit' : 'Automated 3D Orbit Spin'}
-            className={`p-1.5 rounded-md hover:bg-slate-800 transition-colors cursor-pointer text-xs ${autoRotate ? 'text-[#0A84FF] bg-blue-500/10' : 'text-slate-400'}`}
+            className={`p-1.5 rounded-lg hover:bg-[#F3F1EC] dark:hover:bg-[#2E352E] transition-colors cursor-pointer text-xs ${autoRotate ? 'text-white bg-[#657565]' : 'text-[#7B8978]'}`}
           >
             {autoRotate ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </button>
@@ -2468,7 +2456,7 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
             type="button"
             onClick={handleZoomIn}
             title="Zoom Camera In"
-            className="p-1.5 rounded-md hover:bg-slate-800 transition-colors text-slate-400 hover:text-white cursor-pointer text-xs"
+            className="p-1.5 rounded-lg hover:bg-[#F3F1EC] dark:hover:bg-[#2E352E] transition-colors text-[#7B8978] hover:text-[#20231F] dark:hover:text-white cursor-pointer text-xs"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
@@ -2477,7 +2465,7 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
             type="button"
             onClick={handleZoomOut}
             title="Zoom Camera Out"
-            className="p-1.5 rounded-md hover:bg-slate-800 transition-colors text-slate-400 hover:text-white cursor-pointer text-xs"
+            className="p-1.5 rounded-lg hover:bg-[#F3F1EC] dark:hover:bg-[#2E352E] transition-colors text-[#7B8978] hover:text-[#20231F] dark:hover:text-white cursor-pointer text-xs"
           >
             <ZoomOut className="w-4 h-4" />
           </button>
@@ -2486,72 +2474,70 @@ export default function Visual3DPreview({ calculatorId, inputs, outputs, unitSys
             type="button"
             onClick={() => setShowWireframeOnly(!showWireframeOnly)}
             title="Toggle Wireframe Blueprint Mode"
-            className={`p-1.5 rounded-md hover:bg-slate-800 transition-colors cursor-pointer text-xs ${showWireframeOnly ? 'text-amber-500 bg-amber-500/10' : 'text-slate-400'}`}
+            className={`p-1.5 rounded-lg hover:bg-[#F3F1EC] dark:hover:bg-[#2E352E] transition-colors cursor-pointer text-xs ${showWireframeOnly ? 'text-white bg-[#657565]' : 'text-[#7B8978]'}`}
           >
             <Compass className="w-4 h-4" />
           </button>
 
-          <div className="w-[1px] h-4 bg-slate-800 mx-1"></div>
+          <div className="w-[1px] h-4 bg-[#D8D0C2] dark:bg-[#384238] mx-1"></div>
 
           <button
             type="button"
             onClick={handleResetCamera}
             title="Reset Camera Angle"
-            className="p-1.5 rounded-md hover:bg-slate-800 transition-colors text-slate-400 hover:text-white cursor-pointer text-xs"
+            className="p-1.5 rounded-lg hover:bg-[#F3F1EC] dark:hover:bg-[#2E352E] transition-colors text-[#7B8978] hover:text-[#20231F] dark:hover:text-white cursor-pointer text-xs"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* 2D PLAN VS 3D CYLINDER VIEW SELECTOR (FOR STRUCTURAL MEMBERS) */}
-      {isStructural && (
-        <div className="absolute top-3 left-4 flex flex-col space-y-1.5 z-10 text-left">
-          <div className="flex space-x-1 bg-slate-950/95 p-0.5 rounded-lg border border-slate-800/80 backdrop-blur-md">
+      {/* 2D / 3D VIEW SELECTOR */}
+      <div className="absolute top-3 left-4 flex flex-col space-y-1.5 z-10 text-left">
+        <div className="flex space-x-1 bg-white/95 dark:bg-[#242924]/95 p-0.5 rounded-xl border border-[#D8D0C2] dark:border-[#384238] backdrop-blur-md shadow-xs">
+          <button
+            type="button"
+            onClick={() => setViewMode('2d')}
+            className={`px-3 py-1 text-[10px] font-bold font-mono uppercase rounded-lg transition-all cursor-pointer ${viewMode === '2d' ? 'bg-[#657565] text-white shadow-xs' : 'text-[#7B8978] hover:text-[#20231F]'}`}
+          >
+            2D
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('3d')}
+            className={`px-3 py-1 text-[10px] font-bold font-mono uppercase rounded-lg transition-all cursor-pointer ${viewMode === '3d' ? 'bg-[#657565] text-white shadow-xs' : 'text-[#7B8978] hover:text-[#20231F]'}`}
+          >
+            3D
+          </button>
+        </div>
+
+        {/* SECONDARY BEAM LEVEL DIAGRAM TABS FOR 2D ANALYSIS */}
+        {viewMode === '2d' && (calculatorId === 'structural-beam' || calculatorId === 'structural-deflection') && (
+          <div className="flex space-x-0.5 bg-white/90 dark:bg-[#242924]/90 p-0.5 rounded-md border border-[#D8D0C2] dark:border-[#384238] w-fit">
             <button
               type="button"
-              onClick={() => setViewMode('2d')}
-              className={`px-2.5 py-1 text-[9px] font-bold font-mono uppercase rounded-md transition-all cursor-pointer ${viewMode === '2d' ? 'bg-[#0A84FF] text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
+              onClick={() => setBeamTab('profile')}
+              className={`px-1.5 py-0.5 text-[8px] font-semibold font-mono uppercase rounded-sm transition-all cursor-pointer ${beamTab === 'profile' ? 'bg-[#657565] text-white' : 'text-[#7B8978] hover:text-[#20231F]'}`}
             >
-              2D Blueprint
+              Deflection
             </button>
             <button
               type="button"
-              onClick={() => setViewMode('3d')}
-              className={`px-2.5 py-1 text-[9px] font-bold font-mono uppercase rounded-md transition-all cursor-pointer ${viewMode === '3d' ? 'bg-emerald-500 text-slate-950 shadow-xs' : 'text-slate-400 hover:text-white'}`}
+              onClick={() => setBeamTab('sfd')}
+              className={`px-1.5 py-0.5 text-[8px] font-semibold font-mono uppercase rounded-sm transition-all cursor-pointer ${beamTab === 'sfd' ? 'bg-[#B56F50]/20 text-[#B56F50]' : 'text-[#7B8978] hover:text-[#20231F]'}`}
             >
-              3D Render
+              SFD
+            </button>
+            <button
+              type="button"
+              onClick={() => setBeamTab('bmd')}
+              className={`px-1.5 py-0.5 text-[8px] font-semibold font-mono uppercase rounded-sm transition-all cursor-pointer ${beamTab === 'bmd' ? 'bg-[#657565]/20 text-[#657565]' : 'text-[#7B8978] hover:text-[#20231F]'}`}
+            >
+              BMD
             </button>
           </div>
-
-          {/* SECONDARY BEAM LEVEL DIAGRAM TABS FOR 2D ANALYSIS */}
-          {viewMode === '2d' && (calculatorId === 'structural-beam' || calculatorId === 'structural-deflection') && (
-            <div className="flex space-x-0.5 bg-slate-950/90 p-0.5 rounded-md border border-slate-900/60 w-fit">
-              <button
-                type="button"
-                onClick={() => setBeamTab('profile')}
-                className={`px-1.5 py-0.5 text-[8px] font-semibold font-mono uppercase rounded-sm transition-all cursor-pointer ${beamTab === 'profile' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'}`}
-              >
-                Deflection
-              </button>
-              <button
-                type="button"
-                onClick={() => setBeamTab('sfd')}
-                className={`px-1.5 py-0.5 text-[8px] font-semibold font-mono uppercase rounded-sm transition-all cursor-pointer ${beamTab === 'sfd' ? 'bg-amber-500/10 text-amber-450' : 'text-slate-500 hover:text-slate-300'}`}
-              >
-                SFD
-              </button>
-              <button
-                type="button"
-                onClick={() => setBeamTab('bmd')}
-                className={`px-1.5 py-0.5 text-[8px] font-semibold font-mono uppercase rounded-sm transition-all cursor-pointer ${beamTab === 'bmd' ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
-              >
-                BMD
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* DETAILED INTERACTIVE DRAG ADVICE TO USER */}
       {has3DSupport && (

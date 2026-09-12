@@ -1,7 +1,7 @@
 const MODELS = [
   "google/gemini-2.5-flash",
   "openai/gpt-4o-mini",
-  "meta-llama/llama-3.1-8b-instruct:free",
+  "google/gemma-3-27b-it",
 ];
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

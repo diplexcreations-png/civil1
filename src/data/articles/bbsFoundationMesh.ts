@@ -3,7 +3,7 @@ import { ArticleData } from './index';
 export function getArticle(): ArticleData {
   return {
     seoTitle: 'BBS for Foundation Mesh Reinforcement | Bar Bending Schedule Calculator',
-    metaDescription: 'Complete BBS calculator for foundation mesh reinforcement. Covers top and bottom mesh, bar diameter & spacing, chairs, lap length. ACI 318, IS 456, BS 8666 compliant. Free tool for civil engineers.',
+    metaDescription: 'Complete BBS calculator for foundation mesh reinforcement. Covers top and bottom mesh, bar diameter & spacing, chairs, lap length. Referencing ACI 318, IS 456, BS 8666. Free tool for civil engineers.',
     slug: 'bbs-foundation-mesh',
     primaryKeyword: 'BBS for Foundation Mesh',
     secondaryKeywords: [
@@ -359,7 +359,7 @@ The total reinforcement weight is the sum of all four mesh layers plus the chair
     },
     resultExplanation: `The BBS Foundation Mesh Calculator output presents the reinforcement schedule in a clear layer-by-layer format. Each of the four mesh layers (bottom X, bottom Y, top X, top Y) is displayed with its own bar mark, bar diameter, spacing, number of bars, individual cutting length (including lap allowances), total length, and weight. The chair bars are listed separately with their height and grid arrangement. This structured format allows the site team to place the mesh in the correct sequence: bottom X bars first, then bottom Y bars on top, followed by chairs, and finally the top layers in the appropriate order.
 
-The minimum reinforcement check is performed for each layer and direction, with clear pass/fail indicators. If a layer fails the minimum requirement, the calculator suggests a revised spacing or diameter to achieve compliance. The example above demonstrates this feature: the initially specified top X bars at 200 mm spacing were insufficient, and the calculator recommended revising to 150 mm spacing to meet the 0.12% minimum. This proactive check ensures that the BBS is code-compliant before being used for procurement or construction.
+The minimum reinforcement check is performed for each layer and direction, with clear pass/fail indicators. If a layer fails the minimum requirement, the calculator suggests a revised spacing or diameter to satisfy the requirement. The example above demonstrates this feature: the initially specified top X bars at 200 mm spacing were insufficient, and the calculator recommended revising to 150 mm spacing to meet the 0.12% minimum. This proactive check ensures that the BBS is code-compliant before being used for procurement or construction.
 
 The reinforcement density is a key output metric that enables rapid comparison with industry benchmarks. For mat foundations, the typical density ranges from 80 kg/m³ for lightly loaded residential rafts to 200 kg/m³ for heavily loaded industrial mats. A density significantly below 80 kg/m³ may indicate insufficient reinforcement, while a density above 200 kg/m³ suggests potential congestion issues. The example density of 42.5 kg/m³ is low and appropriate for the light loading conditions assumed.
 

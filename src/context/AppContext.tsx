@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { UnitSystem, SavedCalculation } from '../types';
 
 interface AppContextType {
@@ -17,6 +17,9 @@ interface AppContextType {
   loadedCalculation: SavedCalculation | null;
   activeCalcId: string;
   setActiveCalcId: (id: string) => void;
+  favoriteCalculatorIds: string[];
+  toggleFavoriteCalculator: (id: string) => void;
+  recentCalculatorIds: string[];
   isDraftingDeskOpen: boolean;
   setIsDraftingDeskOpen: (v: boolean) => void;
   draftingNotes: string;
@@ -33,7 +36,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('civilmath_theme') as 'light' | 'dark') || 'light');
   const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>([]);
   const [loadedCalculation, setLoadedCalculation] = useState<SavedCalculation | null>(null);
-  const [activeCalcId, setActiveCalcId] = useState<string>('concrete-volume');
+  const [activeCalcId, setActiveCalcIdState] = useState<string>('concrete-volume');
+  const [favoriteCalculatorIds, setFavoriteCalculatorIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('civilmath_favorite_calculators') || '[]'); } catch { return []; }
+  });
+  const [recentCalculatorIds, setRecentCalculatorIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('civilmath_recent_calculators') || '[]'); } catch { return []; }
+  });
   const [isDraftingDeskOpen, setIsDraftingDeskOpen] = useState<boolean>(() => localStorage.getItem('civilmath_drafting_desk_open') === 'true');
   const [draftingNotes, setDraftingNotes] = useState<string>(() => localStorage.getItem('civilmath_drafting_notes') || '');
   const [copiedText, setCopiedText] = useState<string | null>(null);
@@ -46,6 +55,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => { localStorage.setItem('civilmath_theme', theme); }, [theme]);
   useEffect(() => { localStorage.setItem('civilmath_drafting_desk_open', String(isDraftingDeskOpen)); }, [isDraftingDeskOpen]);
   useEffect(() => { localStorage.setItem('civilmath_drafting_notes', draftingNotes); }, [draftingNotes]);
+  useEffect(() => { localStorage.setItem('civilmath_favorite_calculators', JSON.stringify(favoriteCalculatorIds)); }, [favoriteCalculatorIds]);
+  useEffect(() => { localStorage.setItem('civilmath_recent_calculators', JSON.stringify(recentCalculatorIds)); }, [recentCalculatorIds]);
 
   useEffect(() => {
     try {
@@ -54,40 +65,65 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, []);
 
-  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
+  const toggleTheme = useCallback(() => setTheme(prev => prev === 'light' ? 'dark' : 'light'), []);
 
-  const handleSaveCalculation = (newCalc: SavedCalculation) => {
-    const updated = [newCalc, ...savedCalculations];
-    setSavedCalculations(updated);
-    localStorage.setItem('civilmath_saved_calcs', JSON.stringify(updated));
-  };
+  const setActiveCalcId = useCallback((id: string) => {
+    setActiveCalcIdState(prev => prev === id ? prev : id);
+    setRecentCalculatorIds(current => {
+      if (current[0] === id) return current;
+      return [id, ...current.filter(item => item !== id)].slice(0, 8);
+    });
+  }, []);
 
-  const handleDeleteCalculation = (id: string) => {
-    const updated = savedCalculations.filter(c => c.id !== id);
-    setSavedCalculations(updated);
-    localStorage.setItem('civilmath_saved_calcs', JSON.stringify(updated));
-  };
+  const handleSaveCalculation = useCallback((newCalc: SavedCalculation) => {
+    setSavedCalculations(prev => {
+      const updated = [newCalc, ...prev];
+      localStorage.setItem('civilmath_saved_calcs', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-  const handleLoadSavedCalculation = (calc: SavedCalculation) => {
+  const handleDeleteCalculation = useCallback((id: string) => {
+    setSavedCalculations(prev => {
+      const updated = prev.filter(c => c.id !== id);
+      localStorage.setItem('civilmath_saved_calcs', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const handleLoadSavedCalculation = useCallback((calc: SavedCalculation) => {
     setLoadedCalculation(calc);
     setActiveCalcId(calc.calculatorId);
-  };
+  }, [setActiveCalcId]);
 
-  const handleCopy = (text: string, label: string) => {
+  const toggleFavoriteCalculator = useCallback((id: string) => {
+    setFavoriteCalculatorIds(current => current.includes(id) ? current.filter(item => item !== id) : [id, ...current]);
+  }, []);
+
+  const handleCopy = useCallback((text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedText(label);
     setTimeout(() => setCopiedText(null), 1500);
-  };
+  }, []);
+
+  const contextValue = useMemo<AppContextType>(() => ({
+    unitSystem, setUnitSystem, currency, setCurrency,
+    theme, setTheme, toggleTheme,
+    savedCalculations, setSavedCalculations, handleSaveCalculation, handleDeleteCalculation,
+    handleLoadSavedCalculation, loadedCalculation, activeCalcId, setActiveCalcId,
+    favoriteCalculatorIds, toggleFavoriteCalculator, recentCalculatorIds,
+    isDraftingDeskOpen, setIsDraftingDeskOpen, draftingNotes, setDraftingNotes,
+    copiedText, handleCopy,
+  }), [
+    unitSystem, currency, theme, toggleTheme,
+    savedCalculations, handleSaveCalculation, handleDeleteCalculation,
+    handleLoadSavedCalculation, loadedCalculation, activeCalcId, setActiveCalcId,
+    favoriteCalculatorIds, toggleFavoriteCalculator, recentCalculatorIds,
+    isDraftingDeskOpen, draftingNotes, copiedText, handleCopy
+  ]);
 
   return (
-    <AppContext.Provider value={{
-      unitSystem, setUnitSystem, currency, setCurrency,
-      theme, setTheme, toggleTheme,
-      savedCalculations, setSavedCalculations, handleSaveCalculation, handleDeleteCalculation,
-      handleLoadSavedCalculation, loadedCalculation, activeCalcId, setActiveCalcId,
-      isDraftingDeskOpen, setIsDraftingDeskOpen, draftingNotes, setDraftingNotes,
-      copiedText, handleCopy,
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

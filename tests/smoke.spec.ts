@@ -1,17 +1,21 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = 'https://www.civilmath.com';
+const BASE = process.env.BASE_URL || 'http://localhost:3000';
 
 const PAGES = [
   '/', '/bbs', '/structural', '/concrete', '/geotechnical', '/surveying', '/utilities',
-  '/bbs/footing', '/bbs/beam', '/bbs/column', '/bbs/slab', '/bbs/staircase',
-  '/bbs/retaining-wall', '/bbs/foundation-mesh',
+  '/bbs/footing', '/bbs/combined-footing', '/bbs/strip-footing', '/bbs/raft-foundation',
+  '/bbs/beam', '/bbs/plinth-beam', '/bbs/tie-beam', '/bbs/lintel-beam', '/bbs/column', '/bbs/pedestal',
+  '/bbs/slab', '/bbs/staircase', '/bbs/retaining-wall', '/bbs/foundation-mesh',
   '/concrete/volume', '/concrete/rebar', '/concrete/brick',
   '/structural/beam', '/structural/column', '/structural/slab', '/structural/steel-weight',
   '/surveying/hi', '/surveying/traverse',
   '/geotechnical/bearing-capacity', '/geotechnical/retaining-wall',
   '/utilities/unit-converter',
-  '/about', '/contact', '/privacy', '/dashboard',
+  '/about', '/contact', '/privacy', '/terms', '/disclaimer', '/guides',
+  '/guides/concrete-volume-calculation', '/guides/rebar-weight-formula',
+  '/formulas', '/tables', '/construction', '/boq-builder', '/dashboard',
+  '/calculators', '/faq',
 ];
 
 test.describe('Smoke tests', () => {
@@ -26,7 +30,7 @@ test.describe('Smoke tests', () => {
   test('404 page', async ({ page: p }) => {
     const response = await p.goto(`${BASE}/nonexistent`);
       expect(response?.status()).toBe(200);
-      await expect(p.locator('body')).toContainText('404');
+      await expect(p.locator('body')).toContainText('Page not found');
   });
 
   test('sitemap.xml', async ({ page: p }) => {
@@ -42,4 +46,29 @@ test.describe('Smoke tests', () => {
     const text = await p.locator('body').innerText();
     expect(text).toContain('Sitemap');
   });
+
+  test('indexable routes have one H1 and canonical SEO metadata', async ({ page: p }) => {
+    test.setTimeout(300000);
+    const indexablePages = PAGES.filter(path => path !== '/dashboard');
+    const titles = new Set<string>();
+    for (const path of indexablePages) {
+      console.log('TEST50: Visiting', path);
+      await p.goto(`${BASE}${path}`);
+      await expect(p.locator('h1')).toHaveCount(1);
+      const title = await p.title();
+      expect(title).not.toBe('');
+      expect(titles.has(title)).toBeFalsy();
+      titles.add(title);
+      await expect(p.locator('meta[name="description"]')).toHaveCount(1);
+      const canonical = p.locator('link[rel="canonical"]');
+      await expect(canonical).toHaveCount(1);
+      await expect(canonical).toHaveAttribute('href', `https://civilmath.com${path}`);
+    }
+  });
+
+  test('dashboard is not indexable', async ({ page: p }) => {
+    await p.goto(`${BASE}/dashboard`);
+    await expect(p.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+  });
+
 });

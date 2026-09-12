@@ -3,7 +3,7 @@ import { ArticleData } from './index';
 export function getArticle(): ArticleData {
   return {
     seoTitle: 'BBS for Cantilever Retaining Wall | Bar Bending Schedule Calculator',
-    metaDescription: 'Complete BBS calculator for cantilever retaining walls. Covers stem height, base width, vertical and horizontal bars, base slab and dowel reinforcement. ACI 318, IS 456, BS 8666 compliant.',
+    metaDescription: 'Complete BBS calculator for cantilever retaining walls. Covers stem height, base width, vertical and horizontal bars, base slab and dowel reinforcement. Referencing ACI 318, IS 456, BS 8666.',
     slug: 'bbs-retaining-wall',
     primaryKeyword: 'BBS for Retaining Wall',
     secondaryKeywords: [

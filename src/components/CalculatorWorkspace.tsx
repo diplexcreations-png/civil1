@@ -4,11 +4,14 @@ import {
   Layers, GitCommit, Grid, Server, Anchor, Trello, Compass, TrendingUp, RefreshCw, 
   Sparkles, Check, AlertTriangle, HelpCircle, Save, Share2, Clipboard, Printer, Undo2, 
   ArrowRight, FileText, ListOrdered, Code, FileSpreadsheet, Plus, Trash2, Layout,
-  ChevronDown, ChevronUp
+  ChevronDown, ChevronUp, Building2, Copy, BookOpen, Calculator, Box
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import XLSX from 'xlsx-js-style';
 import { UnitSystem, SavedCalculation, CURRENCY_MAPPING } from '../types';
+import { useProject } from '../context/ProjectContext';
+import { ExportModal } from './ExportModal';
+import { encodeCalculationToUrl, parseCalculationFromUrl, copyShareLinkToClipboard } from '../utils/shareUrl';
 import Visual3DPreview from './Visual3DPreview';
 import BrickEstimator3D from './BrickEstimator3D';
 import BBSCalculator from './BBSCalculator';
@@ -537,6 +540,13 @@ export default function CalculatorWorkspace({
   const formulaRef = FORMULA_REFERENCES[calculatorId];
   const currencySymbol = CURRENCY_MAPPING[currency]?.symbol || '$';
 
+  // Project BOQ & Sharing State
+  const { addItemToProject, setIsBOQDrawerOpen } = useProject();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [shareToast, setShareToast] = useState(false);
+  const [projectToast, setProjectToast] = useState(false);
+  const [projectMultiplier, setProjectMultiplier] = useState(1);
+
   // Layout Controls
   const [isVisualPreviewHidden, setIsVisualPreviewHidden] = useState<boolean>(false);
   const [surveyViewMode, setSurveyViewMode] = useState<'table' | 'cards'>('table');
@@ -875,16 +885,16 @@ export default function CalculatorWorkspace({
 
   const resetToDefaults = () => {
     let defs: Record<string, any> = {};
-        if (calculatorId === 'concrete-volume') {
+    if (calculatorId === 'concrete-volume') {
       defs = {
-        length: 8,
-        width: 5,
-        thickness: unitSystem === 'metric' ? 150 : 6, // 150mm or 6in
-        wastePercent: 10,
+        length: 5.0,
+        width: 4.0,
+        thickness: unitSystem === 'metric' ? 0.15 : 6,
+        wastePercent: 0,
         shrinkagePercent: 54,
         shrinkageMultiplier: 1.54,
         shrinkageInputType: 'percentage',
-        unitCost: unitSystem === 'metric' ? 120 : 90, // $ per m3 or yd3
+        unitCost: unitSystem === 'metric' ? 120 : 90,
         mixType: 'M20',
         cementRatio: 1,
         sandRatio: 1.5,
@@ -997,7 +1007,9 @@ export default function CalculatorWorkspace({
       width: (calculatorId === 'structural-column') 
         ? (unitSystem === 'metric' ? 'mm' : 'in')
         : (unitSystem === 'metric' ? 'm' : 'ft'),
-      thickness: unitSystem === 'metric' ? 'mm' : 'in',
+      thickness: calculatorId === 'concrete-volume'
+        ? (unitSystem === 'metric' ? 'm' : 'ft')
+        : (unitSystem === 'metric' ? 'mm' : 'in'),
       span: unitSystem === 'metric' ? 'm' : 'ft',
       depth: unitSystem === 'metric' ? 'mm' : 'in',
       barDiameter: unitSystem === 'metric' ? 'mm' : 'in',
@@ -1008,6 +1020,15 @@ export default function CalculatorWorkspace({
       run: unitSystem === 'metric' ? 'm' : 'ft',
       rise: unitSystem === 'metric' ? 'm' : 'ft',
     };
+
+    // Check if inputs are provided via shareable URL parameters
+    const urlData = parseCalculationFromUrl();
+    if (urlData && urlData.inputs && Object.keys(urlData.inputs).length > 0) {
+      defs = { ...defs, ...urlData.inputs };
+      if (urlData.unitSystem && urlData.unitSystem !== unitSystem) {
+        setUnitSystem(urlData.unitSystem);
+      }
+    }
 
     setParamUnits(defaultUnits);
     setInputs(defs);
@@ -2319,7 +2340,62 @@ export default function CalculatorWorkspace({
     }
   };
 
-  const handleDownloadPDF = () => {
+  const handleAddToProject = () => {
+    let conc = 0;
+    let steel = 0;
+    let bricks = 0;
+    let cost = 0;
+
+    if (calculatorId === 'concrete-volume') {
+      conc = outputs.volumeTotal || outputs.volumeRaw || 0;
+      cost = outputs.totalCost || 0;
+    } else if (calculatorId === 'rebar-calculator' || calculatorId === 'steel-calculator') {
+      steel = outputs.totalWeight || 0;
+    } else if (calculatorId === 'brick-calculator') {
+      bricks = outputs.totalBricksWithWaste || 0;
+      conc = outputs.mortarVolumeDry || 0;
+      cost = outputs.grandTotal || 0;
+    } else if (calculatorId === 'structural-beam' || calculatorId === 'structural-column') {
+      steel = outputs.steelArea ? ((outputs.steelArea * 0.00785 * (inputs.span || 3)) / 1000) : 0;
+      conc = outputs.grossArea ? (((outputs.grossArea / 1000000) * (inputs.span || 3))) : 0;
+    }
+
+    addItemToProject({
+      calculatorId,
+      title: `${calcDef?.name || 'Structural Member'}`,
+      category: calcDef?.category || 'structural',
+      quantity: Math.max(1, projectMultiplier),
+      unitSystem,
+      metrics: {
+        concreteM3: parseFloat(conc.toFixed(2)),
+        steelKg: parseFloat(steel.toFixed(1)),
+        bricksCount: Math.round(bricks),
+        cost: parseFloat(cost.toFixed(2)),
+      },
+      inputs,
+      outputs
+    });
+
+    setProjectToast(true);
+    setTimeout(() => setProjectToast(false), 2500);
+  };
+
+  const handleShareCalculation = async () => {
+    const url = encodeCalculationToUrl(inputs, unitSystem);
+    const ok = await copyShareLinkToClipboard(url);
+    if (ok) {
+      setShareToast(true);
+      setTimeout(() => setShareToast(false), 2500);
+    }
+  };
+
+  const handleDownloadPDF = (metadata?: {
+    projectName?: string;
+    engineerName?: string;
+    companyName?: string;
+    clientName?: string;
+    notes?: string;
+  }) => {
     try {
       const doc = new jsPDF();
       const isMetric = unitSystem === 'metric';
@@ -2334,31 +2410,36 @@ export default function CalculatorWorkspace({
         docObj.setFillColor(15, 23, 42); // deep slate-900
         docObj.rect(10, 10, 190, 24, 'F');
         
-        // Dynamic Accent line separator
-        docObj.setFillColor(10, 132, 255); // civilmath blue
+        // Dynamic Accent line separator (CivilMath signature orange)
+        docObj.setFillColor(249, 115, 22);
         docObj.rect(10, 34, 190, 1.8, 'F');
         
         // Title Text on Top dark bar
+        const company = metadata?.companyName || 'CIVILMATH™ ENGINEERING SYSTEMS';
+        const projectTitle = metadata?.projectName || (calcDef?.name ? `${calcDef.name.toUpperCase()} CALCULATION` : 'ENGINEERING REPORT');
+        const eng = metadata?.engineerName || 'SITE ENGINEER';
+        const client = metadata?.clientName || 'CLIENT PROJECT';
+
         docObj.setTextColor(255, 255, 255);
         docObj.setFont('helvetica', 'bold');
-        docObj.setFontSize(11.5);
-        docObj.text('CIVILMATH™ ENGINEERING REPORT SYSTEMS', 15, 21);
+        docObj.setFontSize(11);
+        docObj.text(company.toUpperCase().substring(0, 48), 15, 20);
         
         // Sub-bar dynamic subtitle
         docObj.setFont('helvetica', 'normal');
         docObj.setFontSize(7.5);
-        docObj.setTextColor(148, 163, 184); // slate-400
-        docObj.text('CERTIFIED ENGINEERING DATA ANALYTICS & CALIBRATED CALCULATIONS', 15, 26);
+        docObj.setTextColor(249, 115, 22);
+        docObj.text(`PROJECT: ${projectTitle.toUpperCase().substring(0, 52)}`, 15, 26);
         
         // Right side metadata
         docObj.setTextColor(255, 255, 255);
         docObj.setFont('helvetica', 'bold');
-        docObj.setFontSize(8);
-        docObj.text(`PREPARED ON: ${new Date().toLocaleDateString()}`, 142, 19);
+        docObj.setFontSize(7.5);
+        docObj.text(`ENGINEER: ${eng.substring(0, 24)}`, 138, 19);
         docObj.setFont('helvetica', 'normal');
-        docObj.setTextColor(148, 163, 184);
-        docObj.text(`SYSTEM REGULATION: ISO/ASTM COMPLIANT`, 142, 24);
-        docObj.text(`ENGINE REFERENCE ID: CIVI-CALC-${calculatorId.toUpperCase().replace('-', '_')}`, 142, 28);
+        docObj.setTextColor(203, 213, 225);
+        docObj.text(`CLIENT: ${client.substring(0, 24)}`, 138, 24);
+        docObj.text(`DATE: ${new Date().toLocaleDateString()}`, 138, 28);
         
         // Footer section
         docObj.setFont('helvetica', 'normal');
@@ -3178,18 +3259,18 @@ export default function CalculatorWorkspace({
           : 'col-span-12 lg:col-span-7 xl:col-span-8 w-full'
       } bg-white/70 border border-slate-200 rounded-3xl p-4 sm:p-5 backdrop-blur-xl flex flex-col justify-between shadow-xs text-left`} id="tour-input-panel">
         <div>
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-205">
-            <div className="flex items-center space-x-2">
-              <span className="p-2 bg-blue-50 text-[#0A84FF] rounded-xl border border-blue-105 shadow-2xs">
-                {calculatorId === 'concrete-volume' && <Layers className="w-5 h-5" />}
-                {(calculatorId === 'structural-beam' || calculatorId === 'structural-deflection') && <GitCommit className="w-5 h-5" />}
-                {calculatorId === 'structural-column' && <Grid className="w-5 h-5" />}
-                {calculatorId === 'structural-slab' && <Server className="w-5 h-5" />}
-                {calculatorId === 'utility-convert' && <RefreshCw className="w-5 h-5" />}
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#D8D0C2]/60 dark:border-[#384238]">
+            <div className="flex items-center space-x-2.5">
+              <span className="p-2 bg-[#657565]/12 text-[#657565] rounded-xl border border-[#657565]/20 shadow-2xs">
+                {calculatorId === 'concrete-volume' ? <Box className="w-5 h-5" /> : <Layers className="w-5 h-5" />}
               </span>
               <div>
-                <h3 className="text-sm font-semibold text-slate-800 font-sans tracking-tight">Inputs</h3>
-                <p className="text-[10px] font-mono text-slate-500">STATE CONTROL PARAMETERS</p>
+                <h3 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0] font-sans tracking-tight">
+                  {calculatorId === 'concrete-volume' ? 'Enter Dimensions' : 'Inputs'}
+                </h3>
+                <p className="text-[9.5px] font-mono font-medium text-[#7B8978] dark:text-[#9CA899]">
+                  {calculatorId === 'concrete-volume' ? 'MODEL: RECTANGULAR · PRECISION: 0.01' : 'STATE CONTROL PARAMETERS'}
+                </p>
               </div>
             </div>
 
@@ -3499,6 +3580,27 @@ export default function CalculatorWorkspace({
                     onChange={(raw, num) => handleInputChange('unitCost', num)}
                     variant="none" className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-emerald-600 font-bold outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] shadow-2xs"
                   />
+                </div>
+
+                {/* Calculate & Reset Controls */}
+                <div className="flex items-center gap-2.5 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      document.getElementById('calculator-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#657565] hover:bg-[#526052] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  >
+                    <span>Calculate</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetToDefaults}
+                    className="py-2.5 px-4 rounded-xl bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] hover:border-[#7B8978] text-[#20231F] dark:text-[#EAE7E0] text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-[#7B8978]" />
+                    <span>Reset</span>
+                  </button>
                 </div>
               </>
             )}
@@ -4900,21 +5002,117 @@ export default function CalculatorWorkspace({
           <div className="space-y-3">
             
             {calculatorId === 'concrete-volume' && (
-              <div className="space-y-3 font-mono">
-                <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-2xs">
-                  <span className="text-[10px] text-slate-500 block uppercase font-bold">Net Volume</span>
-                  <span className="text-lg font-bold text-slate-800">{outputs.volumeRaw ?? 0}</span>
-                  <span className="text-[10px] text-slate-400 ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+              <div className="space-y-4 font-sans text-left">
+                {/* WIDE CALCULATION RESULT CARD */}
+                <div className="p-5 rounded-3xl bg-[#FAF8F5] dark:bg-[#202620] border border-[#D8D0C2] dark:border-[#384238] shadow-xs">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#7B8978]">Calculation Result</span>
+                    <span className="px-2.5 py-1 rounded-full bg-[#657565]/15 text-[#526052] dark:text-[#A4B2A4] text-[10.5px] font-bold">
+                      ✓ Calculation complete
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mt-2">
+                    <div>
+                      <div className="text-4xl sm:text-5xl font-black text-[#20231F] dark:text-[#EAE7E0] tracking-tight">
+                        {outputs.volumeRaw !== undefined ? Number(outputs.volumeRaw).toFixed(2) : '3.00'} <span className="text-xl sm:text-2xl font-bold text-[#7B8978]">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col font-mono text-xs text-[#555C55] dark:text-[#A4B2A4] space-y-1">
+                      <div><span className="text-[#7B8978]">Formula:</span> <span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">V = L × W × D</span></div>
+                      <div><span className="text-[#7B8978]">Calculation:</span> <span className="font-semibold text-[#20231F] dark:text-[#EAE7E0]">{Number(inputs.length ?? 5).toFixed(2)} × {Number(inputs.width ?? 4).toFixed(2)} × {Number(inputs.thickness ?? 0.15).toFixed(2)}</span></div>
+                    </div>
+                  </div>
+
+                  {/* Actions: Copy Result, Download PDF, Export Excel */}
+                  <div className="flex flex-wrap items-center gap-2 mt-4 pt-3.5 border-t border-[#D8D0C2]/60 dark:border-[#333C33]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const val = `${Number(outputs.volumeRaw ?? 3).toFixed(2)} ${unitSystem === 'metric' ? 'm³' : 'yd³'}`;
+                        navigator.clipboard.writeText(val);
+                        setShareToast(true);
+                        setTimeout(() => setShareToast(false), 2000);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-[#7B8978]" />
+                      <span>{shareToast ? 'Copied!' : 'Copy Result'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsExportModalOpen(true)}
+                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-[#7B8978]" />
+                      <span>Download PDF</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleDownloadExcel}
+                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-[#7B8978]" />
+                      <span>Export Excel</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-2xs">
-                  <span className="text-[10px] text-slate-500 block uppercase font-bold">Dry Volume</span>
-                  <span className="text-lg font-bold text-slate-800">{outputs.volumeDry ?? 0}</span>
-                  <span className="text-[10px] text-slate-400 ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+
+                {/* LOWER CONTENT: Formula Explanation & Example Calculation */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Formula Explanation */}
+                  <div className="p-4 rounded-2xl bg-white/80 dark:bg-[#222822] border border-[#D8D0C2] dark:border-[#384238] shadow-2xs">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <div className="w-5 h-5 rounded-md bg-[#657565]/15 text-[#526052] flex items-center justify-center">
+                        <BookOpen className="w-3 h-3" />
+                      </div>
+                      <h4 className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">Formula Explanation</h4>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#FAF8F5] dark:bg-[#1A1D1A] border border-[#D8D0C2]/70 dark:border-[#333C33] font-mono text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] mb-2.5">
+                      V = L × W × D
+                    </div>
+                    <div className="space-y-0.5 text-[11px] text-[#555C55] dark:text-[#A4B2A4] font-mono">
+                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">V</span> = Volume of concrete ({unitSystem === 'metric' ? 'm³' : 'yd³'})</div>
+                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">L</span> = Length ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
+                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">W</span> = Width ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
+                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">D</span> = Depth ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
+                    </div>
+                  </div>
+
+                  {/* Example Calculation */}
+                  <div className="p-4 rounded-2xl bg-white/80 dark:bg-[#222822] border border-[#D8D0C2] dark:border-[#384238] shadow-2xs">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <div className="w-5 h-5 rounded-md bg-[#9A8062]/15 text-[#735F48] flex items-center justify-center">
+                        <Calculator className="w-3 h-3" />
+                      </div>
+                      <h4 className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">Example Calculation</h4>
+                    </div>
+                    <div className="space-y-0.5 text-[11px] text-[#555C55] dark:text-[#A4B2A4] font-mono mb-2.5">
+                      <div>Length = 5.00 m</div>
+                      <div>Width = 4.00 m</div>
+                      <div>Depth = 0.15 m</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[#FAF8F5] dark:bg-[#1A1D1A] border border-[#D8D0C2]/70 dark:border-[#333C33] font-mono text-[11.5px] font-bold text-[#20231F] dark:text-[#EAE7E0]">
+                      5.00 × 4.00 × 0.15 = 3.00 m³
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                  <span className="text-[10px] text-blue-600 block uppercase font-bold">Total Ordered Volume</span>
-                  <span className="text-xl font-black text-blue-600">{outputs.volumeTotal ?? 0}</span>
-                  <span className="text-[10px] text-blue-500 ml-1 font-bold">{unitSystem === 'metric' ? 'm³ (waste included)' : 'yd³ (waste included)'}</span>
+
+                {/* Net, Dry, and Mix Breakdown Cards */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white/80 dark:bg-[#222822] p-3 rounded-2xl border border-[#D8D0C2] dark:border-[#384238] shadow-2xs">
+                    <span className="text-[10px] text-[#7B8978] block uppercase font-bold">Dry Volume</span>
+                    <span className="text-base font-bold text-[#20231F] dark:text-[#EAE7E0]">{outputs.volumeDry ?? 0}</span>
+                    <span className="text-[10px] text-[#7B8978] ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+                  </div>
+                  <div className="bg-[#657565]/10 p-3 rounded-2xl border border-[#657565]/30">
+                    <span className="text-[10px] text-[#526052] dark:text-[#A4B2A4] block uppercase font-bold">Total Ordered</span>
+                    <span className="text-base font-bold text-[#526052] dark:text-[#A4B2A4]">{outputs.volumeTotal ?? 0}</span>
+                    <span className="text-[10px] text-[#657565] ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+                  </div>
                 </div>
                 
                 <div className="p-2.5 bg-slate-50 border border-slate-200/60 rounded-xl space-y-2 text-[11px]">
@@ -5564,42 +5762,97 @@ export default function CalculatorWorkspace({
           </div>
         </div>
 
-        {/* PRINT / EXPORT BUTTONS */}
-        <div id="print-actions-row" className="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-2">
-          <button 
-            id="tour-export-pdf"
-            onClick={handleDownloadPDF}
-            className="flex-1 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
-          >
-            <FileText className="w-3.5 h-3.5 text-red-500 animate-pulse" />
-            <span>PDF Report</span>
-          </button>
-          
-          <button 
-            id="tour-export-excel"
-            onClick={handleDownloadExcel}
-            className="flex-1 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Excel Sheet</span>
-          </button>
+        {/* ACTION ROW: Add to Project BOQ + Share + Export */}
+        <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+          {/* Project BOQ Adder Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-2xl bg-orange-50/80 dark:bg-orange-950/20 border border-orange-200/70 dark:border-orange-800/40 gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#f97316] text-white flex items-center justify-center text-xs shadow-xs font-bold shrink-0">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block leading-tight">Add to Project BOQ</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">Aggregate member into master bill of quantities</span>
+              </div>
+            </div>
 
-          <button 
-            onClick={() => {
-              try {
-                window.focus();
-                window.print();
-              } catch (e) {
-                console.error("Native print failed:", e);
-                alert("Please use the 'Open in New Tab' button in the top right, as browser permissions can restrict modal printing inside sandboxed preview frames.");
-              }
-            }}
-            className="flex-1 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs text-white flex items-center justify-center space-x-1.5 transition-all cursor-pointer shadow-md font-semibold"
-          >
-            <Printer className="w-3.5 h-3.5 text-slate-200" />
-            <span>Print Sheet</span>
-          </button>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden px-2 py-1">
+                <span className="text-[10px] font-bold text-slate-400 mr-1.5">Qty</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="999"
+                  value={projectMultiplier}
+                  onChange={e => setProjectMultiplier(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-12 text-center text-xs font-bold bg-transparent outline-none text-slate-800 dark:text-white"
+                  title="Element quantity multiplier (e.g. 6 identical footings)"
+                />
+              </div>
+              <button
+                onClick={handleAddToProject}
+                className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs whitespace-nowrap"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{projectToast ? 'Added to BOQ!' : '+ Add to Project'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Export & Share buttons */}
+          <div id="print-actions-row" className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
+            <button 
+              id="tour-export-pdf"
+              onClick={() => setIsExportModalOpen(true)}
+              className="py-2.5 px-3 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
+            >
+              <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />
+              <span className="truncate">Official PDF</span>
+            </button>
+            
+            <button 
+              id="tour-export-excel"
+              onClick={handleDownloadExcel}
+              className="py-2.5 px-3 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span className="truncate">Excel Sheet</span>
+            </button>
+
+            <button 
+              onClick={handleShareCalculation}
+              className="py-2.5 px-3 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 flex items-center justify-center space-x-1.5 transition-colors cursor-pointer shadow-2xs font-semibold"
+            >
+              <Share2 className="w-3.5 h-3.5 text-[#f97316] shrink-0" />
+              <span className="truncate">{shareToast ? 'Copied!' : 'Share Link'}</span>
+            </button>
+
+            <button 
+              onClick={() => {
+                try {
+                  window.focus();
+                  window.print();
+                } catch (e) {
+                  console.error("Native print failed:", e);
+                }
+              }}
+              className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs text-white flex items-center justify-center space-x-1.5 transition-all cursor-pointer shadow-md font-semibold"
+            >
+              <Printer className="w-3.5 h-3.5 text-slate-200 shrink-0" />
+              <span>Print</span>
+            </button>
+          </div>
         </div>
+
+        {/* Branded Export Modal */}
+        <ExportModal
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          calculatorTitle={calcDef?.name || 'Calculation'}
+          calculatorId={calculatorId}
+          onConfirmPDF={handleDownloadPDF}
+          shareUrl={encodeCalculationToUrl(inputs, unitSystem)}
+        />
       </div>
 
       </div>
@@ -5613,8 +5866,8 @@ export default function CalculatorWorkspace({
             </span>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-md font-semibold text-slate-800 font-sans tracking-tight">CivilMath AI Assistant</h3>
-                <span className="text-[9px] font-mono bg-blue-50 text-[#0A84FF] px-2 py-0.5 rounded-full border border-blue-100 font-bold uppercase tracking-wider">OpenRouter Active</span>
+                <h3 className="text-md font-semibold text-slate-800 dark:text-slate-100 font-sans tracking-tight">Engineering AI Assistant</h3>
+                <span className="text-[9px] font-mono bg-[#657565]/15 text-[#526052] dark:text-[#A4B2A4] px-2 py-0.5 rounded-full border border-[#657565]/25 font-bold uppercase tracking-wider">Analysis Active</span>
               </div>
               <p className="text-xs text-slate-500 font-mono">PROMPT PRINCIPAL STRUCTURAL REVIEW & CODE AUDITING LOGS</p>
             </div>

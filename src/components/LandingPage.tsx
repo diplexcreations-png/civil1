@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   Search, Layers, Grid, Clipboard, Activity, Compass, RefreshCw,
@@ -108,7 +108,7 @@ export default function LandingPage() {
 
         {/* Trust badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-[11px] text-[#64748B] dark:text-[#94A3B8]">
-          <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" /> ACI 318 / Eurocode 2</span>
+          <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" /> Project-checkable methods</span>
           <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" /> 12+ Calculators</span>
           <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" /> 100% Free</span>
           <span className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" /> PDF / Excel Export</span>
@@ -230,7 +230,7 @@ export default function LandingPage() {
           <h2 className="text-sm font-bold text-[#0F172A] dark:text-[#F1F5F9] mb-4">Why CivilMath?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { icon: CheckCircle, title: 'Engineer-Grade Accuracy', desc: 'Formulas verified against ACI 318, BS 8110, Eurocode 2, and IS 456.' },
+              { icon: CheckCircle, title: 'Transparent Methods', desc: 'Review inputs, formulas and assumptions before relying on a calculation.' },
               { icon: Download, title: 'Export Anywhere', desc: 'PDF reports, Excel sheets, or share results instantly with your team.' },
               { icon: HardHat, title: 'Built for the Field', desc: 'Designed for engineers, contractors, supervisors, and students.' },
               { icon: Sparkles, title: 'Beginner-Friendly', desc: 'Guided step-by-step workflow with plain-English explanations.' },
@@ -250,9 +250,11 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-[#E2E8F0] dark:border-[#1E293B] pt-8 pb-6 text-center space-y-3">
         <div className="flex flex-wrap items-center justify-center gap-6 text-[10px] text-[#64748B]">
-          <button onClick={() => navigate('/about')} className="hover:text-[#2563EB] transition-colors cursor-pointer font-semibold">About</button>
-          <button onClick={() => navigate('/contact')} className="hover:text-[#2563EB] transition-colors cursor-pointer font-semibold">Contact</button>
-          <button onClick={() => navigate('/privacy')} className="hover:text-[#2563EB] transition-colors cursor-pointer font-semibold">Privacy</button>
+          <Link to="/about" className="hover:text-[#2563EB] transition-colors font-semibold no-underline">About</Link>
+          <Link to="/contact" className="hover:text-[#2563EB] transition-colors font-semibold no-underline">Contact</Link>
+          <Link to="/privacy" className="hover:text-[#2563EB] transition-colors font-semibold no-underline">Privacy</Link>
+          <Link to="/terms" className="hover:text-[#2563EB] transition-colors font-semibold no-underline">Terms</Link>
+          <Link to="/disclaimer" className="hover:text-[#2563EB] transition-colors font-semibold no-underline">Disclaimer</Link>
         </div>
         <p className="text-[10px] text-[#94A3B8]">© 2026 CivilMath Inc. Professional Civil Calculation Labs.</p>
       </footer>

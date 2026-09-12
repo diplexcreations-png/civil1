@@ -1379,11 +1379,11 @@ export default function BBSCalculator({
     doc.setTextColor(13, 148, 136);
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(8.5);
-    doc.text("ENGINEERING QUANTITY SURVEY VERIFICATION:", 16, rowY + 5.5);
+    doc.text("ENGINEERING QUANTITY SURVEY REFERENCE:", 16, rowY + 5.5);
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(30, 41, 59);
-    doc.text(`This bar bending schedule has been calculated in accordance with ${codeStandard}. Total computed steel reinforcing weight: ${totalSteelWeight} ${isMetric ? 'kg' : 'lbs'} across ${rebarList.length} distinct rebar items.`, 16, rowY + 10);
+    doc.text(`This bar bending schedule references ${codeStandard}. Verify against project requirements with a qualified professional. Total computed steel reinforcing weight: ${totalSteelWeight} ${isMetric ? 'kg' : 'lbs'} across ${rebarList.length} distinct rebar items.`, 16, rowY + 10);
 
     // Save PDF
     doc.save(`BBS-Report-${calculatorId}-${projectName.replace(/\s+/g, '_')}.pdf`);
@@ -1802,7 +1802,7 @@ export default function BBSCalculator({
                   />
                 </div>
                 <div>
-                  <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold" title="Structural design code standard for compliance verification">Standard Code</label>
+                  <label className="text-slate-600 dark:text-slate-400 block mb-1 font-semibold" title="Structural design code standard used for reference and verification">Standard Code</label>
                   <input 
                     type="text" 
                     value={codeStandard}

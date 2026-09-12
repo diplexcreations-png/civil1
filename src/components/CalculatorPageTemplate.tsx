@@ -1,10 +1,12 @@
 import { useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
-  ChevronRight, Share2, Printer, BookOpen,
+  ChevronRight, Share2, Printer, BookOpen, Bookmark,
 } from 'lucide-react';
-import { SEOHead, generateCalculatorSchema, CATEGORY_PATH_MAP } from '../utils/seo';
+import { SEO, generateCalculatorSchema, CATEGORY_PATH_MAP, getRouteSEO, SITE_URL, DEFAULT_IMAGE } from '../utils/seo';
 import { CalculatorCategory } from '../types';
+import { CALCULATORS_LIST } from '../data/calculatorsData';
 import StepWizard from './StepWizard';
 import { BeginnerToggle } from './BeginnerMode';
 
@@ -36,6 +38,7 @@ export default function CalculatorPageTemplate({
   const categoryPath = CATEGORY_PATH_MAP[category];
   const displayPath = path.startsWith('/') ? path : `/${path}`;
   const [showHelp, setShowHelp] = useState(false);
+  const relatedCalculators = CALCULATORS_LIST.filter(calc => calc.category === category && calc.name !== title).slice(0, 3);
 
   const steps = [
     { id: 'choose', label: 'Calculator', description: 'Type & shape' },
@@ -46,11 +49,11 @@ export default function CalculatorPageTemplate({
   const defaultFaqs = [
     {
       question: `How does the ${title} calculator work?`,
-      answer: `The ${title} calculator uses industry-standard engineering formulas to compute results based on your input parameters. All calculations follow relevant codes and standards.`,
+      answer: `The ${title} calculator applies the method described on this page to the values you provide. Review the stated inputs, units and assumptions before relying on the result.`,
     },
     {
       question: 'Can I trust the accuracy of these calculations?',
-      answer: 'Yes. All formulas are verified against published engineering standards. BBS calculators support ACI 318, BS 8110, Eurocode 2, and IS 456. Structural calculators follow ACI 318-19.',
+      answer: 'Use results as an educational or planning aid. Final design, detailing, quantities and construction decisions must be checked by a qualified professional against the applicable project documents and requirements.',
     },
     {
       question: 'Can I export the results?',
@@ -67,47 +70,65 @@ export default function CalculatorPageTemplate({
     }
   };
 
+  const routeSEO = getRouteSEO(displayPath);
+  const seoTitle = routeSEO?.title || title;
+  const seoDesc = routeSEO?.description || description;
+
   return (
     <>
-      <SEOHead meta={{
-        title, description, path: displayPath, image,
-        type: 'article', faqs: faqs || defaultFaqs,
-        breadcrumbs: [
+      <SEO
+        title={seoTitle}
+        description={seoDesc}
+        keywords={routeSEO?.keywords}
+        canonicalUrl={`${SITE_URL}${displayPath}`}
+        ogImage={image || DEFAULT_IMAGE}
+        type="article"
+        faqs={faqs || defaultFaqs}
+        breadcrumbs={[
           { name: 'Home', url: '/' },
           { name: categoryPathNames[category] || category, url: `/${categoryPath}` },
           { name: breadcrumbLabel || title, url: displayPath },
-        ],
-        schema: generateCalculatorSchema({ name: title, description, url: displayPath, category }),
-      }} />
+        ]}
+        schema={generateCalculatorSchema({ name: title, description: seoDesc, url: displayPath, category })}
+      />
 
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 dark:text-slate-500 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-        <button onClick={() => navigate('/')} className="hover:text-[#2563EB] transition-colors cursor-pointer font-semibold">Home</button>
-        <ChevronRight className="w-3 h-3 text-slate-300" />
-        <button onClick={() => navigate(`/${categoryPath}`)} className="hover:text-[#2563EB] transition-colors cursor-pointer font-semibold capitalize">
+      <nav className="flex items-center gap-2 text-xs font-medium text-[#7B8978] dark:text-[#9CA899] mb-4 pb-3 border-b border-[#D8D0C2]/60 dark:border-[#333C33]">
+        <Link to="/" className="hover:text-[#20231F] dark:hover:text-white transition-colors cursor-pointer font-semibold no-underline">Home</Link>
+        <ChevronRight className="w-3.5 h-3.5 text-[#B4ACA0]" />
+        <Link to={`/${categoryPath}`} className="hover:text-[#20231F] dark:hover:text-white transition-colors cursor-pointer font-semibold capitalize no-underline">
           {categoryPathNames[category] || category}
-        </button>
-        <ChevronRight className="w-3 h-3 text-slate-300" />
-        <span className="text-[#2563EB] font-bold truncate max-w-[200px]">{breadcrumbLabel || title}</span>
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5 text-[#B4ACA0]" />
+        <span className="text-[#20231F] dark:text-[#EAE7E0] font-bold truncate max-w-[240px]">{breadcrumbLabel || title}</span>
       </nav>
 
       {/* Title + Actions */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl lg:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{title}</h1>
-          <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">{description}</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#20231F] dark:text-[#EAE7E0] tracking-tight">{title}</h1>
+          <p className="text-xs sm:text-sm text-[#7B8978] dark:text-[#9CA899] mt-1 max-w-2xl leading-relaxed">{description}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           {onBeginnerModeChange && (
             <BeginnerToggle enabled={!!beginnerMode} onChange={onBeginnerModeChange} />
           )}
+          <button
+            onClick={() => {
+              const evt = new CustomEvent('civilmath:save-current-calc');
+              window.dispatchEvent(evt);
+            }}
+            className="px-3.5 py-2 bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] rounded-xl text-xs font-semibold text-[#20231F] dark:text-[#EAE7E0] flex items-center gap-1.5 hover:border-[#7B8978] transition-all cursor-pointer shadow-2xs"
+          >
+            <Bookmark className="w-3.5 h-3.5 text-[#7B8978]" /> Save Calculator
+          </button>
           <button onClick={handleShare}
-            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs">
-            <Share2 className="w-3.5 h-3.5" /> Share
+            className="px-3 py-2 bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] rounded-xl text-xs font-semibold text-[#555C55] dark:text-[#C5D0C5] flex items-center gap-1.5 hover:border-[#7B8978] transition-all cursor-pointer shadow-2xs">
+            <Share2 className="w-3.5 h-3.5 text-[#7B8978]" /> Share
           </button>
           <button onClick={() => window.print()}
-            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs">
-            <Printer className="w-3.5 h-3.5" /> Print
+            className="px-3 py-2 bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] rounded-xl text-xs font-semibold text-[#555C55] dark:text-[#C5D0C5] flex items-center gap-1.5 hover:border-[#7B8978] transition-all cursor-pointer shadow-2xs">
+            <Printer className="w-3.5 h-3.5 text-[#7B8978]" /> Print
           </button>
         </div>
       </div>
@@ -123,6 +144,8 @@ export default function CalculatorPageTemplate({
       <div className="relative">
         {children}
       </div>
+
+      {relatedCalculators.length > 0 && <section className="mt-10 max-w-5xl"><div className="flex items-center gap-2 mb-3"><SparklesIcon /><h2 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0]">You may also need</h2></div><div className="grid gap-3 sm:grid-cols-3">{relatedCalculators.map(calc => <Link key={calc.id} to={calc.category === 'bbs' ? '/bbs/footing' : `/${CATEGORY_PATH_MAP[calc.category]}/${calc.slug || calc.id.replace(`${calc.category}-`, '')}`} className="rounded-2xl border border-[#D8D0C2] bg-white/80 p-3.5 text-xs font-semibold text-[#20231F] no-underline hover:border-[#7B8978] hover:shadow-2xs dark:border-[#384238] dark:bg-[#242A24] dark:text-[#EAE7E0] transition-all">{calc.name}<span className="mt-1 block text-[10.5px] font-normal text-[#7B8978]">Related {categoryPathNames[category]} tool</span></Link>)}</div></section>}
 
       {/* FAQ Section */}
       <section className="mt-10 max-w-4xl">
@@ -144,6 +167,11 @@ export default function CalculatorPageTemplate({
           ))}
         </div>
       </section>
+      <aside className="mt-6 max-w-4xl border-l-4 border-amber-400 bg-amber-50 dark:bg-amber-950/20 px-4 py-3 text-xs leading-5 text-amber-900 dark:text-amber-200">
+        This calculator provides an estimate or preliminary calculation for educational and planning purposes. Verify final structural design and construction decisions with a qualified professional and the applicable project specification and design requirements.
+      </aside>
     </>
   );
 }
+
+function SparklesIcon() { return <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-xs text-[#2563EB] dark:bg-blue-500/10">✦</span>; }

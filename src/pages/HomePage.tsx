@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import LandingPage from '../components/LandingPage';
-import { SEOHead, CATEGORY_PATH_MAP, getCalculatorSlug, generateOrganizationSchema, generateWebsiteSchema } from '../utils/seo';
+import { SEO, CATEGORY_PATH_MAP, getCalculatorSlug, generateOrganizationSchema, generateWebsiteSchema } from '../utils/seo';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
 import { useApp } from '../context/AppContext';
 
@@ -23,14 +23,19 @@ export default function HomePage() {
 
   return (
     <>
-      <SEOHead meta={{
-        title: 'Civil Engineering Calculator Suite',
-        description: 'Professional civil engineering calculators for concrete volume, structural beam analysis, column design, bar bending schedules, surveying, and geotechnical engineering. ACI, ASTM, Eurocode compliant.',
-        path: '/',
-        type: 'website',
-        breadcrumbs: [{ name: 'Home', url: '/' }],
-        schema: generateOrganizationSchema(),
-      }} />
+      <SEO
+        title="Civil Engineering Calculators & Design Tools | CivilMath"
+        description="Free professional civil engineering calculators for concrete volume, beam analysis, rebar BBS, column design, and surveying. Fast, accurate, and code-aligned."
+        canonicalUrl="https://civilmath.com/"
+        keywords={['civil engineering calculators', 'concrete calculator', 'beam analysis', 'bar bending schedule', 'civil math']}
+        ogImage="https://civilmath.com/og-image.png"
+        type="website"
+        breadcrumbs={[{ name: 'Home', url: '/' }]}
+        schema={{
+          '@context': 'https://schema.org',
+          '@graph': [generateOrganizationSchema(), generateWebsiteSchema()],
+        }}
+      />
       <LandingPage
         onSelectCalculator={handleSelectCalculator}
         onLaunchDashboard={() => navigate('/dashboard')}

@@ -3,7 +3,7 @@ import { ArticleData } from './index';
 export function getArticle(): ArticleData {
   return {
     seoTitle: 'BBS for Pedestal | Bar Bending Schedule Calculator for Pedestal Reinforcement',
-    metaDescription: 'Complete Bar Bending Schedule for pedestals in foundation construction. Covers starter bars, vertical main bars, tie reinforcement, cover, and grade. ACI 318 & IS 456 compliant.',
+    metaDescription: 'Complete Bar Bending Schedule for pedestals in foundation construction. Covers starter bars, vertical main bars, tie reinforcement, cover, and grade. Referencing ACI 318 & IS 456.',
     slug: 'bbs-pedestal',
     primaryKeyword: 'BBS for Pedestal',
     secondaryKeywords: [
@@ -523,7 +523,7 @@ The bill of quantities section multiplies all quantities by the user-specified n
       },
       {
         question: 'Can a pedestal be constructed with concrete grade lower than M20?',
-        answer: 'No. The minimum concrete grade for reinforced concrete is M20 as per IS 456. For pedestals in contact with soil, a minimum grade of M25 is recommended for durability. Lower grades are not permitted for structural reinforced concrete.'
+        answer: 'No. The minimum concrete grade for reinforced concrete is M20 as per IS 456. For pedestals in contact with soil, a minimum grade of M25 is recommended for durability. Lower grades are not typically permitted for structural reinforced concrete.'
       },
       {
         question: 'How does the pedestal BBS affect the footing reinforcement schedule?',

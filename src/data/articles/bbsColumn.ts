@@ -3,7 +3,7 @@ import { ArticleData } from './index';
 export function getArticle(): ArticleData {
   return {
     seoTitle: 'BBS for RCC Column | Bar Bending Schedule Calculator for Columns',
-    metaDescription: 'Complete BBS calculator for reinforced concrete columns. Covers square, rectangular, and circular columns with lateral ties, lap length, and development length. ACI 318, IS 456 compliant.',
+    metaDescription: 'Complete BBS calculator for reinforced concrete columns. Covers square, rectangular, and circular columns with lateral ties, lap length, and development length. Referencing ACI 318 and IS 456.',
     slug: 'bbs-column',
     primaryKeyword: 'BBS for RCC Column',
     secondaryKeywords: [
@@ -214,7 +214,7 @@ Development length at the column base ensures that the tensile or compressive fo
         mistakes: 'Using same tie spacing for all floors without considering seismic demands varying with height.'
       }
     ],
-    calculationLogic: `The BBS Column Calculator processes column reinforcement through a systematic sequence of calculations that account for the geometry of the section, the reinforcement layout, and the code-compliant detailing requirements. The process begins with determining the clear height of the column and dividing it into zones: the main body zone with standard tie spacing, the end zones at the top and bottom where tie spacing is reduced (typically within L/6 from the joint face), and the lap splice zone where additional ties are required to confine the lapped bars.
+    calculationLogic: `The BBS Column Calculator processes column reinforcement through a systematic sequence of calculations that account for the geometry of the section, the reinforcement layout, and the detailing requirements referenced by the selected code standard. The process begins with determining the clear height of the column and dividing it into zones: the main body zone with standard tie spacing, the end zones at the top and bottom where tie spacing is reduced (typically within L/6 from the joint face), and the lap splice zone where additional ties are required to confine the lapped bars.
 
 For the vertical main bars, the cutting length is calculated as the column height plus the development length at the base plus the lap length at the top (for bars extending to the next floor) minus the cover at both ends and plus any bend allowances for the base hook. The number of bars is multiplied by the cutting length to obtain the total running length of each bar diameter. The bars are assigned bar marks based on their length and bending shape. Straight vertical bars without hooks are classified under shape code 11 in BS 8666, while bars with 90-degree base hooks are classified under shape code 21 or 41.
 
@@ -319,8 +319,8 @@ The total number of ties is determined by dividing the column height into zones.
           explanation: 'Area of 8 bars of 16 mm = 8 × π × 256 / 4 = 8 × 201.06 = 1608.5 mm². Gross area = 300 × 450 = 135000 mm². Reinforcement percentage = 1608.5 / 135000 × 100 = 1.19%. This is within the code limits of 0.8% minimum and 4% maximum for lapped bars. The section is adequately reinforced.'
         },
         {
-          title: 'Calculate Tie Spacing Compliance',
-          explanation: 'Check maximum tie spacing limits: (a) Least column dimension = 300 mm. (b) 16 × smallest longitudinal bar = 16 × 16 = 256 mm. (c) 300 mm. The governing maximum is 256 mm. Provided spacing of 200 mm in main body and 150 mm at ends is compliant. Seismic confinement zone spacing of 100 mm would be required in high seismic zones.'
+          title: 'Calculate Tie Spacing Limits',
+          explanation: 'Check maximum tie spacing limits: (a) Least column dimension = 300 mm. (b) 16 × smallest longitudinal bar = 16 × 16 = 256 mm. (c) 300 mm. The governing maximum is 256 mm. Provided spacing of 200 mm in main body and 150 mm at ends is within the limits. Seismic confinement zone spacing of 100 mm would be required in high seismic zones.'
         },
         {
           title: 'Summarise BBS',
@@ -333,7 +333,7 @@ The total number of ties is determined by dividing the column height into zones.
 
 The reinforcement percentage is a critical quality control parameter displayed prominently in the results. If the percentage falls below the code minimum of 0.8%, the calculator issues a warning suggesting an increase in bar diameter or number of bars. If it exceeds 4%, a warning is issued about concrete placement difficulties and the need for mechanical splices or bundled bars. The calculator also checks that the number of bars meets the minimum count requirements for the selected column type.
 
-The tie spacing report provides a visual representation of the tie distribution along the column height. The end zones are highlighted to show where confinement reinforcement is increased. For columns in seismic zones, the calculator automatically applies the special confining reinforcement requirements as per the selected seismic zone, reducing tie spacing to 100 mm in the plastic hinge regions. The lap splice report shows the location and length of each splice, ensuring that laps are staggered in compliance with the code.
+The tie spacing report provides a visual representation of the tie distribution along the column height. The end zones are highlighted to show where confinement reinforcement is increased. For columns in seismic zones, the calculator automatically applies the special confining reinforcement requirements as per the selected seismic zone, reducing tie spacing to 100 mm in the plastic hinge regions. The lap splice report shows the location and length of each splice, ensuring that laps are staggered per the referenced code.
 
 The result also includes a procurement summary that adds a standard 8% wastage allowance to the theoretical steel quantity. The total cost estimate can be generated by multiplying the procurement weight by the prevailing market rate per kilogram. For large projects with multiple columns, the multiplicator function aggregates the quantities across all identical columns, providing a project-level reinforcement summary that is invaluable for budget planning and material procurement.`,
     commonErrors: [

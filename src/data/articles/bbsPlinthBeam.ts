@@ -175,9 +175,9 @@ The concrete volume is length × width × depth. The total steel weight is the s
         { title: 'Calculate steel weight — stirrups', explanation: '26 stirrups × 1.051 m × 0.395 kg/m = 10.79 kg.' },
         { title: 'Total steel per plinth beam', explanation: 'Total = 27.56 + 10.79 = 38.35 kg. Concrete volume = 5.0 × 0.23 × 0.45 = 0.518 m³. Steel density = 38.35 / 0.518 = 74.0 kg/m³. Note: this is lower than for elevated beams because plinth beams are lightly reinforced.' },
         { title: 'Scale for 6 identical beams', explanation: 'Total steel = 38.35 × 6 = 230.1 kg (0.23 tonnes). Add 5% waste = 241.6 kg. Total concrete = 0.518 × 6 = 3.11 m³.' },
-        { title: 'Verify code compliance', explanation: 'Minimum steel: 3 × T12 = 339 mm². Cross-section area = 230 × 450 = 103500 mm². Ratio = 0.33% > 0.12% minimum (IS 456). Stirrup spacing: 200 mm < 300 mm maximum per ACI 318 (3D = 1350 mm). 200 mm also < d/2 = 200 mm (d ≈ 450 − 50 − 6 = 394 mm, d/2 = 197 mm). Note: spacing of 200 mm is very close to d/2, which is acceptable. All spacing checks pass.' }
+        { title: 'Check against reference standards', explanation: 'Minimum steel: 3 × T12 = 339 mm². Cross-section area = 230 × 450 = 103500 mm². Ratio = 0.33% > 0.12% minimum (IS 456). Stirrup spacing: 200 mm < 300 mm maximum per ACI 318 (3D = 1350 mm). 200 mm also < d/2 = 200 mm (d ≈ 450 − 50 − 6 = 394 mm, d/2 = 197 mm). Note: spacing of 200 mm is very close to d/2, which is acceptable. All spacing checks pass.' }
       ],
-      finalAnswer: 'For 6 plinth beams 5.0 m × 230 mm × 450 mm: Top bars: 18 bars T12 (cut 5166 mm, 83 kg). Bottom bars: 18 bars T12 (cut 5166 mm, 83 kg). Stirrups: 156 bars T8 (cut 1051 mm, 65 kg). Total steel = 230 kg (242 kg with 5% waste). Concrete = 3.11 m³. Fully compliant with ACI 318-19, IS 456:2000, and BS 8666:2020 shape codes 11 and 51.'
+      finalAnswer: 'For 6 plinth beams 5.0 m × 230 mm × 450 mm: Top bars: 18 bars T12 (cut 5166 mm, 83 kg). Bottom bars: 18 bars T12 (cut 5166 mm, 83 kg). Stirrups: 156 bars T8 (cut 1051 mm, 65 kg). Total steel = 230 kg (242 kg with 5% waste). Concrete = 3.11 m³. Prepared to the provisions of ACI 318-19, IS 456:2000, and BS 8666:2020 (shape codes 11 and 51); verify against project requirements.'
     },
     resultExplanation: `The BBS output for a plinth beam is a tabular schedule with three rows: top bars (BM-01), bottom bars (BM-02), and stirrups (BM-03). The top and bottom bars both use shape code 11 (straight bar with hooks at both ends), and in this example they have the same cutting length and diameter (T12). This symmetry is common in plinth beams where both top and bottom bars are designed for nominal reinforcement.
 
@@ -209,7 +209,7 @@ The BBS also implicitly checks the development length: the hook at each end of t
       { error: 'Omitting the damp-proof course requirement in the BBS header', cause: 'Focusing only on reinforcement and ignoring the construction detail', solution: 'Plinth beams typically include a damp-proof membrane (DPM) at the top of the beam. Note this in the BBS general notes.' }
     ],
     bestPractices: [
-      'Use a minimum cover of 50 mm for plinth beams per IS 456:2000. For aggressive soil conditions or ACI 318 compliance, use 75 mm.',
+      'Use a minimum cover of 50 mm for plinth beams per IS 456:2000. For aggressive soil conditions or ACI 318 provisions, use 75 mm.',
       'Make the plinth beam width equal to the wall thickness above (typically 230 mm for a 9-inch brick wall). This provides a uniform load path.',
       'Provide a minimum of 3 top and 3 bottom bars (T12) for any plinth beam wider than 200 mm. This ensures adequate bar spacing and a stable reinforcement cage.',
       'Use the maximum stirrup spacing of 200 mm for plinth beams, even if the structural design allows wider spacing. Closer spacing improves crack control and provides better support for the wall above.',

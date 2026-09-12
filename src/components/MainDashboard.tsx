@@ -65,7 +65,7 @@ export default function MainDashboard({
   const beamCalcs = savedCalculations.filter(c => c.calculatorId === 'structural-beam');
   const deflectionAlarms = beamCalcs.filter(c => String(c.outputs.isDeflectionOk) === 'false').length;
 
-  // Code Compliance Index calculation (ratio of safe calculators)
+  // Saved-calculation review indicator; it is not a code-compliance assessment.
   const complianceIndex = useMemo(() => {
     if (savedCalculations.length === 0) return 100;
     
@@ -253,7 +253,7 @@ export default function MainDashboard({
                 <span>Structural Security</span>
               </div>
               <h4 className="text-sm font-bold text-slate-850 dark:text-white font-sans">
-                Code Compliance Safety Index
+                Calculation Review Indicator
               </h4>
               <p className="text-[11px] font-mono text-slate-550 dark:text-slate-400 leading-relaxed">
                 Calculates ratio of passing criteria limits (shear thresholds, deflection parameters, soil ultimate pressures, column steel reinforcement constraints) evaluated against standard structural standards. Tweak failed sheets to keep this meter optimal.
@@ -287,7 +287,7 @@ export default function MainDashboard({
               </svg>
               <div className="absolute flex flex-col items-center">
                 <span className="text-lg font-black text-slate-800 dark:text-white font-mono">{complianceIndex}%</span>
-                <span className="text-[8px] font-mono text-slate-400 block font-bold">COMPLIANT</span>
+                <span className="text-[8px] font-mono text-slate-400 block font-bold">REVIEW SCORE</span>
               </div>
             </div>
           </div>
@@ -459,7 +459,7 @@ export default function MainDashboard({
                   <th className="py-2.5 pr-4">DIAMETER (MM)</th>
                   <th className="py-2.5 pr-4">WEIGHT (LB/FT)</th>
                   <th className="py-2.5 pr-4">WEIGHT (KG/M)</th>
-                  <th className="py-2.5">TYPICAL COMPLIANCE</th>
+                  <th className="py-2.5">REVIEW STATUS</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-400">

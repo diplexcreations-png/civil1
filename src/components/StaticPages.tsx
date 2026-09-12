@@ -16,10 +16,10 @@ export function AboutPage({ onBack }: StaticPageProps) {
       <button onClick={onBack} className="inline-flex items-center text-xs text-[#0A84FF] hover:underline font-mono mb-4 cursor-pointer">
         <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
       </button>
-      <h2 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">About CivilMath</h2>
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">About CivilMath</h1>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-xs space-y-4 text-slate-700 dark:text-slate-300 font-sans text-sm leading-relaxed">
         <p>
-          CivilMath is a professional civil engineering calculation suite designed for structural engineers, site contractors, and surveying professionals. Our mission is to digitize standard building code calculations (such as ACI 318, Eurocodes, and ASTM) into a streamlined, highly responsive digital workspace.
+          CivilMath is a civil engineering calculation suite for structural engineers, site contractors, and surveying professionals. It provides transparent educational and planning tools that users must check against their project documentation and applicable requirements.
         </p>
         <p>
           We provide tools ranging from Bar Bending Schedules (BBS) to Geotechnical Bearing Capacity limits, ensuring that every design parameter is safely evaluated and easily adjustable. 
@@ -43,7 +43,7 @@ export function ContactPage({ onBack }: StaticPageProps) {
       <button onClick={onBack} className="inline-flex items-center text-xs text-[#0A84FF] hover:underline font-mono mb-4 cursor-pointer">
         <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
       </button>
-      <h2 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">Contact Us</h2>
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">Contact Us</h1>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-xs space-y-6 text-slate-700 dark:text-slate-300 font-sans text-sm">
         <p>
           We value feedback from the engineering community. If you have questions regarding formula implementations, feature requests, or partnership opportunities, please reach out to us.
@@ -78,7 +78,7 @@ export function PrivacyPolicyPage({ onBack }: StaticPageProps) {
       <button onClick={onBack} className="inline-flex items-center text-xs text-[#0A84FF] hover:underline font-mono mb-4 cursor-pointer">
         <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
       </button>
-      <h2 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">Privacy Policy</h2>
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white font-sans tracking-tight mb-6">Privacy Policy</h1>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-xs space-y-4 text-slate-700 dark:text-slate-300 font-sans text-sm leading-relaxed">
         <p><strong>Effective Date:</strong> July 2026</p>
         <h3 className="font-bold text-slate-900 dark:text-white text-base pt-2">1. Information Collection</h3>

@@ -2,13 +2,18 @@ import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AppProvider } from './context/AppContext';
+import { ProjectProvider } from './context/ProjectContext';
 import AppLayout from './components/AppLayout';
 import CategoryPageTemplate from './components/CategoryPageTemplate';
-import HomePage from './pages/HomePage';
+import PremiumHomePage from './pages/PremiumHomePage';
+import CalculatorsDirectoryPage from './pages/CalculatorsDirectoryPage';
+import FAQPage from './pages/FAQPage';
 import BBSCategoryPage from './pages/BBSCategoryPage';
 import DashboardPage from './pages/DashboardPage';
 import StaticPage from './pages/StaticPage';
+import { FormulasPage, GuidePage, GuidesPage, TablesPage } from './pages/KnowledgePages';
 import { trackPageView } from './utils/analytics';
+import { SEOHead } from './utils/seo';
 
 // Lazy-loaded calculator pages for code splitting
 const ConcreteVolumePage = lazy(() => import('./pages/calculators/ConcreteVolumePage'));
@@ -31,8 +36,8 @@ function SuspenseFallback() {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="text-center space-y-3">
-        <div className="w-8 h-8 border-2 border-[#0A84FF] border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-[10px] font-mono text-slate-400">Loading calculator...</p>
+        <div className="w-8 h-8 border-2 border-[#657565] border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-[10px] font-mono text-[#7B8978]">Loading workspace...</p>
       </div>
     </div>
   );
@@ -51,15 +56,17 @@ export default function App() {
     <HelmetProvider>
       <BrowserRouter>
         <AppProvider>
-          <AnalyticsTracker />
-          <Routes>
+          <ProjectProvider>
+            <AnalyticsTracker />
+            <Routes>
+            {/* ── Unified Architectural Studio AppLayout Shell ── */}
             <Route element={<AppLayout />}>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<PremiumHomePage />} />
 
               {/* BBS Category */}
               <Route path="/bbs" element={<BBSCategoryPage />} />
 
-              {/* BBS Structure Pages - all share one lazy chunk */}
+              {/* BBS Structure Pages */}
               <Route path="/bbs/footing" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
               <Route path="/bbs/combined-footing" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
               <Route path="/bbs/strip-footing" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
@@ -74,8 +81,7 @@ export default function App() {
               <Route path="/bbs/staircase" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
               <Route path="/bbs/retaining-wall" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
               <Route path="/bbs/foundation-mesh" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
-
-              {/* Fallback BBS route for backward compatibility or new structure types */}
+              {/* Fallback BBS route */}
               <Route path="/bbs/:structureType" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
 
               {/* Category Landing Pages */}
@@ -84,6 +90,10 @@ export default function App() {
               <Route path="/geotechnical" element={<CategoryPageTemplate category="geotech" />} />
               <Route path="/surveying" element={<CategoryPageTemplate category="survey" />} />
               <Route path="/utilities" element={<CategoryPageTemplate category="utility" />} />
+              <Route path="/guides" element={<GuidesPage />} />
+              <Route path="/guides/:slug" element={<GuidePage />} />
+              <Route path="/formulas" element={<FormulasPage />} />
+              <Route path="/tables" element={<TablesPage />} />
 
               {/* Concrete Calculator Pages */}
               <Route path="/concrete/volume" element={<Suspense fallback={<SuspenseFallback />}><ConcreteVolumePage /></Suspense>} />
@@ -107,7 +117,7 @@ export default function App() {
               {/* Utility Calculator Pages */}
               <Route path="/utilities/unit-converter" element={<Suspense fallback={<SuspenseFallback />}><UnitConverterPage /></Suspense>} />
 
-              {/* Backward Compatibility Redirects (old slug → new slug) */}
+              {/* Backward Compatibility Redirects */}
               <Route path="/concrete/rebar-calculator" element={<Navigate to="/concrete/rebar" replace />} />
               <Route path="/concrete/brick-calculator" element={<Navigate to="/concrete/brick" replace />} />
               <Route path="/structural/steel-calculator" element={<Navigate to="/structural/steel-weight" replace />} />
@@ -129,19 +139,65 @@ export default function App() {
               <Route path="/about" element={<StaticPage page="about" />} />
               <Route path="/contact" element={<StaticPage page="contact" />} />
               <Route path="/privacy" element={<StaticPage page="privacy" />} />
+              <Route path="/terms" element={<StaticPage page="terms" />} />
+              <Route path="/disclaimer" element={<StaticPage page="disclaimer" />} />
+
+              {/* Main Calculator Directory */}
+              <Route path="/calculators" element={<CalculatorsDirectoryPage />} />
+
+              {/* FAQ Page */}
+              <Route path="/faq" element={<FAQPage />} />
+
+              {/* Category & Convenience Redirects */}
+              <Route path="/tools" element={<Navigate to="/construction" replace />} />
+              <Route path="/blog" element={<Navigate to="/guides" replace />} />
+              <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
+
+              {/* /calculators/* Clean Route Aliases */}
+              <Route path="/calculators/concrete" element={<Navigate to="/concrete" replace />} />
+              <Route path="/calculators/concrete-volume" element={<Navigate to="/concrete/volume" replace />} />
+              <Route path="/calculators/rebar" element={<Navigate to="/concrete/rebar" replace />} />
+              <Route path="/calculators/brick" element={<Navigate to="/concrete/brick" replace />} />
+              <Route path="/calculators/beam" element={<Navigate to="/structural/beam" replace />} />
+              <Route path="/calculators/column" element={<Navigate to="/structural/column" replace />} />
+              <Route path="/calculators/slab" element={<Navigate to="/structural/slab" replace />} />
+              <Route path="/calculators/steel-weight" element={<Navigate to="/structural/steel-weight" replace />} />
+              <Route path="/calculators/bbs" element={<Navigate to="/bbs" replace />} />
+              <Route path="/calculators/bbs/:structureType" element={<Suspense fallback={<SuspenseFallback />}><BBSCalculatorPage /></Suspense>} />
+              <Route path="/calculators/foundation" element={<Navigate to="/bbs/footing" replace />} />
+              <Route path="/calculators/staircase" element={<Navigate to="/bbs/staircase" replace />} />
+              <Route path="/calculators/bearing-capacity" element={<Navigate to="/geotechnical/bearing-capacity" replace />} />
+              <Route path="/calculators/retaining-wall" element={<Navigate to="/geotechnical/retaining-wall" replace />} />
+              <Route path="/calculators/hi" element={<Navigate to="/surveying/hi" replace />} />
+              <Route path="/calculators/traverse" element={<Navigate to="/surveying/traverse" replace />} />
+              <Route path="/calculators/unit-converter" element={<Navigate to="/utilities/unit-converter" replace />} />
+              <Route path="/calculators/excavation" element={<Navigate to="/construction" replace />} />
+              <Route path="/calculators/plaster" element={<Navigate to="/concrete/brick" replace />} />
+              <Route path="/calculators/tile" element={<Navigate to="/construction" replace />} />
+              <Route path="/calculators/paint" element={<Navigate to="/construction" replace />} />
 
               {/* 404 */}
               <Route path="*" element={
-                <div className="text-center py-20">
-                  <h1 className="text-2xl font-bold text-slate-600 mb-2">404</h1>
-                  <p className="text-xs text-slate-400 font-mono">Page not found</p>
-                  <a href="/" className="inline-block mt-4 px-4 py-2 bg-[#0A84FF] text-white rounded-xl text-xs font-semibold cursor-pointer no-underline">
-                    Return Home
-                  </a>
+                <div className="text-center py-20 px-4 max-w-lg mx-auto">
+                  <SEOHead meta={{ title: 'Calculator Not Found | CivilMath', description: 'The requested civil engineering calculator or page was not found.', path: '/404', noindex: true }} />
+                  <div className="w-12 h-12 rounded-2xl bg-[#657565]/10 text-[#657565] flex items-center justify-center mx-auto mb-4 text-xl font-bold font-mono">404</div>
+                  <h1 className="text-2xl font-bold text-[#20231F] dark:text-[#EAE7E0] mb-2">Page not found</h1>
+                  <p className="text-xs text-[#7B8978] dark:text-[#A1AFA0] leading-relaxed mb-6">
+                    The requested civil engineering calculator or page was not found.
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    <a href="/calculators" className="px-5 py-2.5 bg-[#657565] hover:bg-[#536153] text-white rounded-xl text-xs font-semibold cursor-pointer no-underline shadow-2xs transition-all">
+                      Browse All Calculators
+                    </a>
+                    <a href="/" className="px-5 py-2.5 border border-[#D8D0C2] dark:border-[#384238] text-[#20231F] dark:text-[#EAE7E0] rounded-xl text-xs font-semibold cursor-pointer no-underline hover:bg-[#EAE7E0]/50 dark:hover:bg-[#2A312A]/50 transition-all">
+                      Back to Home
+                    </a>
+                  </div>
                 </div>
               } />
             </Route>
           </Routes>
+          </ProjectProvider>
         </AppProvider>
       </BrowserRouter>
     </HelmetProvider>

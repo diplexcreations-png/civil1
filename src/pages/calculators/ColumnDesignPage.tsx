@@ -1,7 +1,7 @@
 import CalculatorPageShell from './CalculatorPageShell';
 
-const TITLE = 'Concrete Column Design Calculator (ACI 318)';
-const DESC = 'Free short reinforced concrete column axial capacity calculator per ACI 318-19. Computes nominal axial load capacity (Pn), factored design capacity (φPn), steel reinforcement ratio, and checks code limits for tied rectangular columns.';
+const TITLE = 'Short Concrete Column Axial Capacity Estimator';
+const DESC = 'Educational short reinforced-concrete column axial-capacity estimator. It calculates nominal and factored values from the displayed assumptions for tied rectangular columns.';
 
 export default function ColumnDesignPage() {
   return (
@@ -13,9 +13,9 @@ export default function ColumnDesignPage() {
       description={DESC}
       breadcrumbLabel="Column Design"
       faqs={[
-        { question: 'What column types are supported?', answer: 'This calculator handles short rectangular tied columns under axial compression per ACI 318-19. It supports square and rectangular cross sections with any number of longitudinal bars.' },
-        { question: 'How is the steel ratio verified?', answer: 'The reinforcement ratio ρ = Ast/Ag is calculated and checked against ACI code limits: minimum 1% and maximum 8%. Warnings are shown if the ratio falls outside these bounds.' },
-        { question: 'What safety factors are applied?', answer: 'The design capacity φPn applies a strength reduction factor φ = 0.65 for tied columns with an additional 0.80 factor for axial-only loading per ACI 318-19 Section 22.4.2.' },
+        { question: 'What column types are supported?', answer: 'The estimator is limited to short rectangular tied columns under axial compression. It does not replace an interaction, slenderness, seismic or project-specific design check.' },
+        { question: 'How is the steel ratio shown?', answer: 'The tool calculates ρ = Ast/Ag and displays a warning based on its internal assumptions. Verify any acceptance limits against the applicable project requirements.' },
+        { question: 'What safety factors are applied?', answer: 'The displayed result uses the factors built into this educational method. Confirm factor selection and applicability with a qualified professional before relying on it.' },
       ]}
     />
   );

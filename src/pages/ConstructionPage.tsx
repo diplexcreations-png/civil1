@@ -1,16 +1,26 @@
-import { SEOHead } from '../utils/seo';
+import { SEO, SITE_URL, DEFAULT_IMAGE } from '../utils/seo';
 import ConstructionTools from './ConstructionTools';
 
 export default function ConstructionPage() {
   return (
     <>
-      <SEOHead meta={{
-        title: 'Construction & Site Calculators',
-        description: 'Free construction calculators for earthwork cut-fill, formwork, asphalt, concrete mix design, rebar weight, plastering, sloped excavation, water tanks, fencing, screed and more — 24 site tools in one place.',
-        path: '/construction',
-        type: 'website',
-        breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'Construction', url: '/construction' }],
-      }} />
+      <SEO
+        title="Construction Site Calculators | Field Estimators | CivilMath"
+        description="24 practical field-ready calculators for earthwork cut-fill, formwork contact area, asphalt paving, masonry mortar, scaffolding, and site material costs."
+        canonicalUrl={`${SITE_URL}/construction`}
+        keywords={['construction calculators', 'field civil calculators', 'earthwork cut fill', 'formwork area calculator']}
+        ogImage={DEFAULT_IMAGE}
+        type="website"
+        breadcrumbs={[{ name: 'Home', url: '/' }, { name: 'Construction', url: '/construction' }]}
+        schema={{
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'CivilMath Construction Site Calculators',
+          applicationCategory: 'EngineeringApplication',
+          operatingSystem: 'Any',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        }}
+      />
 
       <div className="max-w-6xl mx-auto">
         <div className="pt-8 md:pt-12 pb-6 text-center">

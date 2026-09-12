@@ -1,7 +1,7 @@
 import CalculatorPageShell from './CalculatorPageShell';
 
 const TITLE = 'Beam Analysis Calculator - Bending Moment & Shear Force';
-const DESC = 'Free structural beam analysis calculator for simply supported beams under uniform (UDL) and point loads. Computes maximum bending moment, shear force, reaction forces, deflection, and serviceability checks per ACI and Eurocode standards.';
+const DESC = 'Educational structural beam analysis calculator for simply supported beams under uniform and point loads. Computes bending moment, shear force, reactions and elastic deflection estimates from the stated inputs.';
 
 export default function BeamAnalysisPage() {
   return (

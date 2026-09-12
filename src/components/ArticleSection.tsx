@@ -54,6 +54,9 @@ export default function ArticleSection({ calculatorId }: ArticleSectionProps) {
           {article.h1}
         </h2>
       </div>
+      <aside className="mb-6 border-l-4 border-amber-400 bg-amber-50 dark:bg-amber-950/20 px-4 py-3 text-xs leading-5 text-amber-900 dark:text-amber-200">
+        Educational reference material only. Any cited standard, coefficient, detailing value or example must be checked against the applicable edition, project specification and a qualified professional before design, procurement or construction use.
+      </aside>
 
       {/* Introduction */}
       <div className={`${cardClass} p-6 mb-6`}>
@@ -235,7 +238,8 @@ export default function ArticleSection({ calculatorId }: ArticleSectionProps) {
 
       {/* Design Codes */}
       <div className={`${cardClass} p-6 mb-6`}>
-        <h3 className={headingClass}>Applicable Design Codes & Standards</h3>
+        <h3 className={headingClass}>Referenced Design Codes & Standards</h3>
+        <p className={`${textClass} mt-2 mb-3`}>References are provided for further review; this calculator does not certify compliance with any code or project requirement.</p>
         <div className="mt-3 space-y-2">
           {article.designCodes.map((code, i) => (
             <div key={i} className="flex items-start gap-2 bg-white dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50 rounded-xl p-3">

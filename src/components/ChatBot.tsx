@@ -35,7 +35,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hello! I am your **CivilMath AI Assistant**. Ask me anything about structural calculations, concrete mix designs, surveying traverses, or code compliance guidelines (ACI 318, ASTM, Eurocodes).'
+      content: 'Hello! I am your **Engineering Assistant**. Ask me anything about structural calculations, concrete mix designs, surveying traverses, or code compliance guidelines (ACI 318, ASTM, Eurocodes).'
     }
   ]);
   const [inputValue, setInputValue] = useState<string>('');
@@ -203,8 +203,8 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
       <div className="fixed top-[250px] right-4 md:top-auto md:bottom-6 md:right-6 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative w-14 h-14 bg-[#0A84FF] text-white hover:bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/25 cursor-pointer border border-blue-400/20 transition-transform duration-200 hover:scale-105 active:scale-95 group focus:outline-none"
-          aria-label="CivilMath AI Assistant Chat"
+          className="relative w-13 h-13 bg-[#657565] text-white hover:bg-[#526052] rounded-full flex items-center justify-center shadow-md shadow-[#657565]/25 cursor-pointer border border-[#7B8978]/40 transition-transform duration-200 hover:scale-105 active:scale-95 group focus:outline-none"
+          aria-label="Engineering Assistant Chat"
         >
           <AnimatePresence mode="wait">
             {isOpen ? (
@@ -215,7 +215,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
                 exit={{ rotate: 45, opacity: 0 }}
                 transition={{ duration: 0.15 }}
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </motion.div>
             ) : (
               <motion.div
@@ -226,12 +226,12 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
                 transition={{ duration: 0.15 }}
                 className="flex items-center justify-center"
               >
-                <MessageSquare className="w-6 h-6" />
+                <MessageSquare className="w-5 h-5" />
               </motion.div>
             )}
           </AnimatePresence>
-          {/* Notification pulsing dot (Online Indicator) */}
-          <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white dark:border-[#090F1C] rounded-full"></span>
+          {/* Notification dot (Online Indicator) */}
+          <span className="absolute top-0 right-0 w-3 h-3 bg-[#657565] border-2 border-white dark:border-[#1E221E] rounded-full"></span>
         </button>
       </div>
 
@@ -243,20 +243,20 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 20, stiffness: 260 }}
-            className="fixed top-[180px] right-4 md:top-auto md:bottom-24 md:right-6 z-50 w-[380px] h-[520px] max-h-[calc(100vh-16rem)] md:max-h-none max-w-[calc(100vw-2rem)] bg-white/95 dark:bg-[#090F1C]/95 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl backdrop-blur-md flex flex-col overflow-hidden text-left"
+            className="fixed top-[180px] right-4 md:top-auto md:bottom-24 md:right-6 z-50 w-[380px] h-[520px] max-h-[calc(100vh-16rem)] md:max-h-none max-w-[calc(100vw-2rem)] bg-[#FAF9F6]/98 dark:bg-[#1E221E]/98 border border-[#D8D0C2] dark:border-[#384238] rounded-3xl shadow-xl backdrop-blur-md flex flex-col overflow-hidden text-left"
           >
             {/* Header */}
-            <div className="bg-slate-900 dark:bg-slate-950 p-4 text-white flex items-center justify-between border-b border-slate-800 shadow-sm relative">
+            <div className="bg-[#20231F] dark:bg-[#161916] p-4 text-white flex items-center justify-between border-b border-[#D8D0C2]/20 shadow-xs relative">
               <div className="flex items-center space-x-2.5">
-                <div className="p-2 bg-[#0A84FF]/10 text-[#0A84FF] rounded-xl border border-[#0A84FF]/25 shadow-inner">
-                  <HardHat className="w-5 h-5" />
+                <div className="p-2 bg-white/10 text-white rounded-xl border border-white/15">
+                  <HardHat className="w-4 h-4 text-[#D9B96E]" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black font-sans tracking-tight text-white flex items-center">
-                    CivilMath AI Assistant
-                    <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full ml-1.5 inline-block animate-ping"></span>
+                  <h3 className="text-xs font-bold font-sans tracking-tight text-white flex items-center">
+                    Engineering Assistant
+                    <span className="w-1.5 h-1.5 bg-[#657565] rounded-full ml-1.5 inline-block"></span>
                   </h3>
-                  <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block">Principal Engineer Bot</span>
+                  <span className="text-[9px] font-mono text-[#A4B2A4] uppercase tracking-wider block">Principal Structural AI</span>
                 </div>
               </div>
               <div className="flex items-center space-x-1">

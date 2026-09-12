@@ -33,7 +33,7 @@ export function StatusBadge({ label, color }: { label: string; color: string }) 
 export function Avatar({ name, url, size = 7 }: { name: string; url?: string; size?: number }) {
   const s = size * 4;
   return url ? (
-    <img src={url} alt="" className={`w-${size} h-${size} rounded-full`} />
+    <img src={url} alt={`${name}'s avatar`} className={`w-${size} h-${size} rounded-full`} />
   ) : (
     <div className={`w-${size} h-${size} rounded-full bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] text-[${size * 1.5}px] font-bold shrink-0`}>
       {name.charAt(0).toUpperCase()}

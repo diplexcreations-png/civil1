@@ -37,7 +37,7 @@ interface ResultCardProps {
   decimals?: number;
 }
 
-export function ResultCard({ icon: Icon, label, value, unit, color = '#2563EB', delay = 0, highlight, decimals = 1 }: ResultCardProps) {
+export function ResultCard({ icon: Icon, label, value, unit, color = '#f97316', delay = 0, highlight, decimals = 1 }: ResultCardProps) {
   const animatedValue = useCountUp(value, 600 + delay * 200);
   const displayValue = decimals === 0 ? animatedValue : animatedValue / Math.pow(10, decimals);
   const formatted = decimals === 0 ? String(displayValue) : displayValue.toFixed(decimals);
@@ -47,7 +47,7 @@ export function ResultCard({ icon: Icon, label, value, unit, color = '#2563EB', 
       initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: delay * 0.08, duration: 0.4, ease: 'easeOut' }}
-      className={`bg-white dark:bg-[#0D1527] border border-[#E2E8F0] dark:border-[#1E293B] rounded-2xl p-4 hover:shadow-md hover:-translate-y-0.5 transition-all ${highlight ? 'ring-2 ring-[#22C55E]/20 border-[#22C55E]/40' : ''}`}
+      className={`bg-white dark:bg-[#0D1527] border border-[#E2E8F0] dark:border-[#1E293B] rounded-2xl p-4 hover:shadow-md hover:-translate-y-0.5 transition-all ${highlight ? 'ring-2 ring-[#f97316]/30 border-[#f97316]/50' : ''}`}
     >
       <div className="flex items-start gap-3">
         <div className="p-2.5 rounded-xl shrink-0" style={{ background: `${color}15` }}>
@@ -77,7 +77,7 @@ export function ResultSummary({ items, className = '' }: {
   items: SummaryItem[]; className?: string;
 }) {
   return (
-    <div className="bg-gradient-to-br from-[#2563EB]/5 to-[#22C55E]/5 dark:from-[#2563EB]/10 dark:to-[#22C55E]/10 border border-[#2563EB]/20 dark:border-[#2563EB]/20 rounded-2xl p-5 shadow-xs">
+    <div className="bg-gradient-to-br from-[#f97316]/5 to-[#22C55E]/5 dark:from-[#f97316]/10 dark:to-[#22C55E]/10 border border-[#f97316]/20 dark:border-[#f97316]/20 rounded-2xl p-5 shadow-xs">
       <div className="flex items-center gap-2 mb-4">
         <CheckCircle className="w-4 h-4 text-[#22C55E]" />
         <span className="text-xs font-extrabold text-[#0F172A] dark:text-[#F1F5F9]">You Need</span>

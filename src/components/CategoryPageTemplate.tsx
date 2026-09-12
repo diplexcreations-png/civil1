@@ -1,12 +1,13 @@
 import { useState, ComponentType } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
-  Search, ChevronRight, Sparkles, Clipboard, Layers, GitCommit, Anchor, Compass, RefreshCw, Grid, Clock,
+  Search, ChevronRight, Sparkles, Clipboard, Layers, GitCommit, Anchor, Compass, RefreshCw, Grid, Clock, Star,
 } from 'lucide-react';
-import { SEOHead, CATEGORY_META, CATEGORY_PATH_MAP, getCalculatorSlug } from '../utils/seo';
+import { SEO, CATEGORY_META, CATEGORY_PATH_MAP, getCalculatorSlug, getRouteSEO, SITE_URL, DEFAULT_IMAGE } from '../utils/seo';
 import { CalculatorCategory, CalculatorDef } from '../types';
 import { CALCULATORS_LIST } from '../data/calculatorsData';
+import { useApp } from '../context/AppContext';
 
 interface CategoryPageProps {
   category: CalculatorCategory;
@@ -22,6 +23,7 @@ const ICON_MAP: Record<string, ComponentType<any>> = {
 export default function CategoryPageTemplate({ category, subCalculators, heroTitle, heroSubtitle }: CategoryPageProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const { favoriteCalculatorIds, toggleFavoriteCalculator, setActiveCalcId } = useApp();
   const meta = CATEGORY_META[category];
   const categoryPath = CATEGORY_PATH_MAP[category];
 
@@ -47,7 +49,7 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
   const FAQS: { question: string; answer: string }[] = [
     {
       question: `What standards are used in the ${meta.name} calculators?`,
-      answer: `All ${meta.name} calculators implement industry-standard formulas. BBS calculators support ACI 318, BS 8110, Eurocode 2, and IS 456. Structural calculators use ACI 318-19 formulations. Geotechnical tools use Terzaghi and Rankine methods.`,
+      answer: `Each calculator explains its method and assumptions. Use results as educational or preliminary planning information and verify final design decisions against the applicable project requirements.`,
     },
     {
       question: 'Can I switch between metric and imperial units?',
@@ -63,35 +65,41 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
     },
   ];
 
+  const routeSEO = getRouteSEO(`/${categoryPath}`);
+  const seoTitle = routeSEO?.title || `${meta.name} Calculators | CivilMath`;
+  const seoDesc = routeSEO?.description || meta.description;
+
   return (
     <>
-      <SEOHead meta={{
-        title: `${meta.name} Calculators`,
-        description: meta.description,
-        path: `/${categoryPath}`,
-        type: 'website',
-        breadcrumbs: [{ name: 'Home', url: '/' }, { name: meta.name, url: `/${categoryPath}` }],
-        faqs: FAQS,
-        schema: {
+      <SEO
+        title={seoTitle}
+        description={seoDesc}
+        canonicalUrl={`${SITE_URL}/${categoryPath}`}
+        keywords={routeSEO?.keywords}
+        ogImage={DEFAULT_IMAGE}
+        type="website"
+        breadcrumbs={[{ name: 'Home', url: '/' }, { name: meta.name, url: `/${categoryPath}` }]}
+        faqs={FAQS}
+        schema={{
           '@context': 'https://schema.org',
           '@type': 'CollectionPage',
-          name: `${meta.name} Calculators`,
-          description: meta.description,
-        },
-      }} />
+          name: seoTitle,
+          description: seoDesc,
+        }}
+      />
 
       {/* Hero */}
       <section className="relative pt-10 md:pt-16 pb-8 text-center">
         <div className="mb-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#2563EB]/10 dark:bg-[#2563EB]/15 border border-[#2563EB]/20 rounded-full text-[10px] font-bold text-[#2563EB] uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#EAE7E0] dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] rounded-full text-[10px] font-mono font-bold text-[#657565] uppercase tracking-wider">
             <Sparkles className="w-3 h-3" />
             {meta.name}
           </span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight max-w-3xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-[#20231F] dark:text-[#EAE7E0] tracking-tight leading-tight max-w-3xl mx-auto">
           {heroTitle || meta.heroTitle}
         </h1>
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-3 text-sm text-[#7B8978] dark:text-[#A1AFA0] max-w-2xl mx-auto leading-relaxed">
           {heroSubtitle || meta.heroSubtitle}
         </p>
       </section>
@@ -99,12 +107,11 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       {/* Search */}
       <div className="max-w-xl mx-auto mb-8">
         <div className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#2563EB] to-[#4DA6FF] rounded-2xl opacity-15 group-hover:opacity-25 blur transition-opacity" />
-          <div className="relative flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs group-hover:shadow-sm transition-all">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input type="text" placeholder="Search calculators..." value={searchQuery}
+          <div className="relative flex items-center bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl shadow-2xs group-hover:border-[#657565] transition-all">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B8978]" />
+            <input type="text" aria-label="Search calculators" placeholder="Search calculators..." value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent pl-11 pr-4 py-3.5 text-sm outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400" />
+              className="w-full bg-transparent pl-11 pr-4 py-3.5 text-sm outline-none text-[#20231F] dark:text-[#EAE7E0] placeholder:text-[#7B8978]" />
           </div>
         </div>
       </div>
@@ -112,30 +119,34 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       {/* Calculator Cards */}
       <div className="pb-12">
         {filtered.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-            <Search className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-xs text-slate-500">No calculators found.</p>
+          <div className="text-center py-16 bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl">
+            <Search className="w-8 h-8 text-[#7B8978] mx-auto mb-2" />
+            <p className="text-xs text-[#7B8978]">No calculators found.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((calc, idx) => (
               <motion.div key={calc.id} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: Math.min(0.15, idx * 0.03) }}
-                onClick={() => navigate(calc.path)}
-                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer text-left"
+                onClick={() => { setActiveCalcId(calc.id); navigate(calc.path); }}
+                className="group relative bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl p-5 hover:shadow-xs hover:-translate-y-0.5 hover:border-[#657565] transition-all cursor-pointer text-left"
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#2563EB]/10 dark:bg-[#2563EB]/15 text-[#2563EB] shrink-0">
+                  <div className="p-2.5 rounded-xl bg-[#657565]/10 text-[#657565] shrink-0">
                     <Layers className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#2563EB] transition-colors">{calc.name}</h3>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">{calc.description}</p>
-                    <div className="mt-3 flex items-center gap-2 text-[9px] text-slate-400">
+                    <h3 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0] group-hover:text-[#657565] transition-colors">{calc.name}</h3>
+                    <p className="text-[10px] text-[#7B8978] dark:text-[#A1AFA0] mt-1 leading-relaxed line-clamp-2">{calc.description}</p>
+                    <div className="mt-3 flex items-center gap-2 text-[9px] text-[#7B8978]">
                       <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" /> ~2 min</span>
                     </div>
+                    <Link to={calc.path} onClick={e => e.stopPropagation()} className="mt-3 inline-block text-[10px] font-semibold text-[#657565] no-underline">Open calculator →</Link>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
+                  <div className="flex flex-col items-end gap-2">
+                    <button onClick={event => { event.stopPropagation(); toggleFavoriteCalculator(calc.id); }} aria-label={`${favoriteCalculatorIds.includes(calc.id) ? 'Remove' : 'Add'} ${calc.name} ${'from favorites'}`} className={`rounded-lg p-1.5 cursor-pointer ${favoriteCalculatorIds.includes(calc.id) ? 'text-[#D9B96E] bg-[#D9B96E]/10' : 'text-[#D8D0C2] hover:text-[#D9B96E]'}`}><Star className={`w-3.5 h-3.5 ${favoriteCalculatorIds.includes(calc.id) ? 'fill-current' : ''}`} /></button>
+                    <ChevronRight className="w-4 h-4 text-[#D8D0C2] group-hover:text-[#657565] group-hover:translate-x-0.5 transition-all" />
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -168,10 +179,10 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">Explore Other Categories</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {Object.entries(CATEGORY_META).filter(([key]) => key !== category).map(([key, catMeta]) => (
-              <button key={key} onClick={() => navigate(`/${CATEGORY_PATH_MAP[key as CalculatorCategory]}`)}
-                className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-[#2563EB]/40 hover:shadow-xs transition-all text-left cursor-pointer">
+              <Link key={key} to={`/${CATEGORY_PATH_MAP[key as CalculatorCategory]}`}
+                className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-[#2563EB]/40 hover:shadow-xs transition-all text-left cursor-pointer no-underline">
                 <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 capitalize">{catMeta.name}</span>
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -180,9 +191,9 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       {/* Footer */}
       <footer className="text-center text-[10px] text-slate-400 dark:text-slate-500 border-t border-slate-200 dark:border-slate-800/80 pt-8 pb-8 space-y-3">
         <div className="flex justify-center items-center gap-6 font-semibold">
-          <button onClick={() => navigate('/about')} className="hover:text-[#2563EB] transition-colors cursor-pointer">About Us</button>
-          <button onClick={() => navigate('/contact')} className="hover:text-[#2563EB] transition-colors cursor-pointer">Contact</button>
-          <button onClick={() => navigate('/privacy')} className="hover:text-[#2563EB] transition-colors cursor-pointer">Privacy</button>
+          <Link to="/about" className="hover:text-[#2563EB] transition-colors no-underline">About Us</Link>
+          <Link to="/contact" className="hover:text-[#2563EB] transition-colors no-underline">Contact</Link>
+          <Link to="/privacy" className="hover:text-[#2563EB] transition-colors no-underline">Privacy</Link>
         </div>
         <p>© 2026 CivilMath Inc. Professional Civil Calculation Labs.</p>
       </footer>

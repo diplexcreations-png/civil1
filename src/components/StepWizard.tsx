@@ -38,7 +38,7 @@ export default function StepWizard({ steps, currentStep, onStepClick, children }
                   </div>
                   <div className="hidden sm:block text-center">
                     <div className={`text-[9px] font-bold uppercase tracking-wider ${
-                      status === 'active' ? 'text-[#2563EB]' :
+                      status === 'active' ? 'text-[#f97316]' :
                       status === 'completed' ? 'text-[#22C55E]' : 'text-[#94A3B8]'
                     }`}>{step.label}</div>
                     {step.description && (

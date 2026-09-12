@@ -212,7 +212,7 @@ The stirrup cutting length is calculated by determining the perimeter of the sti
 
 The total weight of reinforcement is calculated by multiplying the total cutting length of each bar type by the unit weight of steel, which is 7850 kg/m³. The unit weight per metre length for a bar of diameter φ is given by (π × φ² / 4) × 7850 × 10⁻⁶ kg/m, or approximately φ²/162 kg/m where φ is in millimetres. The reinforcement percentage is computed as the total area of steel divided by the gross cross-sectional area of the beam (b × D), expressed as a percentage. This percentage is checked against minimum and maximum limits specified in the design code.
 
-The calculator also verifies detailing compliance by checking that the provided development length meets the code requirement, that the stirrup spacing does not exceed the maximum permitted value, and that the bar spacing in the section allows for adequate concrete placement and compaction. If any parameter is outside the permissible range, a warning is displayed to alert the user to review the input values. The final output includes a detailed bar bending schedule table with bar marks, diameters, shape codes, individual cutting lengths, number of bars, and total weight for each bar type.`,
+The calculator also checks detailing provisions by comparing the provided development length with the code requirement, that the stirrup spacing does not exceed the maximum permitted value, and that the bar spacing in the section allows for adequate concrete placement and compaction. If any parameter is outside the permissible range, a warning is displayed to alert the user to review the input values. The final output includes a detailed bar bending schedule table with bar marks, diameters, shape codes, individual cutting lengths, number of bars, and total weight for each bar type.`,
     formulas: [
       {
         name: 'Effective Span Calculation',
@@ -473,7 +473,7 @@ For quantity surveying and billing purposes, the total weight of each bar diamet
       },
       {
         question: 'Can the lintel beam span more than 3 metres?',
-        answer: 'Yes, lintel beams can span more than 3 metres, but the section depth increases proportionally. For spans exceeding 3 m, the depth-to-span ratio should be at least 1/12 for simply supported lintels. A structural design check for deflection and cracking becomes mandatory for longer spans.'
+        answer: 'Yes, lintel beams can span more than 3 metres, but the section depth increases proportionally. For spans exceeding 3 m, the depth-to-span ratio should be at least 1/12 for simply supported lintels. A structural design check for deflection and cracking is typically required for longer spans.'
       },
       {
         question: 'What is the difference between a lintel beam and a plinth beam?',

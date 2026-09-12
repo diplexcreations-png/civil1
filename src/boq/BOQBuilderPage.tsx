@@ -10,6 +10,7 @@ import {
 import { BOQProvider, useBOQ } from './BOQContext';
 import { FoundationBOQ, ColumnBOQ, BeamBOQ, SlabBOQ, StairBOQ, RetainingWallBOQ, BrickWallBOQ } from './types';
 import type { BOQSection } from './types';
+import { SEO, SITE_URL, DEFAULT_IMAGE } from '../utils/seo';
 
 const SECTION_META: { id: BOQSection; label: string; icon: typeof FileText }[] = [
   { id: 'project-info', label: 'Project', icon: FileText },
@@ -911,8 +912,27 @@ function BOQBuilderContent() {
 
 export default function BOQBuilderPage() {
   return (
-    <BOQProvider>
-      <BOQBuilderContent />
-    </BOQProvider>
+    <>
+      <SEO
+        title="Bill of Quantities Builder | Construction Cost | CivilMath"
+        description="Interactive Bill of Quantities (BOQ) estimation tool for civil engineering projects. Calculate takeoff materials, labor costs, and export formatted reports."
+        canonicalUrl={`${SITE_URL}/boq-builder`}
+        keywords={['bill of quantities builder', 'boq generator civil engineering', 'construction costing', 'quantity takeoff']}
+        ogImage={DEFAULT_IMAGE}
+        type="website"
+        breadcrumbs={[{ name: 'Home', url: '/' }, { name: 'BOQ Builder', url: '/boq-builder' }]}
+        schema={{
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'CivilMath Bill of Quantities Builder',
+          applicationCategory: 'EngineeringApplication',
+          operatingSystem: 'Any',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        }}
+      />
+      <BOQProvider>
+        <BOQBuilderContent />
+      </BOQProvider>
+    </>
   );
 }

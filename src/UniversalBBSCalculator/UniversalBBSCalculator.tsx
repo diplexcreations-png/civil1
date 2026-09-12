@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Clipboard, FileText, FileSpreadsheet, Printer, Save, Download,
   RefreshCw, CheckCircle2, Info, Layers, Box, Hammer, AlertTriangle, Plus, Trash2,
@@ -86,6 +88,19 @@ export default function UniversalBBSCalculator({
   const [expandedBarMark, setExpandedBarMark] = useState<string | null>(null);
   const [multiMemberMode, setMultiMemberMode] = useState(false);
   const [multiMembers, setMultiMembers] = useState<IProjectMember[]>([]);
+  const [isResultSheetOpen, setIsResultSheetOpen] = useState(false);
+
+  useEffect(() => {
+    const showResults = () => {
+      setIsResultSheetOpen(true);
+      const el = document.getElementById('calculator-results');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+    window.addEventListener('civilmath:show-results', showResults);
+    return () => window.removeEventListener('civilmath:show-results', showResults);
+  }, []);
 
   // Combined footing sections
   const [footingSections, setFootingSections] = useState<FootingSection[]>(() => {
@@ -272,6 +287,62 @@ export default function UniversalBBSCalculator({
 
   return (
     <div className={`space-y-5 text-left ${isPrintPreviewMode ? 'print-preview-mode' : ''}`}>
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isResultSheetOpen && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/60 p-3 sm:p-6 backdrop-blur-sm" onClick={() => setIsResultSheetOpen(false)}>
+              <motion.section initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }} role="dialog" aria-modal="true" aria-label="BBS Calculation results" className="w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900" onClick={event => event.stopPropagation()}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2563EB]">Calculation complete</span>
+                    <h2 className="mt-1 text-lg font-extrabold text-slate-900 dark:text-white">{structureType.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} BBS Summary</h2>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Review bar bending schedule and quantity survey summary.</p>
+                  </div>
+                  <button onClick={() => setIsResultSheetOpen(false)} aria-label="Close results" className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"><X className="w-4 h-4" /></button>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/70">
+                    <div className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Concrete Volume</div>
+                    <div className="mt-1 break-words text-base font-extrabold text-slate-800 dark:text-white">{concreteVolume} {isMetric ? 'm³' : 'yd³'}</div>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/70">
+                    <div className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Total Steel Weight</div>
+                    <div className="mt-1 break-words text-base font-extrabold text-[#2563EB]">{totalSteelWeight.toFixed(1)} {isMetric ? 'kg' : 'lbs'}</div>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/70">
+                    <div className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Reinforcement Ratio</div>
+                    <div className="mt-1 break-words text-base font-extrabold text-emerald-600 dark:text-emerald-400">{reinforcementRatio.toFixed(2)} kg/m³</div>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/70">
+                    <div className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Total Cost</div>
+                    <div className="mt-1 break-words text-base font-extrabold text-amber-600 dark:text-amber-400">{currency} {totalProjectCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  </div>
+                </div>
+                <div className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-3">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 font-mono">Bar Schedule Overview ({rebarList.length} marks)</div>
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                    {rebarList.map(item => (
+                      <div key={item.mark} className="flex items-center justify-between text-[11px] p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                        <span className="font-bold text-slate-700 dark:text-slate-200">{item.mark} ({item.description})</span>
+                        <span className="font-mono text-slate-500">φ{item.dia} · {item.totalBars} bars · {item.totalWeight.toFixed(1)} {isMetric ? 'kg' : 'lbs'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <button onClick={handleExportPDF} className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-xs font-bold text-red-700 hover:bg-red-100 cursor-pointer dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">Download PDF</button>
+                  <button onClick={handleExportExcel} className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 cursor-pointer dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">Download Excel</button>
+                  <button onClick={() => {
+                    const text = `Structure: ${structureType}\nConcrete: ${concreteVolume} ${isMetric ? 'm³' : 'yd³'}\nSteel: ${totalSteelWeight.toFixed(1)} ${isMetric ? 'kg' : 'lbs'}\nCost: ${currency} ${totalProjectCost.toFixed(2)}`;
+                    navigator.clipboard.writeText(text);
+                  }} className="rounded-xl bg-[#2563EB] px-3 py-2.5 text-xs font-bold text-white hover:bg-blue-700 cursor-pointer">Copy summary</button>
+                </div>
+              </motion.section>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
       {/* Header */}
       <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-4 rounded-3xl backdrop-blur-lg shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -793,7 +864,7 @@ export default function UniversalBBSCalculator({
         </div>
 
         {/* RIGHT: Summary + BBS Table */}
-        <div className="lg:col-span-8 space-y-5">
+        <div id="calculator-results" className="lg:col-span-8 space-y-5">
           {/* Summary */}
           <div className="bg-slate-900 text-white p-5 rounded-3xl shadow-lg border border-slate-800 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Box className="w-40 h-40" /></div>

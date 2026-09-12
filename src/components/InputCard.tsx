@@ -34,14 +34,14 @@ export default function InputCard({
 
   return (
     <div className={`relative bg-white dark:bg-[#0D1527] border-2 rounded-2xl p-4 transition-all duration-200 ${
-      isFocused ? 'border-[#2563EB] shadow-sm shadow-[#2563EB]/10' :
+      isFocused ? 'border-[#f97316] shadow-sm shadow-[#f97316]/10' :
       vc ? `border-[${vc.border}]` :
       'border-[#E2E8F0] dark:border-[#1E293B] hover:border-[#CBD5E1] dark:hover:border-[#334155]'
     }`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           {Icon && (
-            <div className="p-1.5 rounded-lg bg-[#2563EB]/10 text-[#2563EB]">
+            <div className="p-1.5 rounded-lg bg-[#f97316]/10 text-[#f97316]">
               <Icon className="w-4 h-4" />
             </div>
           )}
@@ -142,23 +142,23 @@ export function SelectCardGrid({ items, selected, onChange, columns = 3 }: Selec
           <button key={item.id} onClick={() => onChange(item.id)}
             className={`p-3 rounded-xl border-2 text-left transition-all cursor-pointer ${
               isSelected
-                ? 'border-[#2563EB] bg-[#2563EB]/5 dark:bg-[#2563EB]/10 shadow-xs'
+                ? 'border-[#f97316] bg-[#f97316]/5 dark:bg-[#f97316]/10 shadow-xs'
                 : 'border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#0D1527] hover:border-[#CBD5E1] dark:hover:border-[#334155] hover:shadow-xs'
             }`}
           >
             {item.icon && (
-              <div className="p-1.5 rounded-lg bg-[#2563EB]/10 text-[#2563EB] inline-flex mb-1.5">
+              <div className="p-1.5 rounded-lg bg-[#f97316]/10 text-[#f97316] inline-flex mb-1.5">
                 <item.icon className="w-3.5 h-3.5" />
               </div>
             )}
-            <div className={`text-[10px] font-bold ${isSelected ? 'text-[#2563EB]' : 'text-[#0F172A] dark:text-[#F1F5F9]'}`}>
+            <div className={`text-[10px] font-bold ${isSelected ? 'text-[#f97316]' : 'text-[#0F172A] dark:text-[#F1F5F9]'}`}>
               {item.label}
             </div>
             {item.description && (
               <div className="text-[8px] text-[#94A3B8] mt-0.5">{item.description}</div>
             )}
             {isSelected && (
-              <div className="mt-1.5 flex items-center gap-1 text-[8px] text-[#2563EB] font-semibold">
+              <div className="mt-1.5 flex items-center gap-1 text-[8px] text-[#f97316] font-semibold">
                 <Check className="w-2.5 h-2.5" /> Selected
               </div>
             )}

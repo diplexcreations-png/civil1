@@ -13,5 +13,5 @@ coverage/
 # Local Vercel folder
 .vercel
 
-.vercel
-.env*
+test-results/
+playwright-report/
