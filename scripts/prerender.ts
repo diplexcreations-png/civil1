@@ -73,8 +73,20 @@ async function prerenderRoutes() {
     try {
       browser = await chromium.launch({ channel: 'msedge' });
     } catch {
-      browser = await chromium.launch({ channel: 'chrome' });
+      try {
+        browser = await chromium.launch({ channel: 'chrome' });
+      } catch {
+        console.warn('[Prerender] Browser not available in this build environment (e.g. Vercel CI). SPA fallback index.html will serve routes.');
+        server.close();
+        return;
+      }
     }
+  }
+
+  if (!browser) {
+    console.warn('[Prerender] Browser not initialized; skipping route snapshotting.');
+    server.close();
+    return;
   }
 
   const routes = ALL_ROUTES_SEO.map(r => r.path);
