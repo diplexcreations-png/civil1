@@ -60,18 +60,18 @@ export default function BBSCategoryPage() {
       />
 
       {/* Hero */}
-      <section className="relative pt-8 md:pt-12 text-center overflow-hidden border-b border-[#D8D0C2]/50 dark:border-[#384238]/50 pb-10 mb-8">
+      <section className="relative pt-8 md:pt-12 text-center overflow-hidden border-b border-[#DCE3F5]/50 dark:border-[#2A3350]/50 pb-10 mb-8">
         <div className="relative max-w-4xl mx-auto px-4 space-y-4 z-10">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center space-x-1.5 bg-[#EAE7E0] dark:bg-[#2A312A] px-3.5 py-1.5 rounded-full border border-[#D8D0C2] dark:border-[#384238] text-[10px] font-mono text-[#657565] tracking-wider font-bold uppercase">
+            className="inline-flex items-center space-x-1.5 bg-[#E7EAF7] dark:bg-[#1D2438] px-3.5 py-1.5 rounded-full border border-[#DCE3F5] dark:border-[#2A3350] text-[10px] font-mono text-[#4C5FE0] tracking-wider font-bold uppercase">
             <Clipboard className="w-3.5 h-3.5" /><span>Bar Bending Schedule</span>
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-extrabold font-sans tracking-tight text-[#20231F] dark:text-[#EAE7E0] leading-tight">
+            className="text-3xl md:text-5xl font-extrabold font-sans tracking-tight text-[#161A2C] dark:text-[#E7EAF7] leading-tight">
             Rebar BBS Calculators
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            className="text-[#7B8978] dark:text-[#A1AFA0] text-xs md:text-sm font-sans max-w-2xl mx-auto leading-relaxed">
+            className="text-[#7C88B8] dark:text-[#8894BE] text-xs md:text-sm font-sans max-w-2xl mx-auto leading-relaxed">
             Generate professional bar bending schedules for any reinforced concrete structure. 
             Review assumptions and project detailing requirements before using results for fabrication or construction.
           </motion.p>
@@ -81,10 +81,10 @@ export default function BBSCategoryPage() {
       {/* Search */}
       <div className="max-w-xl mx-auto mb-8 px-4">
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B8978]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7C88B8]" />
           <input type="text" aria-label="Search BBS structure types" placeholder="Search structure types..." value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl py-3 pl-10 pr-4 text-xs text-[#20231F] dark:text-[#EAE7E0] outline-none focus:border-[#657565] font-mono placeholder:text-[#7B8978]" />
+            className="w-full backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-2xl py-3 pl-10 pr-4 text-xs text-[#161A2C] dark:text-[#E7EAF7] outline-none focus:border-[#4C5FE0] font-mono placeholder:text-[#7C88B8]" />
         </div>
       </div>
 
@@ -96,24 +96,24 @@ export default function BBSCategoryPage() {
               viewport={{ once: true }} transition={{ delay: Math.min(0.15, idx * 0.02) }}>
               <Link
                 to={item.path}
-                className="group relative block bg-[#FAF8F5] dark:bg-[#202520] hover:bg-white dark:hover:bg-[#262C26] border border-[#D8D0C2] dark:border-[#384238] p-5 rounded-2xl hover:border-[#657565] shadow-2xs hover:shadow-xs transition-all no-underline overflow-hidden text-left"
+                className="group relative block backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 hover:bg-white dark:hover:bg-[#171C2C] border border-[#DCE3F5] dark:border-[#2A3350] p-5 rounded-2xl hover:border-[#4C5FE0] shadow-2xs hover:shadow-xs transition-all no-underline overflow-hidden text-left"
               >
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="p-1.5 bg-[#657565]/10 text-[#657565] rounded-lg">
+                    <span className="p-1.5 bg-[#4C5FE0]/10 text-[#4C5FE0] rounded-lg">
                       <item.icon className="w-4 h-4" />
                     </span>
-                    <h2 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0] group-hover:text-[#657565] transition-all font-sans">
+                    <h2 className="text-sm font-bold text-[#161A2C] dark:text-[#E7EAF7] group-hover:text-[#4C5FE0] transition-all font-sans">
                       {item.name}
                     </h2>
                   </div>
-                  <p className="text-[10px] text-[#7B8978] dark:text-[#A1AFA0] font-mono leading-relaxed line-clamp-2">
+                  <p className="text-[10px] text-[#7C88B8] dark:text-[#8894BE] font-mono leading-relaxed line-clamp-2">
                     {item.description}
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#D8D0C2]/50 dark:border-[#384238]/50 flex justify-between items-center text-[10px] font-mono text-[#657565]">
+                <div className="mt-4 pt-3 border-t border-[#DCE3F5]/50 dark:border-[#2A3350]/50 flex justify-between items-center text-[10px] font-mono text-[#4C5FE0]">
                   <span>Open BBS Calculator</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform text-[#7B8978]" />
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform text-[#7C88B8]" />
                 </div>
               </Link>
             </motion.div>

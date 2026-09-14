@@ -129,7 +129,7 @@ export default function MainDashboard({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* STAT 1: Active Saves */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xs hover:border-[#0A84FF]/30 transition-all">
+        <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xs hover:border-[#0A84FF]/30 transition-all">
           <div className="space-y-1 text-left">
             <span className="text-[10px] font-mono text-slate-500 uppercase block tracking-wider font-bold">Saved Computations</span>
             <span className="text-2xl font-black text-slate-800 dark:text-white font-sans">{savedCalculations.length} Sheets</span>
@@ -141,7 +141,7 @@ export default function MainDashboard({
         </div>
 
         {/* STAT 2: Materials volume */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xs hover:border-indigo-500/30 transition-all">
+        <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xs hover:border-indigo-500/30 transition-all">
           <div className="space-y-1 text-left">
             <span className="text-[10px] font-mono text-slate-500 uppercase block tracking-wider font-bold">Scheduled Concrete</span>
             <span className="text-2xl font-black text-slate-800 dark:text-white font-sans">
@@ -155,7 +155,7 @@ export default function MainDashboard({
         </div>
 
         {/* STAT 3: Deflection alarm indicators */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xs hover:border-red-500/30 transition-all">
+        <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-xs hover:border-red-500/30 transition-all">
           <div className="space-y-1 text-left">
             <span className="text-[10px] font-mono text-slate-500 uppercase block tracking-wider font-bold">Extreme Deflections</span>
             <span className={`text-2xl font-black ${deflectionAlarms > 0 ? 'text-red-500 animate-pulse' : 'text-slate-800 dark:text-white'} font-sans`}>
@@ -177,7 +177,7 @@ export default function MainDashboard({
         <div className="lg:col-span-7 space-y-6">
           
           {/* Saved sheets roll */}
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg flex flex-col justify-between min-h-[350px] shadow-xs">
+          <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg flex flex-col justify-between min-h-[350px] shadow-xs">
             <div className="text-left">
               <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center space-x-2">
@@ -246,7 +246,7 @@ export default function MainDashboard({
           </div>
 
           {/* Code Compliance radial bento card */}
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs text-left">
+          <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs text-left">
             <div className="space-y-3 flex-1">
               <div className="inline-flex items-center space-x-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 px-2 py-0.5 rounded-lg text-[9px] font-mono uppercase font-bold tracking-wider border border-emerald-500/20">
                 <ShieldAlert className="w-3.5 h-3.5" />
@@ -298,7 +298,7 @@ export default function MainDashboard({
         <div className="lg:col-span-5 space-y-6">
           
           {/* Projects Collaboration */}
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg flex flex-col justify-between min-h-[350px] shadow-xs">
+          <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl backdrop-blur-lg flex flex-col justify-between min-h-[350px] shadow-xs">
             <div className="text-left">
               <div className="flex items-center space-x-2 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <FolderOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -330,7 +330,7 @@ export default function MainDashboard({
                 placeholder="e.g. West Highway Tunnel" 
                 value={newProjectName}
                 onChange={e => setNewProjectName(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-mono rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-white outline-none focus:border-emerald-500 h-9 shadow-2xs"
+                className="w-full backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[11px] font-mono rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-white outline-none focus:border-emerald-500 h-9 shadow-2xs"
               />
               <input 
                 aria-label="New project brief description"
@@ -338,7 +338,7 @@ export default function MainDashboard({
                 placeholder="Brief structural scope note" 
                 value={newProjectDesc}
                 onChange={e => setNewProjectDesc(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-mono rounded-lg px-2.5 py-1.5 text-slate-600 dark:text-slate-350 outline-none focus:border-emerald-500 h-9 shadow-2xs"
+                className="w-full backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-[11px] font-mono rounded-lg px-2.5 py-1.5 text-slate-600 dark:text-slate-350 outline-none focus:border-emerald-500 h-9 shadow-2xs"
               />
               <button
                 onClick={handleCreateProject}
@@ -351,7 +351,7 @@ export default function MainDashboard({
           </div>
 
           {/* Pour Casting Schedule timeline */}
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-xs text-left">
+          <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-xs text-left">
             <div className="flex items-center space-x-2 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
               <Calendar className="w-4 h-4 text-indigo-500" />
               <h4 className="text-xs font-mono text-slate-700 dark:text-slate-350 uppercase tracking-wider font-bold">CASTING SCHEDULES</h4>
@@ -390,7 +390,7 @@ export default function MainDashboard({
       </div>
 
       {/* FULL WIDTH BOTTOM: ASTM Rebars sizes standards with clickability */}
-      <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs text-left">
+      <div className="backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-xs text-left">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center space-x-2">
             <HardHat className="w-5 h-5 text-amber-500" />
@@ -405,7 +405,7 @@ export default function MainDashboard({
               <button
                 key={r.size}
                 onClick={() => setSelectedRebarSize(r.size)}
-                className={`px-3 py-1 text-[10px] font-mono rounded-lg border uppercase whitespace-nowrap transition-colors cursor-pointer ${selectedRebarSize === r.size ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-450 font-bold' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
+                className={`px-3 py-1 text-[10px] font-mono rounded-lg border uppercase whitespace-nowrap transition-colors cursor-pointer ${selectedRebarSize === r.size ? 'border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-450 font-bold' : 'border-slate-200 dark:border-slate-800 backdrop-blur-xl backdrop-saturate-150 bg-white/60 dark:bg-slate-900/60 text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
               >
                 Size {r.size}
               </button>

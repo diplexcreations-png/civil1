@@ -4,8 +4,11 @@ import { motion } from 'motion/react';
 import {
   Layers, Grid, GitCommit, Compass, RefreshCw,
   HardHat, BookOpen, Calculator, ArrowRight, ShieldCheck,
-  CheckCircle2, Box, Sparkles, Scale, ExternalLink, FileSpreadsheet, FileText
+  CheckCircle2, Box, Sparkles, Scale, ExternalLink, FileSpreadsheet, FileText,
+  Search, Star, Clock, ChevronRight, Lightbulb
 } from 'lucide-react';
+import { CALCULATORS_LIST } from '../data/calculatorsData';
+import { CATEGORY_PATH_MAP, getCalculatorSlug } from '../utils/seo';
 import {
   SEO,
   generateOrganizationSchema,
@@ -22,7 +25,7 @@ const ENGINEERING_DISCIPLINES = [
     path: '/concrete',
     desc: 'Slab volumes, cement bags, sand/gravel ratios, brickwork, and mortar batching.',
     icon: Layers,
-    color: '#657565',
+    color: '#4C5FE0',
     tag: 'ACI 318 / IS 456',
     popularCalc: { name: 'Concrete Volume', path: '/concrete/volume' },
   },
@@ -44,7 +47,7 @@ const ENGINEERING_DISCIPLINES = [
     path: '/bbs',
     desc: 'Bar bending schedules, cutting lengths, weight takeoffs, and shape codes.',
     icon: Grid,
-    color: '#7B8978',
+    color: '#7C88B8',
     tag: 'BS 8666 / IS 2502',
     popularCalc: { name: 'Footing BBS', path: '/bbs/footing' },
   },
@@ -99,7 +102,7 @@ const ENGINEERING_DISCIPLINES = [
     path: '/utilities/unit-converter',
     desc: 'Instant SI Metric and US Customary conversions for stress, force, density, and volume.',
     icon: RefreshCw,
-    color: '#7B8978',
+    color: '#7C88B8',
     tag: 'ISO 80000',
     popularCalc: { name: 'Unit Converter', path: '/utilities/unit-converter' },
   },
@@ -151,8 +154,33 @@ const DESIGN_CODES = [
 
 export default function PremiumHomePage() {
   const navigate = useNavigate();
-  const { setActiveCalcId } = useApp();
+  const { setActiveCalcId, favoriteCalculatorIds, recentCalculatorIds } = useApp();
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'structural' | 'concrete' | 'bbs' | 'site'>('all');
+  const [now, setNow] = useState(new Date());
+
+  React.useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  const favorites = favoriteCalculatorIds.map(id => CALCULATORS_LIST.find(c => c.id === id)).filter(Boolean).slice(0, 4);
+  const recents = recentCalculatorIds.map(id => CALCULATORS_LIST.find(c => c.id === id)).filter(Boolean).slice(0, 4);
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const openCalculator = (id: string) => {
+    const def = CALCULATORS_LIST.find(c => c.id === id);
+    if (!def) return;
+    setActiveCalcId(id);
+    const path = CATEGORY_PATH_MAP[def.category];
+    navigate(def.category === 'bbs' ? '/bbs/footing' : `/${path}/${getCalculatorSlug(def)}`);
+  };
+
+  const openSearch = () => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+  };
 
   return (
     <div className="space-y-10">
@@ -165,24 +193,140 @@ export default function PremiumHomePage() {
         schema={[generateOrganizationSchema(), generateWebsiteSchema()]}
       />
 
+      {/* 0. DASHBOARD WIDGET STRIP — greeting, quick jump, quick access, favorites/recents */}
+      <section className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="glass-card p-5 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">{greeting}, Engineer 👋</div>
+              <div className="text-2xl font-bold text-[#161A2C] dark:text-[#E7EAF7] mt-1">{timeStr}</div>
+              <div className="text-[11px] text-[#7C88B8]">{dateStr}</div>
+            </div>
+            <div className="w-11 h-11 rounded-xl bg-[#4C5FE0]/10 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 text-[#4C5FE0]" />
+            </div>
+          </div>
+
+          <button
+            onClick={openSearch}
+            className="glass-card p-5 flex items-center gap-3 text-left cursor-pointer hover:border-[#4C5FE0] transition-colors"
+          >
+            <div className="w-11 h-11 rounded-xl bg-[#4C5FE0]/10 flex items-center justify-center shrink-0">
+              <Search className="w-5 h-5 text-[#4C5FE0]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">Jump to a calculator</div>
+              <div className="text-[11px] text-[#7C88B8]">Search 50+ tools instantly</div>
+            </div>
+            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#EEF1FB] dark:bg-[#1D2438] text-[#7C88B8] shrink-0">⌘K</kbd>
+          </button>
+
+          <div className="glass-card p-5 flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-[#D9B96E]/15 flex items-center justify-center shrink-0">
+              <Lightbulb className="w-5 h-5 text-[#8A6D2B]" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">Engineering tip</div>
+              <div className="text-[11px] text-[#7C88B8] leading-snug">Add a 5% waste allowance to concrete pour volumes for accurate ordering.</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Quick Access */}
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">Quick Access</span>
+              <Link to="/calculators" className="text-[11px] text-[#7C88B8] hover:text-[#161A2C] dark:hover:text-[#E7EAF7] no-underline">View all</Link>
+            </div>
+            <div className="grid grid-cols-4 gap-2.5">
+              {ENGINEERING_DISCIPLINES.slice(0, 8).map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => navigate(item.path)}
+                    title={item.title}
+                    className="aspect-square rounded-2xl flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
+                    style={{ backgroundColor: `${item.color}18`, color: item.color }}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Recently Used */}
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7] flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#7C88B8]" /> Recently Used
+              </span>
+            </div>
+            {recents.length === 0 ? (
+              <p className="text-xs text-[#7C88B8]">Open a calculator to build your recent activity.</p>
+            ) : (
+              <div className="space-y-0.5">
+                {recents.map((c: any) => (
+                  <button
+                    key={c.id}
+                    onClick={() => openCalculator(c.id)}
+                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#EEF1FB] dark:hover:bg-[#1D2438] transition-colors cursor-pointer group text-left"
+                  >
+                    <span className="text-xs text-[#293552] dark:text-[#C9D0EA] truncate">{c.name}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-[#B7C1D9] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Favorites */}
+          <div className="glass-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7] flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 text-[#7C88B8]" /> Favorites
+              </span>
+            </div>
+            {favorites.length === 0 ? (
+              <p className="text-xs text-[#7C88B8]">Star a calculator from any category to keep it here.</p>
+            ) : (
+              <div className="space-y-0.5">
+                {favorites.map((c: any) => (
+                  <button
+                    key={c.id}
+                    onClick={() => openCalculator(c.id)}
+                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#EEF1FB] dark:hover:bg-[#1D2438] transition-colors cursor-pointer group text-left"
+                  >
+                    <span className="text-xs text-[#293552] dark:text-[#C9D0EA] truncate">{c.name}</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-[#B7C1D9] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* 1. ARCHITECTURAL STUDIO HERO */}
-      <section className="relative overflow-hidden rounded-3xl bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] p-6 sm:p-10 lg:p-12 shadow-xs">
+      <section className="relative overflow-hidden rounded-3xl backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] p-6 sm:p-10 lg:p-12 shadow-xs">
         {/* Subtle architectural grid pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(#D8D0C2_1px,transparent_1px)] dark:bg-[radial-gradient(#384238_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#DCE3F5_1px,transparent_1px)] dark:bg-[radial-gradient(#2A3350_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
 
         <div className="relative z-10 max-w-4xl space-y-6">
           {/* Studio status tag */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EAE7E0] dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] text-[10px] font-mono font-bold tracking-widest uppercase text-[#657565]">
-            <span className="w-2 h-2 rounded-full bg-[#657565] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E7EAF7] dark:bg-[#1D2438] border border-[#DCE3F5] dark:border-[#2A3350] text-[10px] font-mono font-bold tracking-widest uppercase text-[#4C5FE0]">
+            <span className="w-2 h-2 rounded-full bg-[#4C5FE0] animate-pulse" />
             <span>PRECISION WORKSPACE · SCALE 1:100 · METRIC & IMPERIAL</span>
           </div>
 
           {/* Canonical H1 Page Title */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#20231F] dark:text-[#EAE7E0] tracking-tight leading-[1.12]">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#161A2C] dark:text-[#E7EAF7] tracking-tight leading-[1.12]">
             Civil Engineering Calculators & Design Tools
           </h1>
 
-          <p className="text-sm sm:text-base text-[#7B8978] dark:text-[#A1AFA0] leading-relaxed max-w-2xl">
+          <p className="text-sm sm:text-base text-[#7C88B8] dark:text-[#8894BE] leading-relaxed max-w-2xl">
             Accurate, code-aligned engineering calculators and drafting workspaces for structural analysis, 
             concrete estimating, rebar bar bending schedules, and construction site quantities.
           </p>
@@ -191,7 +335,7 @@ export default function PremiumHomePage() {
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
               onClick={() => navigate('/calculators')}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#657565] hover:bg-[#536153] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#4C5FE0] hover:bg-[#3B47B8] text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
             >
               <Calculator className="w-4 h-4" />
               <span>Explore All 50+ Calculators</span>
@@ -203,15 +347,15 @@ export default function PremiumHomePage() {
                 setActiveCalcId('concrete-volume');
                 navigate('/concrete/volume');
               }}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/80 dark:bg-[#242A24]/80 hover:bg-[#F3F1EC] dark:hover:bg-[#2D352D] border border-[#D8D0C2] dark:border-[#384238] text-[#20231F] dark:text-[#EAE7E0] text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/80 dark:bg-[#141826]/80 hover:bg-[#EEF1FB] dark:hover:bg-[#232A3D] border border-[#DCE3F5] dark:border-[#2A3350] text-[#161A2C] dark:text-[#E7EAF7] text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
             >
-              <Box className="w-4 h-4 text-[#657565]" />
+              <Box className="w-4 h-4 text-[#4C5FE0]" />
               <span>Launch Concrete Volume 3D</span>
             </button>
 
             <button
               onClick={() => navigate('/guides')}
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-transparent hover:bg-[#EAE7E0]/50 dark:hover:bg-[#2A312A]/50 text-[#7B8978] hover:text-[#20231F] dark:hover:text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-transparent hover:bg-[#E7EAF7]/50 dark:hover:bg-[#1D2438]/50 text-[#7C88B8] hover:text-[#161A2C] dark:hover:text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
             >
               <BookOpen className="w-4 h-4" />
               <span>Reference Guides</span>
@@ -219,24 +363,24 @@ export default function PremiumHomePage() {
           </div>
 
           {/* Technical Spec Metrics Bar */}
-          <div className="pt-4 border-t border-[#D8D0C2]/60 dark:border-[#384238]/60 flex flex-wrap items-center gap-6 sm:gap-10 text-xs font-mono text-[#7B8978]">
+          <div className="pt-4 border-t border-[#DCE3F5]/60 dark:border-[#2A3350]/60 flex flex-wrap items-center gap-6 sm:gap-10 text-xs font-mono text-[#7C88B8]">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-[#20231F] dark:text-[#EAE7E0] text-base font-sans">50+</span>
+              <span className="font-bold text-[#161A2C] dark:text-[#E7EAF7] text-base font-sans">50+</span>
               <span>Tools</span>
             </div>
-            <div className="w-1 h-3 bg-[#D8D0C2] dark:bg-[#384238]" />
+            <div className="w-1 h-3 bg-[#DCE3F5] dark:bg-[#2A3350]" />
             <div className="flex items-center gap-2">
-              <span className="font-bold text-[#20231F] dark:text-[#EAE7E0] text-base font-sans">8</span>
+              <span className="font-bold text-[#161A2C] dark:text-[#E7EAF7] text-base font-sans">8</span>
               <span>Disciplines</span>
             </div>
-            <div className="w-1 h-3 bg-[#D8D0C2] dark:bg-[#384238]" />
+            <div className="w-1 h-3 bg-[#DCE3F5] dark:bg-[#2A3350]" />
             <div className="flex items-center gap-2">
-              <span className="font-bold text-[#20231F] dark:text-[#EAE7E0] text-base font-sans">0.01</span>
+              <span className="font-bold text-[#161A2C] dark:text-[#E7EAF7] text-base font-sans">0.01</span>
               <span>Precision</span>
             </div>
-            <div className="w-1 h-3 bg-[#D8D0C2] dark:bg-[#384238]" />
+            <div className="w-1 h-3 bg-[#DCE3F5] dark:bg-[#2A3350]" />
             <div className="flex items-center gap-2">
-              <span className="font-bold text-[#657565] text-base font-sans">Free</span>
+              <span className="font-bold text-[#4C5FE0] text-base font-sans">Free</span>
               <span>Open Engineering</span>
             </div>
           </div>
@@ -247,14 +391,14 @@ export default function PremiumHomePage() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#7B8978]">DISCIPLINES</div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#20231F] dark:text-[#EAE7E0]">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#7C88B8]">DISCIPLINES</div>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#161A2C] dark:text-[#E7EAF7]">
               Engineering Calculation Categories
             </h2>
           </div>
           <Link
             to="/calculators"
-            className="text-xs font-semibold text-[#657565] hover:underline inline-flex items-center gap-1 no-underline"
+            className="text-xs font-semibold text-[#4C5FE0] hover:underline inline-flex items-center gap-1 no-underline"
           >
             <span>View All Tools</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -268,7 +412,7 @@ export default function PremiumHomePage() {
               <div
                 key={item.id}
                 onClick={() => navigate(item.path)}
-                className="group relative bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] hover:border-[#657565] dark:hover:border-[#7B8978] p-5 rounded-2xl transition-all cursor-pointer shadow-xs hover:shadow-sm flex flex-col justify-between"
+                className="group relative backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] hover:border-[#4C5FE0] dark:hover:border-[#7C88B8] p-5 rounded-2xl transition-all cursor-pointer shadow-xs hover:shadow-sm flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -278,23 +422,23 @@ export default function PremiumHomePage() {
                     >
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#EAE7E0] dark:bg-[#2A312A] text-[#7B8978] border border-[#D8D0C2] dark:border-[#384238]">
+                    <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#E7EAF7] dark:bg-[#1D2438] text-[#7C88B8] border border-[#DCE3F5] dark:border-[#2A3350]">
                       {item.count}
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0] group-hover:text-[#657565] transition-colors mb-1.5">
+                  <h3 className="text-sm font-bold text-[#161A2C] dark:text-[#E7EAF7] group-hover:text-[#4C5FE0] transition-colors mb-1.5">
                     {item.title}
                   </h3>
 
-                  <p className="text-xs text-[#7B8978] dark:text-[#A1AFA0] leading-relaxed mb-4">
+                  <p className="text-xs text-[#7C88B8] dark:text-[#8894BE] leading-relaxed mb-4">
                     {item.desc}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#D8D0C2]/50 dark:border-[#384238]/50 flex items-center justify-between text-[10px] font-mono text-[#7B8978]">
+                <div className="pt-3 border-t border-[#DCE3F5]/50 dark:border-[#2A3350]/50 flex items-center justify-between text-[10px] font-mono text-[#7C88B8]">
                   <span>{item.tag}</span>
-                  <span className="text-[#657565] font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                  <span className="text-[#4C5FE0] font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                     Open →
                   </span>
                 </div>
@@ -307,8 +451,8 @@ export default function PremiumHomePage() {
       {/* 3. SHOWCASE WORKSPACES WITH ARCHITECTURAL CAD PREVIEWS */}
       <section className="space-y-4">
         <div>
-          <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#7B8978]">FEATURED WORKSPACES</div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#20231F] dark:text-[#EAE7E0]">
+          <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#7C88B8]">FEATURED WORKSPACES</div>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#161A2C] dark:text-[#E7EAF7]">
             Flagship Engineering Calculators
           </h2>
         </div>
@@ -321,37 +465,37 @@ export default function PremiumHomePage() {
                 setActiveCalcId(tool.id);
                 navigate(tool.path);
               }}
-              className="bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] hover:border-[#657565] dark:hover:border-[#7B8978] rounded-2xl p-5 sm:p-6 transition-all cursor-pointer shadow-xs hover:shadow-md flex flex-col justify-between group"
+              className="backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] hover:border-[#4C5FE0] dark:hover:border-[#7C88B8] rounded-2xl p-5 sm:p-6 transition-all cursor-pointer shadow-xs hover:shadow-md flex flex-col justify-between group"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-[#657565]/10 text-[#657565] border border-[#657565]/20">
+                  <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-[#4C5FE0]/10 text-[#4C5FE0] border border-[#4C5FE0]/20">
                     {tool.category}
                   </span>
-                  <span className="text-[10px] font-mono text-[#7B8978]">{tool.standard}</span>
+                  <span className="text-[10px] font-mono text-[#7C88B8]">{tool.standard}</span>
                 </div>
 
-                <h3 className="text-base font-bold text-[#20231F] dark:text-[#EAE7E0] group-hover:text-[#657565] transition-colors">
+                <h3 className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7] group-hover:text-[#4C5FE0] transition-colors">
                   {tool.name}
                 </h3>
 
-                <p className="text-xs text-[#7B8978] leading-relaxed">
+                <p className="text-xs text-[#7C88B8] leading-relaxed">
                   {tool.details}
                 </p>
 
                 {/* Hero Output Metric Box */}
-                <div className="p-3.5 rounded-xl bg-white/90 dark:bg-[#242A24]/90 border border-[#D8D0C2] dark:border-[#384238] flex items-center justify-between">
+                <div className="p-3.5 rounded-xl bg-white/90 dark:bg-[#141826]/90 border border-[#DCE3F5] dark:border-[#2A3350] flex items-center justify-between">
                   <div>
-                    <div className="text-[9px] font-mono text-[#7B8978] uppercase">Sample Result</div>
-                    <div className="text-xl font-bold text-[#20231F] dark:text-[#EAE7E0]">{tool.metric}</div>
+                    <div className="text-[9px] font-mono text-[#7C88B8] uppercase">Sample Result</div>
+                    <div className="text-xl font-bold text-[#161A2C] dark:text-[#E7EAF7]">{tool.metric}</div>
                   </div>
-                  <div className="text-[10px] font-mono text-[#657565] bg-[#EAE7E0] dark:bg-[#2A312A] px-2 py-1 rounded-md border border-[#D8D0C2] dark:border-[#384238]">
+                  <div className="text-[10px] font-mono text-[#4C5FE0] bg-[#E7EAF7] dark:bg-[#1D2438] px-2 py-1 rounded-md border border-[#DCE3F5] dark:border-[#2A3350]">
                     {tool.submetric}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-[#D8D0C2]/50 dark:border-[#384238]/50 flex items-center justify-between text-xs font-semibold text-[#657565]">
+              <div className="mt-5 pt-3 border-t border-[#DCE3F5]/50 dark:border-[#2A3350]/50 flex items-center justify-between text-xs font-semibold text-[#4C5FE0]">
                 <span>Launch Interactive Studio</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -361,17 +505,17 @@ export default function PremiumHomePage() {
       </section>
 
       {/* 4. DESIGN CODES & ENGINEERING STANDARDS REFERENCE */}
-      <section className="bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl p-6 sm:p-8 shadow-xs space-y-4">
+      <section className="backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-2xl p-6 sm:p-8 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#7B8978]">METHODOLOGY</div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#20231F] dark:text-[#EAE7E0]">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#7C88B8]">METHODOLOGY</div>
+            <h2 className="text-lg sm:text-xl font-bold text-[#161A2C] dark:text-[#E7EAF7]">
               Built on Recognized Engineering Standards
             </h2>
           </div>
           <Link
             to="/formulas"
-            className="text-xs font-semibold text-[#657565] hover:underline inline-flex items-center gap-1 no-underline"
+            className="text-xs font-semibold text-[#4C5FE0] hover:underline inline-flex items-center gap-1 no-underline"
           >
             <span>Browse Formula Library</span>
             <ArrowRight className="w-3 h-3" />
@@ -382,23 +526,23 @@ export default function PremiumHomePage() {
           {DESIGN_CODES.map((code) => (
             <div
               key={code.code}
-              className="p-3.5 rounded-xl bg-white/80 dark:bg-[#242A24]/80 border border-[#D8D0C2]/80 dark:border-[#384238]/80 space-y-1"
+              className="p-3.5 rounded-xl bg-white/80 dark:bg-[#141826]/80 border border-[#DCE3F5]/80 dark:border-[#2A3350]/80 space-y-1"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">{code.code}</span>
-                <span className="text-[9px] font-mono text-[#7B8978]">{code.org}</span>
+                <span className="text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7]">{code.code}</span>
+                <span className="text-[9px] font-mono text-[#7C88B8]">{code.org}</span>
               </div>
-              <p className="text-[11px] text-[#7B8978] leading-tight">{code.topic}</p>
+              <p className="text-[11px] text-[#7C88B8] leading-tight">{code.topic}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* 5. ENGINEERING DISCLAIMER & QUALITY PLEDGE */}
-      <section className="p-5 rounded-2xl bg-[#EAE7E0]/60 dark:bg-[#242924]/60 border border-[#D8D0C2] dark:border-[#384238] flex flex-col sm:flex-row items-start gap-4 text-xs text-[#7B8978]">
-        <ShieldCheck className="w-6 h-6 text-[#657565] shrink-0 mt-0.5" />
+      <section className="p-5 rounded-2xl bg-[#E7EAF7]/60 dark:bg-[#141826]/60 border border-[#DCE3F5] dark:border-[#2A3350] flex flex-col sm:flex-row items-start gap-4 text-xs text-[#7C88B8]">
+        <ShieldCheck className="w-6 h-6 text-[#4C5FE0] shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <h4 className="font-bold text-[#20231F] dark:text-[#EAE7E0]">
+          <h4 className="font-bold text-[#161A2C] dark:text-[#E7EAF7]">
             Engineering Disclaimer & Professional Verification
           </h4>
           <p className="leading-relaxed">

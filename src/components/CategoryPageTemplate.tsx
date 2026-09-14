@@ -91,15 +91,15 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       {/* Hero */}
       <section className="relative pt-10 md:pt-16 pb-8 text-center">
         <div className="mb-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#EAE7E0] dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] rounded-full text-[10px] font-mono font-bold text-[#657565] uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#E7EAF7] dark:bg-[#1D2438] border border-[#DCE3F5] dark:border-[#2A3350] rounded-full text-[10px] font-mono font-bold text-[#4C5FE0] uppercase tracking-wider">
             <Sparkles className="w-3 h-3" />
             {meta.name}
           </span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-extrabold text-[#20231F] dark:text-[#EAE7E0] tracking-tight leading-tight max-w-3xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-[#161A2C] dark:text-[#E7EAF7] tracking-tight leading-tight max-w-3xl mx-auto">
           {heroTitle || meta.heroTitle}
         </h1>
-        <p className="mt-3 text-sm text-[#7B8978] dark:text-[#A1AFA0] max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-3 text-sm text-[#7C88B8] dark:text-[#8894BE] max-w-2xl mx-auto leading-relaxed">
           {heroSubtitle || meta.heroSubtitle}
         </p>
       </section>
@@ -107,11 +107,11 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       {/* Search */}
       <div className="max-w-xl mx-auto mb-8">
         <div className="relative group">
-          <div className="relative flex items-center bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl shadow-2xs group-hover:border-[#657565] transition-all">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B8978]" />
+          <div className="relative flex items-center backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-2xl shadow-2xs group-hover:border-[#4C5FE0] transition-all">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7C88B8]" />
             <input type="text" aria-label="Search calculators" placeholder="Search calculators..." value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent pl-11 pr-4 py-3.5 text-sm outline-none text-[#20231F] dark:text-[#EAE7E0] placeholder:text-[#7B8978]" />
+              className="w-full bg-transparent pl-11 pr-4 py-3.5 text-sm outline-none text-[#161A2C] dark:text-[#E7EAF7] placeholder:text-[#7C88B8]" />
           </div>
         </div>
       </div>
@@ -119,9 +119,9 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
       {/* Calculator Cards */}
       <div className="pb-12">
         {filtered.length === 0 ? (
-          <div className="text-center py-16 bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl">
-            <Search className="w-8 h-8 text-[#7B8978] mx-auto mb-2" />
-            <p className="text-xs text-[#7B8978]">No calculators found.</p>
+          <div className="text-center py-16 backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-2xl">
+            <Search className="w-8 h-8 text-[#7C88B8] mx-auto mb-2" />
+            <p className="text-xs text-[#7C88B8]">No calculators found.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -129,23 +129,23 @@ export default function CategoryPageTemplate({ category, subCalculators, heroTit
               <motion.div key={calc.id} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: Math.min(0.15, idx * 0.03) }}
                 onClick={() => { setActiveCalcId(calc.id); navigate(calc.path); }}
-                className="group relative bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl p-5 hover:shadow-xs hover:-translate-y-0.5 hover:border-[#657565] transition-all cursor-pointer text-left"
+                className="group relative backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-2xl p-5 hover:shadow-xs hover:-translate-y-0.5 hover:border-[#4C5FE0] transition-all cursor-pointer text-left"
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#657565]/10 text-[#657565] shrink-0">
+                  <div className="p-2.5 rounded-xl bg-[#4C5FE0]/10 text-[#4C5FE0] shrink-0">
                     <Layers className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0] group-hover:text-[#657565] transition-colors">{calc.name}</h3>
-                    <p className="text-[10px] text-[#7B8978] dark:text-[#A1AFA0] mt-1 leading-relaxed line-clamp-2">{calc.description}</p>
-                    <div className="mt-3 flex items-center gap-2 text-[9px] text-[#7B8978]">
+                    <h3 className="text-sm font-bold text-[#161A2C] dark:text-[#E7EAF7] group-hover:text-[#4C5FE0] transition-colors">{calc.name}</h3>
+                    <p className="text-[10px] text-[#7C88B8] dark:text-[#8894BE] mt-1 leading-relaxed line-clamp-2">{calc.description}</p>
+                    <div className="mt-3 flex items-center gap-2 text-[9px] text-[#7C88B8]">
                       <span className="flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" /> ~2 min</span>
                     </div>
-                    <Link to={calc.path} onClick={e => e.stopPropagation()} className="mt-3 inline-block text-[10px] font-semibold text-[#657565] no-underline">Open calculator →</Link>
+                    <Link to={calc.path} onClick={e => e.stopPropagation()} className="mt-3 inline-block text-[10px] font-semibold text-[#4C5FE0] no-underline">Open calculator →</Link>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <button onClick={event => { event.stopPropagation(); toggleFavoriteCalculator(calc.id); }} aria-label={`${favoriteCalculatorIds.includes(calc.id) ? 'Remove' : 'Add'} ${calc.name} ${'from favorites'}`} className={`rounded-lg p-1.5 cursor-pointer ${favoriteCalculatorIds.includes(calc.id) ? 'text-[#D9B96E] bg-[#D9B96E]/10' : 'text-[#D8D0C2] hover:text-[#D9B96E]'}`}><Star className={`w-3.5 h-3.5 ${favoriteCalculatorIds.includes(calc.id) ? 'fill-current' : ''}`} /></button>
-                    <ChevronRight className="w-4 h-4 text-[#D8D0C2] group-hover:text-[#657565] group-hover:translate-x-0.5 transition-all" />
+                    <button onClick={event => { event.stopPropagation(); toggleFavoriteCalculator(calc.id); }} aria-label={`${favoriteCalculatorIds.includes(calc.id) ? 'Remove' : 'Add'} ${calc.name} ${'from favorites'}`} className={`rounded-lg p-1.5 cursor-pointer ${favoriteCalculatorIds.includes(calc.id) ? 'text-[#D9B96E] bg-[#D9B96E]/10' : 'text-[#DCE3F5] hover:text-[#D9B96E]'}`}><Star className={`w-3.5 h-3.5 ${favoriteCalculatorIds.includes(calc.id) ? 'fill-current' : ''}`} /></button>
+                    <ChevronRight className="w-4 h-4 text-[#DCE3F5] group-hover:text-[#4C5FE0] group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </div>
               </motion.div>

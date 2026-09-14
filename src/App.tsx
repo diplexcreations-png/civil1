@@ -36,8 +36,8 @@ function SuspenseFallback() {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="text-center space-y-3">
-        <div className="w-8 h-8 border-2 border-[#657565] border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-[10px] font-mono text-[#7B8978]">Loading workspace...</p>
+        <div className="w-8 h-8 border-2 border-[#4C5FE0] border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-[10px] font-mono text-[#7C88B8]">Loading workspace...</p>
       </div>
     </div>
   );
@@ -180,16 +180,16 @@ export default function App() {
               <Route path="*" element={
                 <div className="text-center py-20 px-4 max-w-lg mx-auto">
                   <SEOHead meta={{ title: 'Calculator Not Found | CivilMath', description: 'The requested civil engineering calculator or page was not found.', path: '/404', noindex: true }} />
-                  <div className="w-12 h-12 rounded-2xl bg-[#657565]/10 text-[#657565] flex items-center justify-center mx-auto mb-4 text-xl font-bold font-mono">404</div>
-                  <h1 className="text-2xl font-bold text-[#20231F] dark:text-[#EAE7E0] mb-2">Page not found</h1>
-                  <p className="text-xs text-[#7B8978] dark:text-[#A1AFA0] leading-relaxed mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-[#4C5FE0]/10 text-[#4C5FE0] flex items-center justify-center mx-auto mb-4 text-xl font-bold font-mono">404</div>
+                  <h1 className="text-2xl font-bold text-[#161A2C] dark:text-[#E7EAF7] mb-2">Page not found</h1>
+                  <p className="text-xs text-[#7C88B8] dark:text-[#8894BE] leading-relaxed mb-6">
                     The requested civil engineering calculator or page was not found.
                   </p>
                   <div className="flex flex-wrap justify-center gap-3">
-                    <a href="/calculators" className="px-5 py-2.5 bg-[#657565] hover:bg-[#536153] text-white rounded-xl text-xs font-semibold cursor-pointer no-underline shadow-2xs transition-all">
+                    <a href="/calculators" className="px-5 py-2.5 bg-[#4C5FE0] hover:bg-[#3B47B8] text-white rounded-xl text-xs font-semibold cursor-pointer no-underline shadow-2xs transition-all">
                       Browse All Calculators
                     </a>
-                    <a href="/" className="px-5 py-2.5 border border-[#D8D0C2] dark:border-[#384238] text-[#20231F] dark:text-[#EAE7E0] rounded-xl text-xs font-semibold cursor-pointer no-underline hover:bg-[#EAE7E0]/50 dark:hover:bg-[#2A312A]/50 transition-all">
+                    <a href="/" className="px-5 py-2.5 border border-[#DCE3F5] dark:border-[#2A3350] text-[#161A2C] dark:text-[#E7EAF7] rounded-xl text-xs font-semibold cursor-pointer no-underline hover:bg-[#E7EAF7]/50 dark:hover:bg-[#1D2438]/50 transition-all">
                       Back to Home
                     </a>
                   </div>

@@ -93,21 +93,21 @@ export default function CalculatorPageTemplate({
       />
 
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs font-medium text-[#7B8978] dark:text-[#9CA899] mb-4 pb-3 border-b border-[#D8D0C2]/60 dark:border-[#333C33]">
-        <Link to="/" className="hover:text-[#20231F] dark:hover:text-white transition-colors cursor-pointer font-semibold no-underline">Home</Link>
+      <nav className="flex items-center gap-2 text-xs font-medium text-[#7C88B8] dark:text-[#8891B0] mb-4 pb-3 border-b border-[#DCE3F5]/60 dark:border-[#262E42]">
+        <Link to="/" className="hover:text-[#161A2C] dark:hover:text-white transition-colors cursor-pointer font-semibold no-underline">Home</Link>
         <ChevronRight className="w-3.5 h-3.5 text-[#B4ACA0]" />
-        <Link to={`/${categoryPath}`} className="hover:text-[#20231F] dark:hover:text-white transition-colors cursor-pointer font-semibold capitalize no-underline">
+        <Link to={`/${categoryPath}`} className="hover:text-[#161A2C] dark:hover:text-white transition-colors cursor-pointer font-semibold capitalize no-underline">
           {categoryPathNames[category] || category}
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-[#B4ACA0]" />
-        <span className="text-[#20231F] dark:text-[#EAE7E0] font-bold truncate max-w-[240px]">{breadcrumbLabel || title}</span>
+        <span className="text-[#161A2C] dark:text-[#E7EAF7] font-bold truncate max-w-[240px]">{breadcrumbLabel || title}</span>
       </nav>
 
       {/* Title + Actions */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#20231F] dark:text-[#EAE7E0] tracking-tight">{title}</h1>
-          <p className="text-xs sm:text-sm text-[#7B8978] dark:text-[#9CA899] mt-1 max-w-2xl leading-relaxed">{description}</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#161A2C] dark:text-[#E7EAF7] tracking-tight">{title}</h1>
+          <p className="text-xs sm:text-sm text-[#7C88B8] dark:text-[#8891B0] mt-1 max-w-2xl leading-relaxed">{description}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           {onBeginnerModeChange && (
@@ -118,17 +118,17 @@ export default function CalculatorPageTemplate({
               const evt = new CustomEvent('civilmath:save-current-calc');
               window.dispatchEvent(evt);
             }}
-            className="px-3.5 py-2 bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] rounded-xl text-xs font-semibold text-[#20231F] dark:text-[#EAE7E0] flex items-center gap-1.5 hover:border-[#7B8978] transition-all cursor-pointer shadow-2xs"
+            className="px-3.5 py-2 backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-xl text-xs font-semibold text-[#161A2C] dark:text-[#E7EAF7] flex items-center gap-1.5 hover:border-[#7C88B8] transition-all cursor-pointer shadow-2xs"
           >
-            <Bookmark className="w-3.5 h-3.5 text-[#7B8978]" /> Save Calculator
+            <Bookmark className="w-3.5 h-3.5 text-[#7C88B8]" /> Save Calculator
           </button>
           <button onClick={handleShare}
-            className="px-3 py-2 bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] rounded-xl text-xs font-semibold text-[#555C55] dark:text-[#C5D0C5] flex items-center gap-1.5 hover:border-[#7B8978] transition-all cursor-pointer shadow-2xs">
-            <Share2 className="w-3.5 h-3.5 text-[#7B8978]" /> Share
+            className="px-3 py-2 backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-xl text-xs font-semibold text-[#4A5578] dark:text-[#C9D0EA] flex items-center gap-1.5 hover:border-[#7C88B8] transition-all cursor-pointer shadow-2xs">
+            <Share2 className="w-3.5 h-3.5 text-[#7C88B8]" /> Share
           </button>
           <button onClick={() => window.print()}
-            className="px-3 py-2 bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] rounded-xl text-xs font-semibold text-[#555C55] dark:text-[#C5D0C5] flex items-center gap-1.5 hover:border-[#7B8978] transition-all cursor-pointer shadow-2xs">
-            <Printer className="w-3.5 h-3.5 text-[#7B8978]" /> Print
+            className="px-3 py-2 backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-xl text-xs font-semibold text-[#4A5578] dark:text-[#C9D0EA] flex items-center gap-1.5 hover:border-[#7C88B8] transition-all cursor-pointer shadow-2xs">
+            <Printer className="w-3.5 h-3.5 text-[#7C88B8]" /> Print
           </button>
         </div>
       </div>
@@ -145,7 +145,7 @@ export default function CalculatorPageTemplate({
         {children}
       </div>
 
-      {relatedCalculators.length > 0 && <section className="mt-10 max-w-5xl"><div className="flex items-center gap-2 mb-3"><SparklesIcon /><h2 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0]">You may also need</h2></div><div className="grid gap-3 sm:grid-cols-3">{relatedCalculators.map(calc => <Link key={calc.id} to={calc.category === 'bbs' ? '/bbs/footing' : `/${CATEGORY_PATH_MAP[calc.category]}/${calc.slug || calc.id.replace(`${calc.category}-`, '')}`} className="rounded-2xl border border-[#D8D0C2] bg-white/80 p-3.5 text-xs font-semibold text-[#20231F] no-underline hover:border-[#7B8978] hover:shadow-2xs dark:border-[#384238] dark:bg-[#242A24] dark:text-[#EAE7E0] transition-all">{calc.name}<span className="mt-1 block text-[10.5px] font-normal text-[#7B8978]">Related {categoryPathNames[category]} tool</span></Link>)}</div></section>}
+      {relatedCalculators.length > 0 && <section className="mt-10 max-w-5xl"><div className="flex items-center gap-2 mb-3"><SparklesIcon /><h2 className="text-sm font-bold text-[#161A2C] dark:text-[#E7EAF7]">You may also need</h2></div><div className="grid gap-3 sm:grid-cols-3">{relatedCalculators.map(calc => <Link key={calc.id} to={calc.category === 'bbs' ? '/bbs/footing' : `/${CATEGORY_PATH_MAP[calc.category]}/${calc.slug || calc.id.replace(`${calc.category}-`, '')}`} className="rounded-2xl border border-[#DCE3F5] bg-white/80 p-3.5 text-xs font-semibold text-[#161A2C] no-underline hover:border-[#7C88B8] hover:shadow-2xs dark:border-[#2A3350] dark:bg-[#141826]/70 dark:text-[#E7EAF7] transition-all">{calc.name}<span className="mt-1 block text-[10.5px] font-normal text-[#7C88B8]">Related {categoryPathNames[category]} tool</span></Link>)}</div></section>}
 
       {/* FAQ Section */}
       <section className="mt-10 max-w-4xl">

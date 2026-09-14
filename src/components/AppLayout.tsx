@@ -36,7 +36,7 @@ export default function AppLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-[#F3F1EC] dark:bg-[#1A1D1A] text-[#20231F] dark:text-[#EAE7E0] flex font-sans transition-colors duration-300">
+    <div className="min-h-screen text-[#161A2C] dark:text-[#E7EAF7] flex font-sans transition-colors duration-300">
       {/* 1. Left Sidebar (Desktop Persistent) */}
       <LeftSidebar className="hidden xl:flex sticky top-0 h-screen" />
 
@@ -63,7 +63,7 @@ export default function AppLayout() {
             >
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="absolute top-4 right-4 p-2 rounded-xl bg-white dark:bg-[#242A24] text-[#7B8978] shadow-xs cursor-pointer"
+                className="absolute top-4 right-4 p-2 rounded-xl bg-[#141830] text-[#7C88B8] shadow-xs cursor-pointer"
                 aria-label="Close navigation"
               >
                 <X className="w-4 h-4" />
@@ -77,12 +77,12 @@ export default function AppLayout() {
       {/* 2. Center Column + Header */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Floating Top Header */}
-        <header className="sticky top-0 z-30 bg-[#F3F1EC]/85 dark:bg-[#1A1D1A]/85 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3 border-b border-[#D8D0C2]/50 dark:border-[#2D352D]">
+        <header className="sticky top-0 z-30 bg-white/60 dark:bg-[#0B0D16]/70 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3 border-b border-white/60 dark:border-[#232A3D]">
           <div className="flex items-center gap-3">
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="xl:hidden p-2 rounded-xl border border-[#D8D0C2] dark:border-[#384238] bg-[#FAF8F5] dark:bg-[#242A24] text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs"
+              className="xl:hidden p-2 rounded-xl border border-[#DCE3F5] dark:border-[#2A3350] backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 text-[#161A2C] dark:text-[#E7EAF7] hover:border-[#7C88B8] transition-colors cursor-pointer shadow-2xs"
               aria-label="Open navigation menu"
             >
               <Menu className="w-4 h-4" />
@@ -97,13 +97,13 @@ export default function AppLayout() {
             {/* Project BOQ Quick Button */}
             <button
               onClick={toggleBOQDrawer}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D8D0C2] dark:border-[#384238] bg-[#FAF8F5] dark:bg-[#242A24] text-xs font-semibold text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#DCE3F5] dark:border-[#2A3350] backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 text-xs font-semibold text-[#161A2C] dark:text-[#E7EAF7] hover:border-[#7C88B8] transition-colors cursor-pointer shadow-2xs"
               title="Open Project Master BOQ"
             >
-              <Building2 className="w-3.5 h-3.5 text-[#7B8978]" />
+              <Building2 className="w-3.5 h-3.5 text-[#7C88B8]" />
               <span className="hidden sm:inline">BOQ</span>
               {totals.itemCount > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-[#657565] text-white text-[9px] font-bold">
+                <span className="px-1.5 py-0.2 rounded-full bg-[#4C5FE0] text-white text-[9px] font-bold">
                   {totals.itemCount}
                 </span>
               )}
@@ -112,7 +112,7 @@ export default function AppLayout() {
             {/* Theme Toggle (Light Warm / Charcoal) */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-[#D8D0C2] dark:border-[#384238] bg-[#FAF8F5] dark:bg-[#242A24] text-[#7B8978] hover:text-[#20231F] dark:hover:text-white transition-colors cursor-pointer shadow-2xs"
+              className="p-2 rounded-xl border border-[#DCE3F5] dark:border-[#2A3350] backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 text-[#7C88B8] hover:text-[#161A2C] dark:hover:text-white transition-colors cursor-pointer shadow-2xs"
               title={theme === 'light' ? 'Switch to Warm Studio Mode' : 'Switch to Warm Light Mode'}
               aria-label="Toggle theme"
             >
@@ -121,7 +121,7 @@ export default function AppLayout() {
 
             {/* Notifications Bell */}
             <button
-              className="relative p-2 rounded-xl border border-[#D8D0C2] dark:border-[#384238] bg-[#FAF8F5] dark:bg-[#242A24] text-[#7B8978] hover:text-[#20231F] dark:hover:text-white transition-colors cursor-pointer shadow-2xs"
+              className="relative p-2 rounded-xl border border-[#DCE3F5] dark:border-[#2A3350] backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 text-[#7C88B8] hover:text-[#161A2C] dark:hover:text-white transition-colors cursor-pointer shadow-2xs"
               title="Notifications"
               aria-label="Notifications"
             >
@@ -131,12 +131,12 @@ export default function AppLayout() {
 
             {/* User Profile Pill */}
             <div className="flex items-center gap-2 pl-1 sm:pl-2">
-              <div className="w-8 h-8 rounded-full bg-[#657565] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+              <div className="w-8 h-8 rounded-full bg-[#4C5FE0] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
                 E
               </div>
               <div className="hidden md:flex flex-col text-left leading-tight">
-                <span className="text-[10px] text-[#7B8978] font-medium">Good to see you!</span>
-                <span className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">Engineer</span>
+                <span className="text-[10px] text-[#7C88B8] font-medium">Good to see you!</span>
+                <span className="text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7]">Engineer</span>
               </div>
             </div>
           </div>
@@ -152,11 +152,11 @@ export default function AppLayout() {
       <RightUtilityPanel className="hidden 2xl:flex sticky top-0 h-screen" />
 
       {/* Floating Bottom Mobile Navigation Bar */}
-      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 xl:hidden flex items-center gap-1 px-3 py-2 bg-white/90 dark:bg-[#1E221E]/90 backdrop-blur-xl border border-[#D8D0C2] dark:border-[#384238] rounded-2xl shadow-xl">
+      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 xl:hidden flex items-center gap-1 px-3 py-2 bg-white/90 dark:bg-[#11141F]/90 backdrop-blur-xl border border-[#DCE3F5] dark:border-[#2A3350] rounded-2xl shadow-xl">
         <Link
           to="/"
           className={`flex flex-col items-center px-3 py-1 rounded-xl text-[10px] font-bold no-underline transition-colors ${
-            location.pathname === '/' ? 'text-[#657565] bg-[#EAE7E0]/60 dark:bg-[#2A312A]' : 'text-[#7B8978]'
+            location.pathname === '/' ? 'text-[#4C5FE0] bg-[#E7EAF7]/60 dark:bg-[#1D2438]' : 'text-[#7C88B8]'
           }`}
         >
           <Home className="w-4 h-4 mb-0.5" />
@@ -165,7 +165,7 @@ export default function AppLayout() {
         <Link
           to="/calculators"
           className={`flex flex-col items-center px-3 py-1 rounded-xl text-[10px] font-bold no-underline transition-colors ${
-            location.pathname.startsWith('/calculators') || location.pathname.startsWith('/concrete') ? 'text-[#657565] bg-[#EAE7E0]/60 dark:bg-[#2A312A]' : 'text-[#7B8978]'
+            location.pathname.startsWith('/calculators') || location.pathname.startsWith('/concrete') ? 'text-[#4C5FE0] bg-[#E7EAF7]/60 dark:bg-[#1D2438]' : 'text-[#7C88B8]'
           }`}
         >
           <Calculator className="w-4 h-4 mb-0.5" />
@@ -175,7 +175,7 @@ export default function AppLayout() {
           onClick={() => {
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
           }}
-          className="flex flex-col items-center px-3 py-1 rounded-xl text-[10px] font-bold text-[#7B8978] transition-colors cursor-pointer"
+          className="flex flex-col items-center px-3 py-1 rounded-xl text-[10px] font-bold text-[#7C88B8] transition-colors cursor-pointer"
         >
           <SearchIcon className="w-4 h-4 mb-0.5" />
           <span>Search</span>
@@ -183,7 +183,7 @@ export default function AppLayout() {
         <Link
           to="/construction"
           className={`flex flex-col items-center px-3 py-1 rounded-xl text-[10px] font-bold no-underline transition-colors ${
-            location.pathname.startsWith('/construction') ? 'text-[#657565] bg-[#EAE7E0]/60 dark:bg-[#2A312A]' : 'text-[#7B8978]'
+            location.pathname.startsWith('/construction') ? 'text-[#4C5FE0] bg-[#E7EAF7]/60 dark:bg-[#1D2438]' : 'text-[#7C88B8]'
           }`}
         >
           <Wrench className="w-4 h-4 mb-0.5" />

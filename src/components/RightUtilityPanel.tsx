@@ -23,8 +23,8 @@ const RECENT_CALCS: RecentCalc[] = [
     detail: '5.00 × 4.00 × 0.15',
     time: '2 min ago',
     path: '/concrete/volume',
-    iconBg: 'rgba(101, 117, 101, 0.14)',
-    iconColor: '#526052',
+    iconBg: 'rgba(76, 95, 224, 0.14)',
+    iconColor: '#3B47B8',
   },
   {
     id: '2',
@@ -77,19 +77,19 @@ const QUICK_TOOLS = [
 
 export default function RightUtilityPanel({ className = '' }: { className?: string }) {
   return (
-    <aside className={`w-80 shrink-0 flex flex-col gap-6 py-6 px-4 bg-[#FAF9F6] dark:bg-[#1E221E] border-l border-[#D8D0C2] dark:border-[#333C33] select-none text-left ${className}`}>
+    <aside className={`w-80 shrink-0 flex flex-col gap-6 py-6 px-4 backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#11141F]/80 border-l border-[#DCE3F5] dark:border-[#262E42] select-none text-left ${className}`}>
       {/* 1. Recent Calculations */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
-            <Clock className="w-3.5 h-3.5 text-[#7B8978]" />
-            <h3 className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">
+            <Clock className="w-3.5 h-3.5 text-[#7C88B8]" />
+            <h3 className="text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7]">
               Recent Calculations
             </h3>
           </div>
           <Link
             to="/dashboard"
-            className="text-[10px] font-semibold text-[#7B8978] hover:text-[#20231F] dark:hover:text-white no-underline transition-colors"
+            className="text-[10px] font-semibold text-[#7C88B8] hover:text-[#161A2C] dark:hover:text-white no-underline transition-colors"
           >
             See all
           </Link>
@@ -100,7 +100,7 @@ export default function RightUtilityPanel({ className = '' }: { className?: stri
             <Link
               key={item.id}
               to={item.path}
-              className="flex items-center justify-between p-2.5 rounded-2xl bg-white/80 dark:bg-[#242A24] border border-[#D8D0C2]/70 dark:border-[#384238] hover:border-[#7B8978]/60 transition-all no-underline group shadow-2xs"
+              className="flex items-center justify-between p-2.5 rounded-2xl bg-white/80 dark:bg-[#141826]/70 border border-[#DCE3F5]/70 dark:border-[#2A3350] hover:border-[#7C88B8]/60 transition-all no-underline group shadow-2xs"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div
@@ -110,10 +110,10 @@ export default function RightUtilityPanel({ className = '' }: { className?: stri
                   <Box className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[11.5px] font-bold text-[#20231F] dark:text-[#EAE7E0] truncate">
+                  <div className="text-[11.5px] font-bold text-[#161A2C] dark:text-[#E7EAF7] truncate">
                     {item.name}
                   </div>
-                  <div className="text-[9.5px] font-mono text-[#7B8978] dark:text-[#8E9A8E] truncate">
+                  <div className="text-[9.5px] font-mono text-[#7C88B8] dark:text-[#8894BE] truncate">
                     {item.detail}
                   </div>
                 </div>
@@ -121,17 +121,17 @@ export default function RightUtilityPanel({ className = '' }: { className?: stri
 
               <div className="flex items-center gap-1.5 shrink-0 pl-2">
                 <div className="text-right">
-                  <div className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">
+                  <div className="text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7]">
                     {item.value}
                   </div>
-                  <div className="text-[9px] font-mono text-[#94A094] dark:text-[#7A867A]">
+                  <div className="text-[9px] font-mono text-[#8894BE] dark:text-[#6B7AA6]">
                     {item.time}
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  className="p-1 rounded-lg text-[#94A094] hover:text-[#20231F] dark:hover:text-white transition-colors cursor-pointer"
+                  className="p-1 rounded-lg text-[#8894BE] hover:text-[#161A2C] dark:hover:text-white transition-colors cursor-pointer"
                   title="More actions"
                 >
                   <MoreVertical className="w-3.5 h-3.5" />
@@ -144,7 +144,7 @@ export default function RightUtilityPanel({ className = '' }: { className?: stri
 
       {/* 2. Quick Tools (2 x 2 grid) */}
       <div className="space-y-3">
-        <div className="px-1 text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">
+        <div className="px-1 text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7]">
           Quick Tools
         </div>
 
@@ -155,12 +155,12 @@ export default function RightUtilityPanel({ className = '' }: { className?: stri
               <Link
                 key={tool.name}
                 to={tool.path}
-                className="flex items-center gap-2 p-3 rounded-2xl bg-white/80 dark:bg-[#242A24] border border-[#D8D0C2]/70 dark:border-[#384238] hover:border-[#7B8978]/60 transition-all no-underline group shadow-2xs text-left"
+                className="flex items-center gap-2 p-3 rounded-2xl bg-white/80 dark:bg-[#141826]/70 border border-[#DCE3F5]/70 dark:border-[#2A3350] hover:border-[#7C88B8]/60 transition-all no-underline group shadow-2xs text-left"
               >
-                <div className="w-7 h-7 rounded-xl bg-[#F3F1EC] dark:bg-[#2E352E] flex items-center justify-center text-[#7B8978] group-hover:text-[#20231F] dark:group-hover:text-white shrink-0 transition-colors">
+                <div className="w-7 h-7 rounded-xl bg-[#EEF1FB] dark:bg-[#232A3D] flex items-center justify-center text-[#7C88B8] group-hover:text-[#161A2C] dark:group-hover:text-white shrink-0 transition-colors">
                   <IconComp className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-[11px] font-bold text-[#20231F] dark:text-[#EAE7E0] leading-tight">
+                <span className="text-[11px] font-bold text-[#161A2C] dark:text-[#E7EAF7] leading-tight">
                   {tool.name}
                 </span>
               </Link>
@@ -170,17 +170,17 @@ export default function RightUtilityPanel({ className = '' }: { className?: stri
       </div>
 
       {/* 3. Architectural Inspiration Card */}
-      <div className="mt-auto relative p-5 rounded-3xl bg-gradient-to-br from-[#FAF8F5] to-[#EAE7E0] dark:from-[#242A24] dark:to-[#1B1E1B] border border-[#D8D0C2] dark:border-[#384238] overflow-hidden shadow-2xs">
+      <div className="mt-auto relative p-5 rounded-3xl bg-gradient-to-br from-[#F7F9FF] to-[#E7EAF7] dark:from-[#141826] dark:to-[#1B1E1B] border border-[#DCE3F5] dark:border-[#2A3350] overflow-hidden shadow-2xs">
         {/* Faint architectural lines */}
         <div className="absolute inset-0 opacity-10 blueprint-grid pointer-events-none" />
 
         <div className="relative z-10 space-y-2">
-          <span className="text-2xl font-serif text-[#7B8978] leading-none block">“</span>
-          <p className="text-xs font-semibold text-[#20231F] dark:text-[#EAE7E0] leading-snug">
+          <span className="text-2xl font-serif text-[#7C88B8] leading-none block">“</span>
+          <p className="text-xs font-semibold text-[#161A2C] dark:text-[#E7EAF7] leading-snug">
             Measure twice, build once.
           </p>
           <div className="w-6 h-[1.5px] bg-[#9A8062] rounded-full my-1.5" />
-          <p className="text-[10px] font-medium text-[#7B8978] dark:text-[#8E9A8E]">
+          <p className="text-[10px] font-medium text-[#7C88B8] dark:text-[#8894BE]">
             Good engineering lasts.
           </p>
         </div>

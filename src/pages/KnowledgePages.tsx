@@ -2,15 +2,15 @@ import { Link, useParams } from 'react-router-dom';
 import { SEO, getRouteSEO, SITE_URL, DEFAULT_IMAGE } from '../utils/seo';
 import { FORMULAS, GUIDES, REFERENCE_TABLES } from '../data/knowledgeBase';
 
-const container = 'max-w-4xl mx-auto space-y-6 text-[#20231F] dark:text-[#EAE7E0]';
-const card = 'block bg-[#FAF8F5] dark:bg-[#202520] border border-[#D8D0C2] dark:border-[#384238] rounded-2xl p-5 no-underline hover:border-[#657565] transition-colors shadow-2xs';
+const container = 'max-w-4xl mx-auto space-y-6 text-[#161A2C] dark:text-[#E7EAF7]';
+const card = 'block backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] rounded-2xl p-5 no-underline hover:border-[#4C5FE0] transition-colors shadow-2xs';
 
 function Crumbs({ label }: { label: string }) {
   return (
-    <nav aria-label="Breadcrumb" className="text-xs text-[#7B8978]">
-      <Link to="/" className="text-[#657565] no-underline hover:underline">Home</Link>
-      <span aria-hidden="true" className="mx-1.5 text-[#D8D0C2]">/</span>
-      <span className="font-semibold text-[#20231F] dark:text-[#EAE7E0]">{label}</span>
+    <nav aria-label="Breadcrumb" className="text-xs text-[#7C88B8]">
+      <Link to="/" className="text-[#4C5FE0] no-underline hover:underline">Home</Link>
+      <span aria-hidden="true" className="mx-1.5 text-[#DCE3F5]">/</span>
+      <span className="font-semibold text-[#161A2C] dark:text-[#E7EAF7]">{label}</span>
     </nav>
   );
 }

@@ -3259,16 +3259,16 @@ export default function CalculatorWorkspace({
           : 'col-span-12 lg:col-span-7 xl:col-span-8 w-full'
       } bg-white/70 border border-slate-200 rounded-3xl p-4 sm:p-5 backdrop-blur-xl flex flex-col justify-between shadow-xs text-left`} id="tour-input-panel">
         <div>
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#D8D0C2]/60 dark:border-[#384238]">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#DCE3F5]/60 dark:border-[#2A3350]">
             <div className="flex items-center space-x-2.5">
-              <span className="p-2 bg-[#657565]/12 text-[#657565] rounded-xl border border-[#657565]/20 shadow-2xs">
+              <span className="p-2 bg-[#4C5FE0]/12 text-[#4C5FE0] rounded-xl border border-[#4C5FE0]/20 shadow-2xs">
                 {calculatorId === 'concrete-volume' ? <Box className="w-5 h-5" /> : <Layers className="w-5 h-5" />}
               </span>
               <div>
-                <h3 className="text-sm font-bold text-[#20231F] dark:text-[#EAE7E0] font-sans tracking-tight">
+                <h3 className="text-sm font-bold text-[#161A2C] dark:text-[#E7EAF7] font-sans tracking-tight">
                   {calculatorId === 'concrete-volume' ? 'Enter Dimensions' : 'Inputs'}
                 </h3>
-                <p className="text-[9.5px] font-mono font-medium text-[#7B8978] dark:text-[#9CA899]">
+                <p className="text-[9.5px] font-mono font-medium text-[#7C88B8] dark:text-[#8891B0]">
                   {calculatorId === 'concrete-volume' ? 'MODEL: RECTANGULAR · PRECISION: 0.01' : 'STATE CONTROL PARAMETERS'}
                 </p>
               </div>
@@ -3589,16 +3589,16 @@ export default function CalculatorWorkspace({
                     onClick={() => {
                       document.getElementById('calculator-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#657565] hover:bg-[#526052] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#4C5FE0] hover:bg-[#3B47B8] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
                   >
                     <span>Calculate</span>
                   </button>
                   <button
                     type="button"
                     onClick={resetToDefaults}
-                    className="py-2.5 px-4 rounded-xl bg-[#FAF8F5] dark:bg-[#242A24] border border-[#D8D0C2] dark:border-[#384238] hover:border-[#7B8978] text-[#20231F] dark:text-[#EAE7E0] text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                    className="py-2.5 px-4 rounded-xl backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] hover:border-[#7C88B8] text-[#161A2C] dark:text-[#E7EAF7] text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
                   >
-                    <RefreshCw className="w-3.5 h-3.5 text-[#7B8978]" />
+                    <RefreshCw className="w-3.5 h-3.5 text-[#7C88B8]" />
                     <span>Reset</span>
                   </button>
                 </div>
@@ -5004,29 +5004,29 @@ export default function CalculatorWorkspace({
             {calculatorId === 'concrete-volume' && (
               <div className="space-y-4 font-sans text-left">
                 {/* WIDE CALCULATION RESULT CARD */}
-                <div className="p-5 rounded-3xl bg-[#FAF8F5] dark:bg-[#202620] border border-[#D8D0C2] dark:border-[#384238] shadow-xs">
+                <div className="p-5 rounded-3xl backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] shadow-xs">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#7B8978]">Calculation Result</span>
-                    <span className="px-2.5 py-1 rounded-full bg-[#657565]/15 text-[#526052] dark:text-[#A4B2A4] text-[10.5px] font-bold">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#7C88B8]">Calculation Result</span>
+                    <span className="px-2.5 py-1 rounded-full bg-[#4C5FE0]/15 text-[#3B47B8] dark:text-[#9AA3C4] text-[10.5px] font-bold">
                       ✓ Calculation complete
                     </span>
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mt-2">
                     <div>
-                      <div className="text-4xl sm:text-5xl font-black text-[#20231F] dark:text-[#EAE7E0] tracking-tight">
-                        {outputs.volumeRaw !== undefined ? Number(outputs.volumeRaw).toFixed(2) : '3.00'} <span className="text-xl sm:text-2xl font-bold text-[#7B8978]">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+                      <div className="text-4xl sm:text-5xl font-black text-[#161A2C] dark:text-[#E7EAF7] tracking-tight">
+                        {outputs.volumeRaw !== undefined ? Number(outputs.volumeRaw).toFixed(2) : '3.00'} <span className="text-xl sm:text-2xl font-bold text-[#7C88B8]">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
                       </div>
                     </div>
 
-                    <div className="flex flex-col font-mono text-xs text-[#555C55] dark:text-[#A4B2A4] space-y-1">
-                      <div><span className="text-[#7B8978]">Formula:</span> <span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">V = L × W × D</span></div>
-                      <div><span className="text-[#7B8978]">Calculation:</span> <span className="font-semibold text-[#20231F] dark:text-[#EAE7E0]">{Number(inputs.length ?? 5).toFixed(2)} × {Number(inputs.width ?? 4).toFixed(2)} × {Number(inputs.thickness ?? 0.15).toFixed(2)}</span></div>
+                    <div className="flex flex-col font-mono text-xs text-[#4A5578] dark:text-[#9AA3C4] space-y-1">
+                      <div><span className="text-[#7C88B8]">Formula:</span> <span className="font-bold text-[#161A2C] dark:text-[#E7EAF7]">V = L × W × D</span></div>
+                      <div><span className="text-[#7C88B8]">Calculation:</span> <span className="font-semibold text-[#161A2C] dark:text-[#E7EAF7]">{Number(inputs.length ?? 5).toFixed(2)} × {Number(inputs.width ?? 4).toFixed(2)} × {Number(inputs.thickness ?? 0.15).toFixed(2)}</span></div>
                     </div>
                   </div>
 
                   {/* Actions: Copy Result, Download PDF, Export Excel */}
-                  <div className="flex flex-wrap items-center gap-2 mt-4 pt-3.5 border-t border-[#D8D0C2]/60 dark:border-[#333C33]">
+                  <div className="flex flex-wrap items-center gap-2 mt-4 pt-3.5 border-t border-[#DCE3F5]/60 dark:border-[#262E42]">
                     <button
                       type="button"
                       onClick={() => {
@@ -5035,27 +5035,27 @@ export default function CalculatorWorkspace({
                         setShareToast(true);
                         setTimeout(() => setShareToast(false), 2000);
                       }}
-                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#1D2438] border border-[#DCE3F5] dark:border-[#2A3350] text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7] hover:border-[#7C88B8] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
                     >
-                      <Copy className="w-3.5 h-3.5 text-[#7B8978]" />
+                      <Copy className="w-3.5 h-3.5 text-[#7C88B8]" />
                       <span>{shareToast ? 'Copied!' : 'Copy Result'}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setIsExportModalOpen(true)}
-                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#1D2438] border border-[#DCE3F5] dark:border-[#2A3350] text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7] hover:border-[#7C88B8] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
                     >
-                      <FileText className="w-3.5 h-3.5 text-[#7B8978]" />
+                      <FileText className="w-3.5 h-3.5 text-[#7C88B8]" />
                       <span>Download PDF</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleDownloadExcel}
-                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#2A312A] border border-[#D8D0C2] dark:border-[#384238] text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] hover:border-[#7B8978] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#1D2438] border border-[#DCE3F5] dark:border-[#2A3350] text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7] hover:border-[#7C88B8] transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5"
                     >
-                      <FileSpreadsheet className="w-3.5 h-3.5 text-[#7B8978]" />
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-[#7C88B8]" />
                       <span>Export Excel</span>
                     </button>
                   </div>
@@ -5064,38 +5064,38 @@ export default function CalculatorWorkspace({
                 {/* LOWER CONTENT: Formula Explanation & Example Calculation */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* Formula Explanation */}
-                  <div className="p-4 rounded-2xl bg-white/80 dark:bg-[#222822] border border-[#D8D0C2] dark:border-[#384238] shadow-2xs">
+                  <div className="p-4 rounded-2xl bg-white/80 dark:bg-[#171C2C] border border-[#DCE3F5] dark:border-[#2A3350] shadow-2xs">
                     <div className="flex items-center gap-2 mb-2.5">
-                      <div className="w-5 h-5 rounded-md bg-[#657565]/15 text-[#526052] flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-md bg-[#4C5FE0]/15 text-[#3B47B8] flex items-center justify-center">
                         <BookOpen className="w-3 h-3" />
                       </div>
-                      <h4 className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">Formula Explanation</h4>
+                      <h4 className="text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7]">Formula Explanation</h4>
                     </div>
-                    <div className="p-2 rounded-lg bg-[#FAF8F5] dark:bg-[#1A1D1A] border border-[#D8D0C2]/70 dark:border-[#333C33] font-mono text-xs font-bold text-[#20231F] dark:text-[#EAE7E0] mb-2.5">
+                    <div className="p-2 rounded-lg backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#0B0D16] border border-[#DCE3F5]/70 dark:border-[#262E42] font-mono text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7] mb-2.5">
                       V = L × W × D
                     </div>
-                    <div className="space-y-0.5 text-[11px] text-[#555C55] dark:text-[#A4B2A4] font-mono">
-                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">V</span> = Volume of concrete ({unitSystem === 'metric' ? 'm³' : 'yd³'})</div>
-                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">L</span> = Length ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
-                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">W</span> = Width ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
-                      <div><span className="font-bold text-[#20231F] dark:text-[#EAE7E0]">D</span> = Depth ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
+                    <div className="space-y-0.5 text-[11px] text-[#4A5578] dark:text-[#9AA3C4] font-mono">
+                      <div><span className="font-bold text-[#161A2C] dark:text-[#E7EAF7]">V</span> = Volume of concrete ({unitSystem === 'metric' ? 'm³' : 'yd³'})</div>
+                      <div><span className="font-bold text-[#161A2C] dark:text-[#E7EAF7]">L</span> = Length ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
+                      <div><span className="font-bold text-[#161A2C] dark:text-[#E7EAF7]">W</span> = Width ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
+                      <div><span className="font-bold text-[#161A2C] dark:text-[#E7EAF7]">D</span> = Depth ({unitSystem === 'metric' ? 'm' : 'ft'})</div>
                     </div>
                   </div>
 
                   {/* Example Calculation */}
-                  <div className="p-4 rounded-2xl bg-white/80 dark:bg-[#222822] border border-[#D8D0C2] dark:border-[#384238] shadow-2xs">
+                  <div className="p-4 rounded-2xl bg-white/80 dark:bg-[#171C2C] border border-[#DCE3F5] dark:border-[#2A3350] shadow-2xs">
                     <div className="flex items-center gap-2 mb-2.5">
                       <div className="w-5 h-5 rounded-md bg-[#9A8062]/15 text-[#735F48] flex items-center justify-center">
                         <Calculator className="w-3 h-3" />
                       </div>
-                      <h4 className="text-xs font-bold text-[#20231F] dark:text-[#EAE7E0]">Example Calculation</h4>
+                      <h4 className="text-xs font-bold text-[#161A2C] dark:text-[#E7EAF7]">Example Calculation</h4>
                     </div>
-                    <div className="space-y-0.5 text-[11px] text-[#555C55] dark:text-[#A4B2A4] font-mono mb-2.5">
+                    <div className="space-y-0.5 text-[11px] text-[#4A5578] dark:text-[#9AA3C4] font-mono mb-2.5">
                       <div>Length = 5.00 m</div>
                       <div>Width = 4.00 m</div>
                       <div>Depth = 0.15 m</div>
                     </div>
-                    <div className="p-2 rounded-lg bg-[#FAF8F5] dark:bg-[#1A1D1A] border border-[#D8D0C2]/70 dark:border-[#333C33] font-mono text-[11.5px] font-bold text-[#20231F] dark:text-[#EAE7E0]">
+                    <div className="p-2 rounded-lg backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#0B0D16] border border-[#DCE3F5]/70 dark:border-[#262E42] font-mono text-[11.5px] font-bold text-[#161A2C] dark:text-[#E7EAF7]">
                       5.00 × 4.00 × 0.15 = 3.00 m³
                     </div>
                   </div>
@@ -5103,15 +5103,15 @@ export default function CalculatorWorkspace({
 
                 {/* Net, Dry, and Mix Breakdown Cards */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-white/80 dark:bg-[#222822] p-3 rounded-2xl border border-[#D8D0C2] dark:border-[#384238] shadow-2xs">
-                    <span className="text-[10px] text-[#7B8978] block uppercase font-bold">Dry Volume</span>
-                    <span className="text-base font-bold text-[#20231F] dark:text-[#EAE7E0]">{outputs.volumeDry ?? 0}</span>
-                    <span className="text-[10px] text-[#7B8978] ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+                  <div className="bg-white/80 dark:bg-[#171C2C] p-3 rounded-2xl border border-[#DCE3F5] dark:border-[#2A3350] shadow-2xs">
+                    <span className="text-[10px] text-[#7C88B8] block uppercase font-bold">Dry Volume</span>
+                    <span className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7]">{outputs.volumeDry ?? 0}</span>
+                    <span className="text-[10px] text-[#7C88B8] ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
                   </div>
-                  <div className="bg-[#657565]/10 p-3 rounded-2xl border border-[#657565]/30">
-                    <span className="text-[10px] text-[#526052] dark:text-[#A4B2A4] block uppercase font-bold">Total Ordered</span>
-                    <span className="text-base font-bold text-[#526052] dark:text-[#A4B2A4]">{outputs.volumeTotal ?? 0}</span>
-                    <span className="text-[10px] text-[#657565] ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
+                  <div className="bg-[#4C5FE0]/10 p-3 rounded-2xl border border-[#4C5FE0]/30">
+                    <span className="text-[10px] text-[#3B47B8] dark:text-[#9AA3C4] block uppercase font-bold">Total Ordered</span>
+                    <span className="text-base font-bold text-[#3B47B8] dark:text-[#9AA3C4]">{outputs.volumeTotal ?? 0}</span>
+                    <span className="text-[10px] text-[#4C5FE0] ml-1">{unitSystem === 'metric' ? 'm³' : 'yd³'}</span>
                   </div>
                 </div>
                 
@@ -5867,7 +5867,7 @@ export default function CalculatorWorkspace({
             <div>
               <div className="flex items-center space-x-2">
                 <h3 className="text-md font-semibold text-slate-800 dark:text-slate-100 font-sans tracking-tight">Engineering AI Assistant</h3>
-                <span className="text-[9px] font-mono bg-[#657565]/15 text-[#526052] dark:text-[#A4B2A4] px-2 py-0.5 rounded-full border border-[#657565]/25 font-bold uppercase tracking-wider">Analysis Active</span>
+                <span className="text-[9px] font-mono bg-[#4C5FE0]/15 text-[#3B47B8] dark:text-[#9AA3C4] px-2 py-0.5 rounded-full border border-[#4C5FE0]/25 font-bold uppercase tracking-wider">Analysis Active</span>
               </div>
               <p className="text-xs text-slate-500 font-mono">PROMPT PRINCIPAL STRUCTURAL REVIEW & CODE AUDITING LOGS</p>
             </div>

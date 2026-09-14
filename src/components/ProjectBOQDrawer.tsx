@@ -189,7 +189,7 @@ export function ProjectBOQDrawer() {
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-          className="relative w-full max-w-xl bg-white dark:bg-[#111110] border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col h-full z-10"
+          className="relative w-full max-w-xl bg-white dark:bg-[#0B0D16] border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col h-full z-10"
         >
           {/* Drawer Header */}
           <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30">
@@ -336,7 +336,7 @@ export function ProjectBOQDrawer() {
 
           {/* Drawer Actions Footer */}
           {project.items.length > 0 && (
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111110] space-y-2">
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0D16] space-y-2">
               <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={handleExportExcel}

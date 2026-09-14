@@ -203,7 +203,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
       <div className="fixed top-[250px] right-4 md:top-auto md:bottom-6 md:right-6 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative w-13 h-13 bg-[#657565] text-white hover:bg-[#526052] rounded-full flex items-center justify-center shadow-md shadow-[#657565]/25 cursor-pointer border border-[#7B8978]/40 transition-transform duration-200 hover:scale-105 active:scale-95 group focus:outline-none"
+          className="relative w-13 h-13 bg-[#4C5FE0] text-white hover:bg-[#3B47B8] rounded-full flex items-center justify-center shadow-md shadow-[#4C5FE0]/25 cursor-pointer border border-[#7C88B8]/40 transition-transform duration-200 hover:scale-105 active:scale-95 group focus:outline-none"
           aria-label="Engineering Assistant Chat"
         >
           <AnimatePresence mode="wait">
@@ -231,7 +231,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
             )}
           </AnimatePresence>
           {/* Notification dot (Online Indicator) */}
-          <span className="absolute top-0 right-0 w-3 h-3 bg-[#657565] border-2 border-white dark:border-[#1E221E] rounded-full"></span>
+          <span className="absolute top-0 right-0 w-3 h-3 bg-[#4C5FE0] border-2 border-white dark:border-[#11141F] rounded-full"></span>
         </button>
       </div>
 
@@ -243,10 +243,10 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 20, stiffness: 260 }}
-            className="fixed top-[180px] right-4 md:top-auto md:bottom-24 md:right-6 z-50 w-[380px] h-[520px] max-h-[calc(100vh-16rem)] md:max-h-none max-w-[calc(100vw-2rem)] bg-[#FAF9F6]/98 dark:bg-[#1E221E]/98 border border-[#D8D0C2] dark:border-[#384238] rounded-3xl shadow-xl backdrop-blur-md flex flex-col overflow-hidden text-left"
+            className="fixed top-[180px] right-4 md:top-auto md:bottom-24 md:right-6 z-50 w-[380px] h-[520px] max-h-[calc(100vh-16rem)] md:max-h-none max-w-[calc(100vw-2rem)] bg-[#F7F9FF]/98 dark:bg-[#11141F]/98 border border-[#DCE3F5] dark:border-[#2A3350] rounded-3xl shadow-xl backdrop-blur-md flex flex-col overflow-hidden text-left"
           >
             {/* Header */}
-            <div className="bg-[#20231F] dark:bg-[#161916] p-4 text-white flex items-center justify-between border-b border-[#D8D0C2]/20 shadow-xs relative">
+            <div className="bg-[#161A2C] dark:bg-[#161916] p-4 text-white flex items-center justify-between border-b border-[#DCE3F5]/20 shadow-xs relative">
               <div className="flex items-center space-x-2.5">
                 <div className="p-2 bg-white/10 text-white rounded-xl border border-white/15">
                   <HardHat className="w-4 h-4 text-[#D9B96E]" />
@@ -254,9 +254,9 @@ export const ChatBot: React.FC<ChatBotProps> = ({ activeCalcId, unitSystem }) =>
                 <div>
                   <h3 className="text-xs font-bold font-sans tracking-tight text-white flex items-center">
                     Engineering Assistant
-                    <span className="w-1.5 h-1.5 bg-[#657565] rounded-full ml-1.5 inline-block"></span>
+                    <span className="w-1.5 h-1.5 bg-[#4C5FE0] rounded-full ml-1.5 inline-block"></span>
                   </h3>
-                  <span className="text-[9px] font-mono text-[#A4B2A4] uppercase tracking-wider block">Principal Structural AI</span>
+                  <span className="text-[9px] font-mono text-[#9AA3C4] uppercase tracking-wider block">Principal Structural AI</span>
                 </div>
               </div>
               <div className="flex items-center space-x-1">
