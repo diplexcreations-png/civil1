@@ -4,12 +4,12 @@ import { ChevronLeft, ChevronRight, ArrowRight, Layers, Square, Minus, Grid3x3, 
 
 // ---------- Popular Calculators (icon grid with soft-colored tiles) ----------
 export const POPULAR_CALCULATORS = [
-  { id: 'concrete-volume', name: 'Concrete Mix Calculator', path: '/concrete/volume', icon: 'Layers', color: '#6C5CE7' },
-  { id: 'structural-slab', name: 'Slab Calculator', path: '/structural/slab', icon: 'Square', color: '#6C5CE7' },
+  { id: 'concrete-volume', name: 'Concrete Mix Calculator', path: '/concrete/volume', icon: 'Layers', color: '#4C5FE0' },
+  { id: 'structural-slab', name: 'Slab Calculator', path: '/structural/slab', icon: 'Square', color: '#4C5FE0' },
   { id: 'structural-beam', name: 'Beam Calculator', path: '/structural/beam', icon: 'Minus', color: '#E17055' },
   { id: 'brick-calculator', name: 'Brickwork Calculator', path: '/concrete/brick', icon: 'Grid3x3', color: '#E17055' },
-  { id: 'geotech-bearing', name: 'Foundation Calculator', path: '/geotechnical/bearing-capacity', icon: 'Box', color: '#7C6FEE' },
-  { id: 'structural-column', name: 'Column Calculator', path: '/structural/column', icon: 'RectangleVertical', color: '#7C6FEE' },
+  { id: 'geotech-bearing', name: 'Foundation Calculator', path: '/geotechnical/bearing-capacity', icon: 'Box', color: '#7C88B8' },
+  { id: 'structural-column', name: 'Column Calculator', path: '/structural/column', icon: 'RectangleVertical', color: '#7C88B8' },
   { id: 'rebar-calculator', name: 'Rebar Calculator', path: '/concrete/rebar', icon: 'Grid', color: '#00B894' },
   { id: 'utility-convert', name: 'Unit Converter', path: '/utilities/unit-converter', icon: 'RefreshCw', color: '#00B894' },
 ];
@@ -19,10 +19,10 @@ const ICONS: Record<string, any> = { Layers, Square, Minus, Grid3x3, Box, Rectan
 export function PopularCalculatorsGrid() {
   const navigate = useNavigate();
   return (
-    <div className="bg-white dark:bg-[#141826] border border-[#ECEAFB] dark:border-[#2A2645] rounded-2xl p-5 shadow-sm">
+    <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-[#1A1A2E] dark:text-[#E7EAF7]">Popular Calculators</h3>
-        <button className="text-xs font-semibold text-[#6C5CE7] hover:underline inline-flex items-center gap-1 cursor-pointer">
+        <h3 className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7]">Popular Calculators</h3>
+        <button className="text-xs font-semibold text-[#4C5FE0] hover:underline inline-flex items-center gap-1 cursor-pointer">
           View All <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -33,7 +33,7 @@ export function PopularCalculatorsGrid() {
             <button
               key={c.id}
               onClick={() => navigate(c.path)}
-              className="group text-left p-3.5 rounded-xl border border-[#F0EEFC] dark:border-[#2A2645] hover:border-[#6C5CE7]/40 hover:shadow-md transition-all cursor-pointer"
+              className="group text-left p-3.5 rounded-xl border border-[#EEF1FB] dark:border-[#2A3350] hover:border-[#4C5FE0]/40 hover:shadow-md transition-all cursor-pointer"
               style={{ backgroundColor: `${c.color}0D` }}
             >
               <div
@@ -43,8 +43,8 @@ export function PopularCalculatorsGrid() {
                 <Icon className="w-5 h-5" />
               </div>
               <div className="flex items-center justify-between gap-1">
-                <span className="text-xs font-semibold text-[#1A1A2E] dark:text-[#E7EAF7] leading-tight">{c.name}</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#6C5CE7] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="text-xs font-semibold text-[#161A2C] dark:text-[#E7EAF7] leading-tight">{c.name}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#4C5FE0] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </button>
           );
@@ -65,14 +65,14 @@ export function ProgressDonut({ slices, total, centerLabel }: { slices: DonutSli
   let offset = 0;
 
   return (
-    <div className="bg-white dark:bg-[#141826] border border-[#ECEAFB] dark:border-[#2A2645] rounded-2xl p-5 shadow-sm">
+    <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-[#1A1A2E] dark:text-[#E7EAF7]">Your Progress</h3>
+        <h3 className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7]">Your Progress</h3>
       </div>
       <div className="flex items-center gap-6 flex-wrap">
         <div className="relative shrink-0" style={{ width: size, height: size }}>
           <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F0EEFC" strokeWidth={stroke} />
+            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#EEF1FB" strokeWidth={stroke} />
             {slices.map((s, i) => {
               const frac = total > 0 ? s.value / total : 0;
               const dash = frac * c;
@@ -95,18 +95,18 @@ export function ProgressDonut({ slices, total, centerLabel }: { slices: DonutSli
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-extrabold text-[#1A1A2E] dark:text-[#E7EAF7]">{total}</span>
-            <span className="text-[10px] text-[#8C8AA3] text-center leading-tight">{centerLabel}</span>
+            <span className="text-2xl font-extrabold text-[#161A2C] dark:text-[#E7EAF7]">{total}</span>
+            <span className="text-[10px] text-[#8891B0] text-center leading-tight">{centerLabel}</span>
           </div>
         </div>
         <div className="space-y-2 flex-1 min-w-[140px]">
           {slices.map((s) => (
             <div key={s.label} className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-2 text-[#4A4A68] dark:text-[#C9D0EA]">
+              <span className="flex items-center gap-2 text-[#4A5578] dark:text-[#C9D0EA]">
                 <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
                 {s.label}
               </span>
-              <span className="font-semibold text-[#1A1A2E] dark:text-[#E7EAF7]">{s.value}</span>
+              <span className="font-semibold text-[#161A2C] dark:text-[#E7EAF7]">{s.value}</span>
             </div>
           ))}
         </div>
@@ -121,24 +121,24 @@ export function QuickStatsBar({ data, headline, sublabel, changeLabel }: { data:
   const peakIdx = data.findIndex((d) => d.value === max);
 
   return (
-    <div className="bg-white dark:bg-[#141826] border border-[#ECEAFB] dark:border-[#2A2645] rounded-2xl p-5 shadow-sm">
+    <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-[#1A1A2E] dark:text-[#E7EAF7]">Quick Stats</h3>
+        <h3 className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7]">Quick Stats</h3>
         {changeLabel && (
           <span className="text-[11px] font-bold text-[#00B894] bg-[#00B894]/10 px-2 py-0.5 rounded-full">{changeLabel}</span>
         )}
       </div>
       <div className="flex items-end gap-4 mb-4">
-        <div className="w-11 h-11 rounded-xl bg-[#6C5CE7]/10 flex items-center justify-center shrink-0">
-          <svg viewBox="0 0 20 20" className="w-5 h-5 text-[#6C5CE7]" fill="currentColor">
+        <div className="w-11 h-11 rounded-xl bg-[#4C5FE0]/10 flex items-center justify-center shrink-0">
+          <svg viewBox="0 0 20 20" className="w-5 h-5 text-[#4C5FE0]" fill="currentColor">
             <rect x="2" y="10" width="3" height="8" rx="1" />
             <rect x="8.5" y="6" width="3" height="12" rx="1" />
             <rect x="15" y="2" width="3" height="16" rx="1" />
           </svg>
         </div>
         <div>
-          <div className="text-2xl font-extrabold text-[#1A1A2E] dark:text-[#E7EAF7] leading-none">{headline}</div>
-          <div className="text-[11px] text-[#8C8AA3] mt-1">{sublabel}</div>
+          <div className="text-2xl font-extrabold text-[#161A2C] dark:text-[#E7EAF7] leading-none">{headline}</div>
+          <div className="text-[11px] text-[#8891B0] mt-1">{sublabel}</div>
         </div>
       </div>
       <div className="flex items-end justify-between gap-2 h-20">
@@ -146,11 +146,11 @@ export function QuickStatsBar({ data, headline, sublabel, changeLabel }: { data:
           <div key={d.label} className="flex-1 flex flex-col items-center gap-1.5">
             <div className="w-full flex items-end justify-center h-16 relative">
               <div
-                className={`w-full max-w-[18px] rounded-md transition-all ${i === peakIdx ? 'bg-[#6C5CE7]' : 'bg-[#ECEAFB] dark:bg-[#2A2645]'}`}
+                className={`w-full max-w-[18px] rounded-md transition-all ${i === peakIdx ? 'bg-[#4C5FE0]' : 'bg-[#DCE3F5] dark:bg-[#2A3350]'}`}
                 style={{ height: `${Math.max((d.value / max) * 100, 8)}%` }}
               />
             </div>
-            <span className="text-[9px] text-[#8C8AA3]">{d.label}</span>
+            <span className="text-[9px] text-[#8891B0]">{d.label}</span>
           </div>
         ))}
       </div>
@@ -173,28 +173,28 @@ export function CalendarWidget() {
     d !== null && monthOffset === 0 && d === today.getDate();
 
   return (
-    <div className="bg-white dark:bg-[#141826] border border-[#ECEAFB] dark:border-[#2A2645] rounded-2xl p-5 shadow-sm">
+    <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-[#1A1A2E] dark:text-[#E7EAF7]">{monthName}</h3>
+        <h3 className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7]">{monthName}</h3>
         <div className="flex items-center gap-1">
-          <button onClick={() => setMonthOffset(monthOffset - 1)} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#F0EEFC] dark:hover:bg-[#2A2645] cursor-pointer">
-            <ChevronLeft className="w-3.5 h-3.5 text-[#8C8AA3]" />
+          <button onClick={() => setMonthOffset(monthOffset - 1)} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#EEF1FB] dark:hover:bg-[#2A3350] cursor-pointer">
+            <ChevronLeft className="w-3.5 h-3.5 text-[#8891B0]" />
           </button>
-          <button onClick={() => setMonthOffset(monthOffset + 1)} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#F0EEFC] dark:hover:bg-[#2A2645] cursor-pointer">
-            <ChevronRight className="w-3.5 h-3.5 text-[#8C8AA3]" />
+          <button onClick={() => setMonthOffset(monthOffset + 1)} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#EEF1FB] dark:hover:bg-[#2A3350] cursor-pointer">
+            <ChevronRight className="w-3.5 h-3.5 text-[#8891B0]" />
           </button>
         </div>
       </div>
       <div className="grid grid-cols-7 gap-y-2 text-center">
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-          <span key={d} className="text-[9px] font-semibold text-[#8C8AA3]">{d}</span>
+          <span key={d} className="text-[9px] font-semibold text-[#8891B0]">{d}</span>
         ))}
         {cells.map((d, i) => (
           <div key={i} className="flex items-center justify-center py-1">
             {d && (
               <span
                 className={`w-6 h-6 flex items-center justify-center rounded-full text-[11px] ${
-                  isToday(d) ? 'bg-[#1A1A2E] text-white font-bold' : 'text-[#4A4A68] dark:text-[#C9D0EA]'
+                  isToday(d) ? 'bg-[#161A2C] text-white font-bold' : 'text-[#4A5578] dark:text-[#C9D0EA]'
                 }`}
               >
                 {d}
@@ -211,18 +211,18 @@ export function CalendarWidget() {
 // ---------- Latest Articles ----------
 export function LatestArticlesWidget({ articles }: { articles: { title: string; date: string; color: string }[] }) {
   return (
-    <div className="bg-white dark:bg-[#141826] border border-[#ECEAFB] dark:border-[#2A2645] rounded-2xl p-5 shadow-sm">
+    <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-[#1A1A2E] dark:text-[#E7EAF7]">Latest Articles</h3>
-        <ArrowRight className="w-4 h-4 text-[#8C8AA3]" />
+        <h3 className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7]">Latest Articles</h3>
+        <ArrowRight className="w-4 h-4 text-[#8891B0]" />
       </div>
       <div className="space-y-3">
         {articles.map((a) => (
           <div key={a.title} className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl shrink-0" style={{ backgroundColor: `${a.color}22` }} />
             <div className="min-w-0">
-              <div className="text-xs font-semibold text-[#1A1A2E] dark:text-[#E7EAF7] leading-snug truncate">{a.title}</div>
-              <div className="text-[10px] text-[#8C8AA3] mt-0.5">{a.date}</div>
+              <div className="text-xs font-semibold text-[#161A2C] dark:text-[#E7EAF7] leading-snug truncate">{a.title}</div>
+              <div className="text-[10px] text-[#8891B0] mt-0.5">{a.date}</div>
             </div>
           </div>
         ))}
@@ -234,15 +234,15 @@ export function LatestArticlesWidget({ articles }: { articles: { title: string; 
 // ---------- Recent Calculations ----------
 export function RecentCalculationsWidget({ items, onOpen }: { items: { id: string; name: string; time: string; color: string }[]; onOpen?: (id: string) => void }) {
   return (
-    <div className="bg-white dark:bg-[#141826] border border-[#ECEAFB] dark:border-[#2A2645] rounded-2xl p-5 shadow-sm">
+    <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-[#1A1A2E] dark:text-[#E7EAF7]">Recent Calculations</h3>
-        <button className="text-xs font-semibold text-[#6C5CE7] hover:underline inline-flex items-center gap-1 cursor-pointer">
+        <h3 className="text-base font-bold text-[#161A2C] dark:text-[#E7EAF7]">Recent Calculations</h3>
+        <button className="text-xs font-semibold text-[#4C5FE0] hover:underline inline-flex items-center gap-1 cursor-pointer">
           View All <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-[#8C8AA3]">No calculations yet — try one of the popular calculators above.</p>
+        <p className="text-xs text-[#8891B0]">No calculations yet — try one of the popular calculators above.</p>
       ) : (
         <div className="space-y-3">
           {items.map((it) => (
@@ -253,9 +253,9 @@ export function RecentCalculationsWidget({ items, onOpen }: { items: { id: strin
             >
               <div className="flex items-center gap-3 min-w-0">
                 <span className="w-8 h-8 rounded-lg shrink-0" style={{ backgroundColor: `${it.color}22` }} />
-                <span className="text-xs font-medium text-[#1A1A2E] dark:text-[#E7EAF7] truncate group-hover:text-[#6C5CE7] transition-colors">{it.name}</span>
+                <span className="text-xs font-medium text-[#161A2C] dark:text-[#E7EAF7] truncate group-hover:text-[#4C5FE0] transition-colors">{it.name}</span>
               </div>
-              <span className="text-[10px] text-[#8C8AA3] shrink-0">{it.time}</span>
+              <span className="text-[10px] text-[#8891B0] shrink-0">{it.time}</span>
             </button>
           ))}
         </div>

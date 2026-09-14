@@ -7,16 +7,16 @@ import { CALCULATORS_LIST } from '../data/calculatorsData';
 import { useApp } from '../context/AppContext';
 
 const CATEGORY_META: Record<string, { label: string; color: string }> = {
-  concrete: { label: 'Concrete', color: '#6C5CE7' },
+  concrete: { label: 'Concrete', color: '#4C5FE0' },
   structural: { label: 'Structural', color: '#00B894' },
-  bbs: { label: 'Reinforcement', color: '#7C6FEE' },
+  bbs: { label: 'Reinforcement', color: '#7C88B8' },
   geotech: { label: 'Geotechnical', color: '#E17055' },
   survey: { label: 'Surveying', color: '#0984E3' },
   utility: { label: 'Utilities', color: '#FDCB6E' },
 };
 
 const LATEST_ARTICLES = [
-  { title: 'Types of Foundations and Their Uses', date: 'Structural basics', color: '#6C5CE7' },
+  { title: 'Types of Foundations and Their Uses', date: 'Structural basics', color: '#4C5FE0' },
   { title: 'Concrete Mix Ratios Explained', date: 'Concrete & materials', color: '#E17055' },
   { title: 'Reading Structural Drawings for Beginners', date: 'Drafting & documentation', color: '#00B894' },
 ];
@@ -54,7 +54,7 @@ export default function DashboardPage() {
     .map(([key, value]) => ({
       label: CATEGORY_META[key]?.label || key,
       value,
-      color: CATEGORY_META[key]?.color || '#8C8AA3',
+      color: CATEGORY_META[key]?.color || '#8891B0',
     }));
 
   // Saved calculations grouped by weekday
@@ -70,7 +70,7 @@ export default function DashboardPage() {
   const recentItems = recentCalculatorIds.slice(0, 5).map((id) => {
     const def = CALCULATORS_LIST.find((c) => c.id === id);
     const meta = def ? CATEGORY_META[def.category] : undefined;
-    return { id, name: def?.name || id, time: '', color: meta?.color || '#8C8AA3' };
+    return { id, name: def?.name || id, time: '', color: meta?.color || '#8891B0' };
   }).filter((it) => it.name);
 
   return (

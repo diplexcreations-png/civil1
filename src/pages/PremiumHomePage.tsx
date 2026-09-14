@@ -185,9 +185,9 @@ export default function PremiumHomePage() {
 
   // Category breakdown of saved calculations, for the "Your Progress" donut
   const CATEGORY_META: Record<string, { label: string; color: string }> = {
-    concrete: { label: 'Concrete', color: '#6C5CE7' },
+    concrete: { label: 'Concrete', color: '#4C5FE0' },
     structural: { label: 'Structural', color: '#00B894' },
-    bbs: { label: 'Reinforcement', color: '#7C6FEE' },
+    bbs: { label: 'Reinforcement', color: '#7C88B8' },
     geotech: { label: 'Geotechnical', color: '#E17055' },
     survey: { label: 'Surveying', color: '#0984E3' },
     utility: { label: 'Utilities', color: '#FDCB6E' },
@@ -204,7 +204,7 @@ export default function PremiumHomePage() {
     .map(([key, value]) => ({
       label: CATEGORY_META[key]?.label || key,
       value,
-      color: CATEGORY_META[key]?.color || '#8C8AA3',
+      color: CATEGORY_META[key]?.color || '#8891B0',
     }));
   const progressTotal = savedCalculations.length;
 
@@ -222,11 +222,11 @@ export default function PremiumHomePage() {
   const recentItems = recentCalculatorIds.slice(0, 5).map((id) => {
     const def = CALCULATORS_LIST.find((c) => c.id === id);
     const meta = def ? CATEGORY_META[def.category] : undefined;
-    return { id, name: def?.name || id, time: '', color: meta?.color || '#8C8AA3' };
+    return { id, name: def?.name || id, time: '', color: meta?.color || '#8891B0' };
   }).filter((it) => it.name);
 
   const LATEST_ARTICLES = [
-    { title: 'Types of Foundations and Their Uses', date: 'Structural basics', color: '#6C5CE7' },
+    { title: 'Types of Foundations and Their Uses', date: 'Structural basics', color: '#4C5FE0' },
     { title: 'Concrete Mix Ratios Explained', date: 'Concrete & materials', color: '#E17055' },
     { title: 'Reading Structural Drawings for Beginners', date: 'Drafting & documentation', color: '#00B894' },
   ];
@@ -246,19 +246,19 @@ export default function PremiumHomePage() {
       <section className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5">
         <div className="space-y-5 min-w-0">
           {/* Hero banner */}
-          <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 shadow-sm bg-gradient-to-br from-[#EDEAFD] via-[#F3F1FD] to-white dark:from-[#1D1A38] dark:via-[#181530] dark:to-[#141826]">
-            <div className="absolute inset-0 bg-[radial-gradient(#6C5CE7_1px,transparent_1px)] [background-size:22px_22px] opacity-[0.06] pointer-events-none" />
+          <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 shadow-sm bg-gradient-to-br from-[#E7ECFB] via-[#EEF1FB] to-white dark:from-[#1A2140] dark:via-[#10142A] dark:to-[#141826]">
+            <div className="absolute inset-0 bg-[radial-gradient(#4C5FE0_1px,transparent_1px)] [background-size:22px_22px] opacity-[0.06] pointer-events-none" />
             <div className="relative max-w-xl">
-              <span className="text-[11px] font-bold tracking-wider uppercase text-[#6C5CE7]">Civil Engineering Calculators</span>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1A2E] dark:text-[#E7EAF7] mt-2 leading-tight">
-                Smart Calculations for a <span className="text-[#6C5CE7]">Stronger Tomorrow</span>
+              <span className="text-[11px] font-bold tracking-wider uppercase text-[#4C5FE0]">Civil Engineering Calculators</span>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-[#161A2C] dark:text-[#E7EAF7] mt-2 leading-tight">
+                Smart Calculations for a <span className="text-[#4C5FE0]">Stronger Tomorrow</span>
               </h1>
-              <p className="text-sm text-[#5A5A78] dark:text-[#9AA3C4] mt-3 leading-relaxed">
+              <p className="text-sm text-[#5C6B8A] dark:text-[#9AA3C4] mt-3 leading-relaxed">
                 Everything you need for civil engineering calculations, design, and learning — all in one place.
               </p>
               <Link
                 to="/calculators"
-                className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl bg-[#1A1A2E] hover:bg-[#6C5CE7] text-white text-sm font-semibold transition-colors no-underline cursor-pointer"
+                className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl bg-[#161A2C] hover:bg-[#4C5FE0] text-white text-sm font-semibold transition-colors no-underline cursor-pointer"
               >
                 Explore Calculators <ArrowRight className="w-4 h-4" />
               </Link>
