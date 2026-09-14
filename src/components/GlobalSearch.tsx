@@ -41,7 +41,7 @@ export default function GlobalSearch() {
       <kbd className="hidden sm:inline rounded-md border border-[#DCE3F5] dark:border-[#2A3350] bg-white dark:bg-[#11141F]/80 px-1.5 py-0.5 text-[9px] font-mono text-[#7C88B8]">Ctrl K</kbd>
     </button>
     {open && <div role="dialog" aria-modal="true" aria-label="Search calculators" className="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 p-4 pt-[12vh] backdrop-blur-sm" onMouseDown={() => setOpen(false)}>
-      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-[#DCE3F5] backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 shadow-2xl dark:border-[#2A3350] dark:bg-[#11141F]/80" onMouseDown={event => event.stopPropagation()}>
+      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-[#DCE3F5] backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/98 shadow-2xl dark:border-[#2A3350] dark:bg-[#11141F]/98" onMouseDown={event => event.stopPropagation()}>
         <div className="flex items-center gap-3 border-b border-[#DCE3F5] dark:border-[#2A3350] px-4 py-3.5">
           <Search className="w-4 h-4 text-[#7C88B8]" />
           <input autoFocus value={query} onChange={event => setQuery(event.target.value)} placeholder="Search calculators, engineering tools, formulas…" className="min-w-0 flex-1 bg-transparent text-sm text-[#161A2C] dark:text-[#E7EAF7] outline-none placeholder-[#8894BE]" />

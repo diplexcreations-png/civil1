@@ -284,7 +284,7 @@ export function ProjectBOQDrawer() {
                 </div>
                 <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">No Elements in Project Yet</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
-                  Open any calculator (Concrete Volume, Footing BBS, Beam, Column, Brickwork) and click <strong>"+ Add to Project BOQ"</strong> to aggregate your full building quantities here!
+                  This project bill of quantities is empty.
                 </p>
               </div>
             ) : (

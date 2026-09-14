@@ -15,6 +15,7 @@ import {
   generateWebsiteSchema,
 } from '../utils/seo';
 import { useApp } from '../context/AppContext';
+import { PopularCalculatorsGrid, ProgressDonut, QuickStatsBar, CalendarWidget, LatestArticlesWidget, RecentCalculationsWidget } from '../components/DashboardWidgets';
 
 // 8 Primary Engineering Disciplines matching the Left Sidebar
 const ENGINEERING_DISCIPLINES = [
@@ -154,7 +155,7 @@ const DESIGN_CODES = [
 
 export default function PremiumHomePage() {
   const navigate = useNavigate();
-  const { setActiveCalcId, favoriteCalculatorIds, recentCalculatorIds } = useApp();
+  const { setActiveCalcId, favoriteCalculatorIds, recentCalculatorIds, savedCalculations } = useApp();
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'structural' | 'concrete' | 'bbs' | 'site'>('all');
   const [now, setNow] = useState(new Date());
 
@@ -182,6 +183,54 @@ export default function PremiumHomePage() {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
   };
 
+  // Category breakdown of saved calculations, for the "Your Progress" donut
+  const CATEGORY_META: Record<string, { label: string; color: string }> = {
+    concrete: { label: 'Concrete', color: '#6C5CE7' },
+    structural: { label: 'Structural', color: '#00B894' },
+    bbs: { label: 'Reinforcement', color: '#7C6FEE' },
+    geotech: { label: 'Geotechnical', color: '#E17055' },
+    survey: { label: 'Surveying', color: '#0984E3' },
+    utility: { label: 'Utilities', color: '#FDCB6E' },
+  };
+  const categoryCounts: Record<string, number> = {};
+  savedCalculations.forEach((sc: any) => {
+    const def = CALCULATORS_LIST.find((c) => c.id === sc.calculatorId);
+    const key = def?.category || 'other';
+    categoryCounts[key] = (categoryCounts[key] || 0) + 1;
+  });
+  const progressSlices = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([key, value]) => ({
+      label: CATEGORY_META[key]?.label || key,
+      value,
+      color: CATEGORY_META[key]?.color || '#8C8AA3',
+    }));
+  const progressTotal = savedCalculations.length;
+
+  // Saved calculations grouped by weekday, for "Quick Stats"
+  const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weekCounts = [0, 0, 0, 0, 0, 0, 0];
+  savedCalculations.forEach((sc: any) => {
+    const d = new Date(sc.timestamp);
+    const idx = (d.getDay() + 6) % 7;
+    weekCounts[idx] += 1;
+  });
+  const weekActivity = WEEKDAYS.map((label, i) => ({ label, value: weekCounts[i] }));
+  const weeklyTotal = weekCounts.reduce((a, b) => a + b, 0);
+
+  const recentItems = recentCalculatorIds.slice(0, 5).map((id) => {
+    const def = CALCULATORS_LIST.find((c) => c.id === id);
+    const meta = def ? CATEGORY_META[def.category] : undefined;
+    return { id, name: def?.name || id, time: '', color: meta?.color || '#8C8AA3' };
+  }).filter((it) => it.name);
+
+  const LATEST_ARTICLES = [
+    { title: 'Types of Foundations and Their Uses', date: 'Structural basics', color: '#6C5CE7' },
+    { title: 'Concrete Mix Ratios Explained', date: 'Concrete & materials', color: '#E17055' },
+    { title: 'Reading Structural Drawings for Beginners', date: 'Drafting & documentation', color: '#00B894' },
+  ];
+
   return (
     <div className="space-y-10">
       <SEO
@@ -193,121 +242,53 @@ export default function PremiumHomePage() {
         schema={[generateOrganizationSchema(), generateWebsiteSchema()]}
       />
 
-      {/* 0. DASHBOARD WIDGET STRIP — greeting, quick jump, quick access, favorites/recents */}
-      <section className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="glass-card p-5 flex items-center justify-between">
-            <div>
-              <div className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">{greeting}, Engineer 👋</div>
-              <div className="text-2xl font-bold text-[#161A2C] dark:text-[#E7EAF7] mt-1">{timeStr}</div>
-              <div className="text-[11px] text-[#7C88B8]">{dateStr}</div>
-            </div>
-            <div className="w-11 h-11 rounded-xl bg-[#4C5FE0]/10 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5 text-[#4C5FE0]" />
+      {/* 0. PURPLE DASHBOARD HERO + WIDGET GRID */}
+      <section className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5">
+        <div className="space-y-5 min-w-0">
+          {/* Hero banner */}
+          <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 shadow-sm bg-gradient-to-br from-[#EDEAFD] via-[#F3F1FD] to-white dark:from-[#1D1A38] dark:via-[#181530] dark:to-[#141826]">
+            <div className="absolute inset-0 bg-[radial-gradient(#6C5CE7_1px,transparent_1px)] [background-size:22px_22px] opacity-[0.06] pointer-events-none" />
+            <div className="relative max-w-xl">
+              <span className="text-[11px] font-bold tracking-wider uppercase text-[#6C5CE7]">Civil Engineering Calculators</span>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1A1A2E] dark:text-[#E7EAF7] mt-2 leading-tight">
+                Smart Calculations for a <span className="text-[#6C5CE7]">Stronger Tomorrow</span>
+              </h1>
+              <p className="text-sm text-[#5A5A78] dark:text-[#9AA3C4] mt-3 leading-relaxed">
+                Everything you need for civil engineering calculations, design, and learning — all in one place.
+              </p>
+              <Link
+                to="/calculators"
+                className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-xl bg-[#1A1A2E] hover:bg-[#6C5CE7] text-white text-sm font-semibold transition-colors no-underline cursor-pointer"
+              >
+                Explore Calculators <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
 
-          <button
-            onClick={openSearch}
-            className="glass-card p-5 flex items-center gap-3 text-left cursor-pointer hover:border-[#4C5FE0] transition-colors"
-          >
-            <div className="w-11 h-11 rounded-xl bg-[#4C5FE0]/10 flex items-center justify-center shrink-0">
-              <Search className="w-5 h-5 text-[#4C5FE0]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">Jump to a calculator</div>
-              <div className="text-[11px] text-[#7C88B8]">Search 50+ tools instantly</div>
-            </div>
-            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#EEF1FB] dark:bg-[#1D2438] text-[#7C88B8] shrink-0">⌘K</kbd>
-          </button>
+          <PopularCalculatorsGrid />
 
-          <div className="glass-card p-5 flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-[#D9B96E]/15 flex items-center justify-center shrink-0">
-              <Lightbulb className="w-5 h-5 text-[#8A6D2B]" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">Engineering tip</div>
-              <div className="text-[11px] text-[#7C88B8] leading-snug">Add a 5% waste allowance to concrete pour volumes for accurate ordering.</div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <ProgressDonut
+              total={progressTotal}
+              centerLabel="Total Calculations"
+              slices={progressSlices}
+            />
+            <QuickStatsBar
+              headline={String(weeklyTotal)}
+              sublabel="Calculations this week"
+              data={weekActivity}
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Quick Access */}
-          <div className="glass-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7]">Quick Access</span>
-              <Link to="/calculators" className="text-[11px] text-[#7C88B8] hover:text-[#161A2C] dark:hover:text-[#E7EAF7] no-underline">View all</Link>
-            </div>
-            <div className="grid grid-cols-4 gap-2.5">
-              {ENGINEERING_DISCIPLINES.slice(0, 8).map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => navigate(item.path)}
-                    title={item.title}
-                    className="aspect-square rounded-2xl flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
-                    style={{ backgroundColor: `${item.color}18`, color: item.color }}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Recently Used */}
-          <div className="glass-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7] flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-[#7C88B8]" /> Recently Used
-              </span>
-            </div>
-            {recents.length === 0 ? (
-              <p className="text-xs text-[#7C88B8]">Open a calculator to build your recent activity.</p>
-            ) : (
-              <div className="space-y-0.5">
-                {recents.map((c: any) => (
-                  <button
-                    key={c.id}
-                    onClick={() => openCalculator(c.id)}
-                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#EEF1FB] dark:hover:bg-[#1D2438] transition-colors cursor-pointer group text-left"
-                  >
-                    <span className="text-xs text-[#293552] dark:text-[#C9D0EA] truncate">{c.name}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-[#B7C1D9] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Favorites */}
-          <div className="glass-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-[#161A2C] dark:text-[#E7EAF7] flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-[#7C88B8]" /> Favorites
-              </span>
-            </div>
-            {favorites.length === 0 ? (
-              <p className="text-xs text-[#7C88B8]">Star a calculator from any category to keep it here.</p>
-            ) : (
-              <div className="space-y-0.5">
-                {favorites.map((c: any) => (
-                  <button
-                    key={c.id}
-                    onClick={() => openCalculator(c.id)}
-                    className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#EEF1FB] dark:hover:bg-[#1D2438] transition-colors cursor-pointer group text-left"
-                  >
-                    <span className="text-xs text-[#293552] dark:text-[#C9D0EA] truncate">{c.name}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-[#B7C1D9] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Right column */}
+        <div className="space-y-5 min-w-0">
+          <CalendarWidget />
+          <LatestArticlesWidget articles={LATEST_ARTICLES} />
+          <RecentCalculationsWidget items={recentItems} onOpen={openCalculator} />
         </div>
       </section>
+
 
       {/* 1. ARCHITECTURAL STUDIO HERO */}
       <section className="relative overflow-hidden rounded-3xl backdrop-blur-xl backdrop-saturate-150 bg-[#F7F9FF]/70 dark:bg-[#141826]/70 border border-[#DCE3F5] dark:border-[#2A3350] p-6 sm:p-10 lg:p-12 shadow-xs">

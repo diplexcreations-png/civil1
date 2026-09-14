@@ -4,12 +4,11 @@ import {
   Layers, GitCommit, Grid, Server, Anchor, Trello, Compass, TrendingUp, RefreshCw, 
   Sparkles, Check, AlertTriangle, HelpCircle, Save, Share2, Clipboard, Printer, Undo2, 
   ArrowRight, FileText, ListOrdered, Code, FileSpreadsheet, Plus, Trash2, Layout,
-  ChevronDown, ChevronUp, Building2, Copy, BookOpen, Calculator, Box
+  ChevronDown, ChevronUp, Copy, BookOpen, Calculator, Box
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import XLSX from 'xlsx-js-style';
 import { UnitSystem, SavedCalculation, CURRENCY_MAPPING } from '../types';
-import { useProject } from '../context/ProjectContext';
 import { ExportModal } from './ExportModal';
 import { encodeCalculationToUrl, parseCalculationFromUrl, copyShareLinkToClipboard } from '../utils/shareUrl';
 import Visual3DPreview from './Visual3DPreview';
@@ -540,12 +539,9 @@ export default function CalculatorWorkspace({
   const formulaRef = FORMULA_REFERENCES[calculatorId];
   const currencySymbol = CURRENCY_MAPPING[currency]?.symbol || '$';
 
-  // Project BOQ & Sharing State
-  const { addItemToProject, setIsBOQDrawerOpen } = useProject();
+  // Sharing State
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [shareToast, setShareToast] = useState(false);
-  const [projectToast, setProjectToast] = useState(false);
-  const [projectMultiplier, setProjectMultiplier] = useState(1);
 
   // Layout Controls
   const [isVisualPreviewHidden, setIsVisualPreviewHidden] = useState<boolean>(false);
@@ -2338,46 +2334,6 @@ export default function CalculatorWorkspace({
       default:
         return <div className="text-slate-400 p-4">Select an active workspace engineering model.</div>;
     }
-  };
-
-  const handleAddToProject = () => {
-    let conc = 0;
-    let steel = 0;
-    let bricks = 0;
-    let cost = 0;
-
-    if (calculatorId === 'concrete-volume') {
-      conc = outputs.volumeTotal || outputs.volumeRaw || 0;
-      cost = outputs.totalCost || 0;
-    } else if (calculatorId === 'rebar-calculator' || calculatorId === 'steel-calculator') {
-      steel = outputs.totalWeight || 0;
-    } else if (calculatorId === 'brick-calculator') {
-      bricks = outputs.totalBricksWithWaste || 0;
-      conc = outputs.mortarVolumeDry || 0;
-      cost = outputs.grandTotal || 0;
-    } else if (calculatorId === 'structural-beam' || calculatorId === 'structural-column') {
-      steel = outputs.steelArea ? ((outputs.steelArea * 0.00785 * (inputs.span || 3)) / 1000) : 0;
-      conc = outputs.grossArea ? (((outputs.grossArea / 1000000) * (inputs.span || 3))) : 0;
-    }
-
-    addItemToProject({
-      calculatorId,
-      title: `${calcDef?.name || 'Structural Member'}`,
-      category: calcDef?.category || 'structural',
-      quantity: Math.max(1, projectMultiplier),
-      unitSystem,
-      metrics: {
-        concreteM3: parseFloat(conc.toFixed(2)),
-        steelKg: parseFloat(steel.toFixed(1)),
-        bricksCount: Math.round(bricks),
-        cost: parseFloat(cost.toFixed(2)),
-      },
-      inputs,
-      outputs
-    });
-
-    setProjectToast(true);
-    setTimeout(() => setProjectToast(false), 2500);
   };
 
   const handleShareCalculation = async () => {
@@ -5762,43 +5718,8 @@ export default function CalculatorWorkspace({
           </div>
         </div>
 
-        {/* ACTION ROW: Add to Project BOQ + Share + Export */}
+        {/* ACTION ROW: Share + Export */}
         <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
-          {/* Project BOQ Adder Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-2xl bg-orange-50/80 dark:bg-orange-950/20 border border-orange-200/70 dark:border-orange-800/40 gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#f97316] text-white flex items-center justify-center text-xs shadow-xs font-bold shrink-0">
-                <Building2 className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block leading-tight">Add to Project BOQ</span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">Aggregate member into master bill of quantities</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-              <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden px-2 py-1">
-                <span className="text-[10px] font-bold text-slate-400 mr-1.5">Qty</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="999"
-                  value={projectMultiplier}
-                  onChange={e => setProjectMultiplier(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-12 text-center text-xs font-bold bg-transparent outline-none text-slate-800 dark:text-white"
-                  title="Element quantity multiplier (e.g. 6 identical footings)"
-                />
-              </div>
-              <button
-                onClick={handleAddToProject}
-                className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs whitespace-nowrap"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>{projectToast ? 'Added to BOQ!' : '+ Add to Project'}</span>
-              </button>
-            </div>
-          </div>
-
           {/* Export & Share buttons */}
           <div id="print-actions-row" className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
             <button 
